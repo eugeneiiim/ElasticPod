@@ -47,11 +47,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 #import "DetailViewController.h"
 
-
 @implementation DetailViewController
 
 @synthesize detailItem;
-
 
 - (void)viewWillAppear:(BOOL)animated {
     // Update the view with current data before it is displayed
@@ -73,7 +71,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    
     NSInteger rows = 0;
     switch (section) {
         case 0:
@@ -93,7 +90,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
     static NSString *CellIdentifier = @"tvc";
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
@@ -154,6 +150,5 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     }
     return title;
 }
-
 
 @end

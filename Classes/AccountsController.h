@@ -1,8 +1,13 @@
 /*
 
-File: SimpleDrillDownAppDelegate.m
-Abstract: Application delegate that sets up the navigation controller and the
-root view controller.
+File: DataController.h
+
+Abstract:
+A simple controller class responsible for managing the application's data.
+Typically this object would be able to load and save a file containing the
+appliction's data. This example illustrates just the basic minimum: it creates
+an array containing information about some plays and provides simple accessor
+methods for the array and its contents.
 
 Version: 2.6
 
@@ -46,39 +51,15 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 */
 
-#import "EC2PhoneAppDelegate.h"
-#import "RootViewController.h"
-#import "DataController.h"
+#import <UIKit/UIKit.h>
 
-
-@implementation SimpleDrillDownAppDelegate
-
-@synthesize window;
-@synthesize navigationController;
-@synthesize rootViewController;
-@synthesize dataController;
-
-
-- (void)applicationDidFinishLaunching:(UIApplication *)application {
-    
-    // Create the data controller
-    DataController *controller = [[DataController alloc] init];
-    self.dataController = controller;
-    [controller release];
-    
-	rootViewController.dataController = dataController;
-    
-    // Configure the window with its navicationController and then show it
-    [window addSubview:[navigationController view]];
-    [window makeKeyAndVisible];
+@interface AccountsController : NSObject {
+  NSMutableArray *list;
 }
 
-- (void)dealloc {
-    [navigationController release];
-	[rootViewController release];
-    [window release];
-    [dataController release];
-    [super dealloc];
-}
+@property (nonatomic, copy, readwrite) NSMutableArray *list;
+- (unsigned)countOfList;
+- (id)objectInListAtIndex:(unsigned)theIndex;
+- (void)createDemoData;
 
 @end

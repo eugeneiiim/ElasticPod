@@ -51,93 +51,65 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 */
 
-#import "DataController.h"
+#import "AccountsController.h"
 
-
-@interface DataController ()
-@property (nonatomic, copy, readwrite) NSMutableArray *list;
-- (void)createDemoData;
-@end
-
-
-@implementation DataController
+@implementation AccountsController
 
 @synthesize list;
 
-
 - (id)init {
-    if (self = [super init]) {
-        [self createDemoData];
-    }
-    return self;
+	printf("init");
+	
+if (self = [super init]) {
+    [self createDemoData];
+  }
+  return self;
 }
 
 // Custom set accessor to ensure the new list is mutable
 - (void)setList:(NSMutableArray *)newList {
-    if (list != newList) {
-        [list release];
-        list = [newList mutableCopy];
-    }
+  if (list != newList) {
+    [list release];
+    list = [newList mutableCopy];
+  }
 }
 
 // Accessor methods for list
 - (unsigned)countOfList {
-    return [list count];
+  return [list count];
 }
 
 - (id)objectInListAtIndex:(unsigned)theIndex {
-    return [list objectAtIndex:theIndex];
+  return [list objectAtIndex:theIndex];
 }
-
 
 - (void)dealloc {
-    [list release];
-    [super dealloc];
+  [list release];
+  [super dealloc];
 }
 
-
 - (void)createDemoData {
-    
-    /*
-     Create an array containing some demonstration data.
-     Each data item is a dicionary that contains information about a play -- its list of characters, its genre, and its year of publication.  Typically the data would be comprised of instances of custom classes rather than dictionaries, but using dictionaries means fewer distractions in the example.
-     */
-    
+	printf("adding stuff to array");
+	
     NSMutableArray *playList = [[NSMutableArray alloc] init];
     NSMutableDictionary *dictionary;
     NSMutableDictionary *characters;
-    NSDateComponents *dateComponents = [[NSDateComponents alloc] init];
     NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
-    NSDate *date;
-    
+
     characters = [[NSArray alloc] initWithObjects:@"Antony", @"Artemidorus", @"Brutus", @"Caesar", @"Calpurnia", @"Casca", @"Cassius", @"Cicero", @"Cinna", @"Cinna the Poet", @"Citizens", @"Claudius", @"Clitus", @"Dardanius", @"Decius Brutus", @"First Citizen", @"First Commoner", @"First Soldier", @"Flavius", @"Fourth Citizen", @"Lepidus", @"Ligarius", @"Lucilius", @"Lucius", @"Marullus", @"Messala", @"Messenger", @"Metellus Cimber", @"Octavius", @"Pindarus", @"Poet", @"Popilius", @"Portia", @"Publius", @"Second Citizen", @"Second Commoner", @"Second Soldier", @"Servant", @"Soothsayer", @"Strato", @"Third Citizen", @"Third Soldier", @"Tintinius", @"Trebonius", @"Varro", @"Volumnius", @"Young Cato", nil];
-    [dateComponents setYear:1599];
-    date = [calendar dateFromComponents:dateComponents];
-    dictionary = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"Julius Caesar", @"title", characters, @"mainCharacters", date, @"date", @"Tragedy", @"genre", nil];
+    dictionary = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"Account 1", @"title", characters, @"mainCharacters", @"Tragedy", @"genre", nil];
     [playList addObject:dictionary];
     [dictionary release];
     [characters release];
-    
+
     characters = [[NSArray alloc] initWithObjects:@"Captain", @"Cordelia", @"Curan", @"Doctor", @"Duke of Albany", @"Duke of Burgundy", @"Duke of Cornwall", @"Earl of Gloucester", @"Earl of Kent", @"Edgar", @"Edmund", @"Fool", @"Gentleman", @"Goneril", @"Herald", @"King of France", @"Knight", @"Lear", @"Messenger", @"Old Man", @"Oswald", @"Regan", @"Servant 1", @"Servant 2", @"Servant 3", nil];
-    [dateComponents setYear:1605];
-    date = [calendar dateFromComponents:dateComponents];
-    dictionary = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"King Lear", @"title", characters, @"mainCharacters", date, @"date", @"Tragedy", @"genre", nil];
+    dictionary = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"Account 2", @"title", characters, @"mainCharacters", @"Tragedy", @"genre", nil];
     [playList addObject:dictionary];
     [dictionary release];
     [characters release];
-    
-    characters = [[NSArray alloc] initWithObjects:@"Bianca", @"Brabantio", @"Cassio", @"Clown", @"Desdemona", @"Duke of Venice", @"Emilia", @"First Gentleman", @"First Musician", @"First Officer", @"First Senator", @"Fourth Gentleman", @"Gentleman", @"Gratiano", @"Herald", @"Iago", @"Lodovico, Kinsman to Brabantio", @"Messenger", @"Montano", @"Othello", @"Roderigo", @"Sailor", @"Second Gentleman", @"Second Senator", @"Third Gentleman", nil];
-    [dateComponents setYear:1604];
-    date = [calendar dateFromComponents:dateComponents];
-    dictionary = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"Othello", @"title", characters, @"mainCharacters", date, @"date", @"Tragedy", @"genre", nil];
-    [playList addObject:dictionary];
-    [dictionary release];
-    [characters release];
-    
 
     self.list = playList;
     [playList release];
-    [dateComponents release];
     [calendar release];
 }
 

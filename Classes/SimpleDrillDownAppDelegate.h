@@ -1,13 +1,8 @@
 /*
 
-File: DataController.h
-
-Abstract:
-A simple controller class responsible for managing the application's data.
-Typically this object would be able to load and save a file containing the
-appliction's data. This example illustrates just the basic minimum: it creates
-an array containing information about some plays and provides simple accessor
-methods for the array and its contents.
+File: SimpleDrillDownAppDelegate.h
+Abstract: Application delegate that sets up the navigation controller and the
+root view controller.
 
 Version: 2.6
 
@@ -53,12 +48,23 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 #import <UIKit/UIKit.h>
 
+@class AccountsController;
+@class RootViewController;
 
-@interface DataController : NSObject {
-    NSMutableArray *list;
+@interface SimpleDrillDownAppDelegate : NSObject <UIApplicationDelegate> {
+	IBOutlet UIWindow *window;
+
+	IBOutlet UINavigationController *navigationController;
+	IBOutlet RootViewController *rootViewController;
+	IBOutlet UIBarButtonItem* add_account_button;
+
+    AccountsController *dataController;
 }
 
-- (unsigned)countOfList;
-- (id)objectInListAtIndex:(unsigned)theIndex;
+@property (nonatomic, retain) UIWindow *window;
+@property (nonatomic, retain) UINavigationController *navigationController;
+@property (nonatomic, retain) RootViewController *rootViewController;
+
+@property (nonatomic, retain) AccountsController *dataController;
 
 @end

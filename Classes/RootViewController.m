@@ -46,9 +46,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 */
 
 #import "RootViewController.h"
-#import "DataController.h"
+#import "AccountsController.h"
 #import "DetailViewController.h"
-
+#import "InstanceGroupSetViewController.h"
 
 @implementation RootViewController
 
@@ -70,35 +70,37 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyIdentifier"];
-    if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"MyIdentifier"] autorelease];
-        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-    }
+  if (cell == nil) {
+    cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"MyIdentifier"] autorelease];
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+  }
     
-    // Get the object to display and set the value in the cell
-    NSDictionary *itemAtIndex = (NSDictionary *)[dataController objectInListAtIndex:indexPath.row];
-    cell.text = [itemAtIndex objectForKey:@"title"];
-    return cell;
+  // Get the object to display and set the value in the cell
+  NSDictionary *itemAtIndex = (NSDictionary *)[dataController objectInListAtIndex:indexPath.row];
+  cell.text = [itemAtIndex objectForKey:@"title"];
+  return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    /*
-     Create the detail view controller and set its inspected item to the currently-selected item
-     */
-    DetailViewController *detailViewController = [[DetailViewController alloc] initWithStyle:UITableViewStyleGrouped];
-    
-    detailViewController.detailItem = [dataController objectInListAtIndex:indexPath.row];
-    
-    // Push the detail view controller
-    [[self navigationController] pushViewController:detailViewController animated:YES];
-    [detailViewController release];
+    /* Create the detail view controller and set its inspected item to the currently-selected item */
+	//DetailViewController *detailViewController = [[DetailViewController alloc] initWithStyle:UITableViewStyleGrouped];
+	//detailViewController.detailItem = [dataController objectInListAtIndex:indexPath.row];
+	// [[self navigationController] pushViewController:detailViewController animated:YES];
+	
+    InstanceGroupSetViewController* igsvc = [[InstanceGroupSetViewController alloc] initWithStyle:UITableViewStylePlain];
+	AWSAccount* acct = [[AWSAccount alloc] init:@"asdf" secret_key:@"zxcv"];
+	igsvc.dataController = [[InstanceGroupSetDataController alloc] init:acct];
+
+	//UIBarButtonItem* add_group_button = [[UIBarButtonItem alloc] initWithTitle:@"Plus1" style:UIBarButtonItemStyleBordered target:self action:@selector(addInstanceGroup:)];
+	
+	[[self navigationController] pushViewController:igsvc animated:YES];
+
+	[igsvc release];
+	//[detailViewController release];
 }
 
 - (void)dealloc {
-    
     [dataController release];
     [super dealloc];
 }

@@ -1,6 +1,6 @@
 /*
 
-File: SimpleDrillDownAppDelegate.h
+File: SimpleDrillDownAppDelegate.m
 Abstract: Application delegate that sets up the navigation controller and the
 root view controller.
 
@@ -46,25 +46,40 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 */
 
-#import <UIKit/UIKit.h>
+#import "SimpleDrillDownAppDelegate.h"
+#import "RootViewController.h"
+#import "AccountsController.h"
 
-@class DataController;
-@class RootViewController;
+@implementation SimpleDrillDownAppDelegate
 
-@interface SimpleDrillDownAppDelegate : NSObject <UIApplicationDelegate> {
-	
-	IBOutlet UIWindow *window;
-	
-	IBOutlet UINavigationController *navigationController;
-	IBOutlet RootViewController *rootViewController;
-	
-    DataController *dataController;
+@synthesize window;
+@synthesize navigationController;
+@synthesize rootViewController;
+@synthesize dataController;
+
+- (void)applicationDidFinishLaunching:(UIApplication *)application {
+    // Create the data controller
+    AccountsController *controller = [[AccountsController alloc] init];
+    self.dataController = controller;
+    [controller release];
+    
+	rootViewController.dataController = dataController;
+    
+    // Configure the window with its navicationController and then show it
+    [window addSubview:[navigationController view]];
+    [window makeKeyAndVisible];
 }
 
-@property (nonatomic, retain) UIWindow *window;
-@property (nonatomic, retain) UINavigationController *navigationController;
-@property (nonatomic, retain) RootViewController *rootViewController;
+- (IBAction)addAccount:(id)sender {
+	printf("TODO go to account screen");
+}
 
-@property (nonatomic, retain) DataController *dataController;
+- (void)dealloc {
+    [navigationController release];
+	[rootViewController release];
+    [window release];
+    [dataController release];
+    [super dealloc];
+}
 
 @end

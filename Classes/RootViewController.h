@@ -47,12 +47,12 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 #import <UIKit/UIKit.h>
 
-@class DataController;
+@class AccountsController;
 
 @interface RootViewController : UITableViewController {
-    DataController *dataController;
+  AccountsController *dataController;
 }
 
-@property (nonatomic, retain) DataController *dataController;
+@property (nonatomic, retain) AccountsController *dataController;
 
 @end

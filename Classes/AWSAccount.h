@@ -9,12 +9,16 @@
 #import <UIKit/UIKit.h>
 
 @interface AWSAccount : NSObject {
+	NSString* name;
 	NSString* access_key;
 	NSString* secret_key;
 }
 
+@property (nonatomic, copy, readwrite) NSString *name;
 @property (nonatomic, copy, readwrite) NSString *access_key;
 @property (nonatomic, copy, readwrite) NSString *secret_key;
-- (id)init:(NSString*)ak secret_key:(NSString*)sk;
+
+- (id)initWithName:(NSString*)name accessKey:(NSString*)ak secretKey:(NSString*)sk;
++ (id)accountWithName:(NSString*)name_ accessKey:(NSString*)ak secretKey:(NSString*)sk;
 
 @end

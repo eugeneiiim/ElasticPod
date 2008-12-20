@@ -47,62 +47,139 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 #import "RootViewController.h"
 #import "AccountsController.h"
-#import "DetailViewController.h"
 #import "InstanceGroupSetViewController.h"
+#import "AddAccountViewController.h"
 
 @implementation RootViewController
 
-@synthesize dataController;
+@synthesize dataController, toolbar;
 
-- (void)awakeFromNib {
-	self.title = NSLocalizedString(@"Accounts", @"Master view navigation title");
+- (void)viewDidLoad {
+	self.title = @"AWS Accounts";
+	self.navigationItem.rightBarButtonItem = self.editButtonItem;
+
+	// Set up toolbar.
+	toolbar = [[UIToolbar alloc] init];
+	toolbar.barStyle = UIBarStyleDefault;
+	[toolbar sizeToFit];
+	CGFloat toolbarHeight = [toolbar frame].size.height;
+	CGRect rootViewBounds = self.parentViewController.view.bounds;
+	CGFloat rootViewHeight = CGRectGetHeight(rootViewBounds);
+	CGFloat rootViewWidth = CGRectGetWidth(rootViewBounds);
+	CGRect rectArea = CGRectMake(0, rootViewHeight - toolbarHeight, rootViewWidth, toolbarHeight);
+	[toolbar setFrame:rectArea];	
+
+	UIBarButtonItem* refresh_button = [[UIBarButtonItem alloc]
+									   initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
+										target:self action:@selector(refreshButtonHandler:)];
+	UIBarButtonItem* spacer = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:self action:nil];
+	UIBarButtonItem* add_account_button = [[UIBarButtonItem alloc]
+										   initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self
+										   action:@selector(addButtonHandler:)];
+	[toolbar setItems:[NSArray arrayWithObjects:refresh_button,spacer,add_account_button,nil]];
+	[refresh_button release];
+	[spacer release];
+	[add_account_button release];
+	[self.navigationController.view addSubview:toolbar];
+
+	// Add spinner/activity indicator.
+	activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+	CGFloat spinnerWidth = CGRectGetWidth(activityIndicator.bounds);
+	rectArea = CGRectMake(rootViewWidth/2 - spinnerWidth/2, rootViewHeight/2 - spinnerWidth/2, spinnerWidth, spinnerWidth);
+	[activityIndicator setFrame:rectArea];
+	[self.navigationController.view addSubview:activityIndicator];
+	//[activityIndicator startAnimating];
+
+	self.tableView.allowsSelectionDuringEditing = TRUE;
+	[super viewDidLoad];
 }
 
-// Standard table view data source and delegate methods
+- (void)viewWillAppear:(BOOL)animated {
+    [self.tableView reloadData];
+    [super viewWillAppear:animated];
+}
+
+- (void)add {
+	[self addAccount];
+}
+
+- (IBAction)addButtonHandler:(id)sender {
+	[[self.navigationController topViewController] add];
+}
+
+- (IBAction)refreshButtonHandler:(id)sender {
+	[[self.navigationController topViewController] refresh];
+}
+
+- (void)refresh {
+	[self.tableView reloadData];
+}
+
+- (void)addAccount {
+	AddAccountViewController* c = [[AddAccountViewController alloc] initWithStyle:UITableViewStyleGrouped];
+	c.accountsController = dataController;
+	[[self navigationController] pushViewController:c animated:YES];
+	[c release];
+}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    // Only one section so return the number of items in the list
     return [dataController countOfList];
 }
 
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    return TRUE;
+}
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyIdentifier"];
-  if (cell == nil) {
-    cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"MyIdentifier"] autorelease];
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-  }
-    
-  // Get the object to display and set the value in the cell
-  NSDictionary *itemAtIndex = (NSDictionary *)[dataController objectInListAtIndex:indexPath.row];
-  cell.text = [itemAtIndex objectForKey:@"title"];
-  return cell;
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyIdentifier"];
+	if (cell == nil) {
+		cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"MyIdentifier"] autorelease];
+		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+	}
+	
+	AWSAccount* itemAtIndex = (AWSAccount*)[dataController objectInListAtIndex:indexPath.row];
+	cell.text = [itemAtIndex name];
+	cell.hidesAccessoryWhenEditing = NO;
+	
+	return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    /* Create the detail view controller and set its inspected item to the currently-selected item */
-	//DetailViewController *detailViewController = [[DetailViewController alloc] initWithStyle:UITableViewStyleGrouped];
-	//detailViewController.detailItem = [dataController objectInListAtIndex:indexPath.row];
-	// [[self navigationController] pushViewController:detailViewController animated:YES];
-	
-    InstanceGroupSetViewController* igsvc = [[InstanceGroupSetViewController alloc] initWithStyle:UITableViewStylePlain];
-	AWSAccount* acct = [[AWSAccount alloc] init:@"asdf" secret_key:@"zxcv"];
-	igsvc.dataController = [[InstanceGroupSetDataController alloc] init:acct];
+	if (self.editing) {
+		AddAccountViewController* c = [[AddAccountViewController alloc] initWithStyle:UITableViewStyleGrouped];
+		c.accountsController = dataController;
+		c.account = [dataController objectInListAtIndex:indexPath.row];
+		[[self navigationController] pushViewController:c animated:YES];
+		[c release];
+	} else {
+		InstanceGroupSetViewController* igsvc = [[InstanceGroupSetViewController alloc] initWithStyle:UITableViewStylePlain];
+		AWSAccount* acct = [dataController objectInListAtIndex:indexPath.row];
+		EC2DataController* ec2ctrl = [dataController ec2ControllerForAccount:[acct name]];
+		igsvc.ec2Controller = ec2ctrl;
+		igsvc.dataController = [[InstanceGroupSetDataController alloc] initWithAccount:acct viewController:igsvc ec2Controller:ec2ctrl];
 
-	//UIBarButtonItem* add_group_button = [[UIBarButtonItem alloc] initWithTitle:@"Plus1" style:UIBarButtonItemStyleBordered target:self action:@selector(addInstanceGroup:)];
-	
-	[[self navigationController] pushViewController:igsvc animated:YES];
-
-	[igsvc release];
-	//[detailViewController release];
+		[[self navigationController] pushViewController:igsvc animated:YES];
+		[igsvc release];
+	}
 }
 
 - (void)dealloc {
     [dataController release];
     [super dealloc];
+}
+
+- (UITableViewCellEditingStyle)tableView: (UITableView *)tableView editingStyleForRowAtIndexPath: (NSIndexPath *)indexPath { 
+	return UITableViewCellEditingStyleDelete;
+}
+
+- (void)tableView:(UITableView *)aTableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+	// Remove this account.
+	[dataController removeAccountAtIndex:indexPath.row];
+	[self.tableView reloadData];
 }
 
 @end

@@ -7,21 +7,20 @@
 //
 
 #import "InstanceViewController.h"
+#import "EC2Instance.h"
+#import "ButtonCell.h"
 
 @implementation InstanceViewController
 
-/*
-- (id)initWithStyle:(UITableViewStyle)style {
-    // Override initWithStyle: if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
-    if (self = [super initWithStyle:style]) {
-    }
-    return self;
+@synthesize instance, ec2Controller;
+
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+    return TRUE;
 }
-*/
 
 // Implement viewDidLoad to do additional setup after loading the view.
 - (void)viewDidLoad {
-	// "Segmented" control to the right
+	// Up/down arrows
 	UISegmentedControl *segmentedControl = [[[UISegmentedControl alloc] initWithItems:
 											 [NSArray arrayWithObjects:
 											  [UIImage imageNamed:@"up.png"],
@@ -35,147 +34,138 @@
 	UIBarButtonItem *segmentBarItem = [[[UIBarButtonItem alloc] initWithCustomView:segmentedControl] autorelease];
 	self.navigationItem.rightBarButtonItem = segmentBarItem;
 
-	self.title = NSLocalizedString(@"i-????????", @"Master view navigation title");
+	self.title = NSLocalizedString([instance getProperty:@"instanceId"], @"Master view navigation title");
     
 	[super viewDidLoad];
 }
 
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 3;
+    return 2;
 }
 
-
-/*
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+	switch (indexPath.section) {
+		case 0:
+			switch (indexPath.row) {
+				case 0:
+					// Reboot
+					[ec2Controller rebootInstances:[NSArray arrayWithObject:instance]];
+					break;
+				case 1:
+					// Terminate
+					[ec2Controller terminateInstances:[NSArray arrayWithObject:instance]];
+					break;
+				default:
+					return;
+			}
+			break;
+		default:
+			return;
+	}
 }
-*/
-
-/*
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-    }
-    if (editingStyle == UITableViewCellEditingStyleInsert) {
-    }
-}
-*/
-
-/*
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return YES;
-}
-*/
-
-/*
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
-}
-*/
-
-/*
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
-    return YES;
-}
-*/
-
-
-/*
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-}
-*/
-/*
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-}
-*/
-/*
-- (void)viewWillDisappear:(BOOL)animated {
-}
-*/
-/*
-- (void)viewDidDisappear:(BOOL)animated {
-}
-*/
-/*
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-}
-*/
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSInteger rows = 0;
     switch (section) {
-        case 0:
+		case 0:
+			return 2;
         case 1:
-            // For genre and date there is just one row
-            rows = 1;
-            break;
-        case 2:
-            // For the characters section, there are as many rows as there are characters
-            rows = 3;
-            break;
+			return 11;
         default:
-            break;
+			return -1;
     }
-    return rows;
+}
+
+- (void)refresh {
+	[self.tableView reloadData];
+}
+
+- (void)add {
+	printf("TODO this action should not be allowed (doesn't make sense here)...\n");
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    static NSString *CellIdentifier = @"tvc";
-    
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
-        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+	//UITableViewCell* cell;// = [tableView dequeueReusableCellWithIdentifier:@"tvc"];
+	UITableViewCell* cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"tvc"] autorelease];
+	
+	switch(indexPath.section) {
+		case 0:
+			cell.accessoryType = UITableViewCellAccessoryNone;
+			cell.textAlignment = UITextAlignmentCenter;
+			
+			// Controls -- reboot and terminate buttons
+			switch (indexPath.row) {
+				case 0:
+					cell.text = @"Reboot";
+					break;
+				case 1:
+					cell.text = @"Terminate";
+					break;
+			}
+			
+			return cell;
+
+		case 1:			
+			cell.selectionStyle = UITableViewCellSelectionStyleNone;
+			NSString *cellText = nil;
+
+			// Information
+			switch (indexPath.row) {
+				case 0:
+					cellText = [[NSString alloc] initWithFormat:@"Instance ID: %@", [instance getProperty:@"instanceId"]];
+					break;
+				case 1:
+					cellText = [[NSString alloc] initWithFormat:@"Image ID: %@", [instance getProperty:@"imageId"]];
+					break;
+				case 2:
+					cellText = [[NSString alloc] initWithFormat:@"State: %@", [instance getProperty:@"state"]];
+					break;
+				case 3:
+					cellText = [[NSString alloc] initWithFormat:@"Private DNS: %@", [instance getProperty:@"privateDnsName"]];
+					break;
+				case 4:
+					cellText = [[NSString alloc] initWithFormat:@"DNS: %@", [instance getProperty:@"dnsName"]];
+					break;
+				case 5:
+					cellText = [[NSString alloc] initWithFormat:@"Key: %@", [instance getProperty:@"keyName"]];
+					break;
+				case 6:
+					cellText = [[NSString alloc] initWithFormat:@"Type: %@", [instance getProperty:@"instanceType"]];
+					break;
+				case 7:
+					cellText = [[NSString alloc] initWithFormat:@"Launch time: %@", [instance getProperty:@"launchTime"]];
+					break;
+				case 8:
+					cellText = [[NSString alloc] initWithFormat:@"Placement: %@", [instance getProperty:@"placement"]];
+					break;
+				case 9:
+					cellText = [[NSString alloc] initWithFormat:@"Kernel ID: %@", [instance getProperty:@"kernelId"]];
+					break;
+				case 10:
+					cellText = [[NSString alloc] initWithFormat:@"Ramdisk: %@", [instance getProperty:@"ramdiskId"]];
+					break;
+				default:
+					break;
+			}
+			
+			cell.text = cellText;
+			return cell;
+
+		default:
+			return nil;
+			break;
     }
-    
-    // Cache a date formatter to create a string representation of the date object
-    static NSDateFormatter *dateFormatter = nil;
-    if (dateFormatter == nil) {
-        dateFormatter = [[NSDateFormatter alloc] init];
-        [dateFormatter setDateFormat:@"yyyy"];
-    }
-    
-    // Set the text in the cell for the section/row
-    
-    NSString *cellText = nil;
-    
-    switch (indexPath.section) {
-        case 0:
-            cellText = @"blah";
-            break;
-        case 1:
-            cellText = @"blah2";
-            break;
-        case 2:
-            cellText = @"blah3";
-            break;
-        default:
-            break;
-    }
-    
-    cell.text = cellText;
-    return cell;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    
-    NSString *title = nil;
-    switch (section) {
-        case 0:
-            title = NSLocalizedString(@"Date", @"Date section title");
-            break;
-        case 1:
-            title = NSLocalizedString(@"Genre", @"Genre section title");
-            break;
-        case 2:
-            title = NSLocalizedString(@"Main Characters", @"Main Characters section title");
-            break;
-        default:
-            break;
-    }
-    return title;
+	switch (section) {
+		case 0:
+			return @"Controls";
+		case 1:
+			return @"Info";
+		default:
+			return nil;
+	}
 }
 
 - (void)dealloc {

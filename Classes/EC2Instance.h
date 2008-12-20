@@ -9,10 +9,13 @@
 #import <UIKit/UIKit.h>
 
 @interface EC2Instance : NSObject {
-	NSString* instanceId;
+	NSMutableDictionary* instanceProperties;
 }
 
-@property (nonatomic, copy, readwrite) NSString* instanceId;
-- (id)init:(NSString*)id_;
+@property (nonatomic, copy, readwrite) NSMutableDictionary* instanceProperties;
+
+- (id)init;
+- (NSString*)getProperty:(NSString*)key;
+- (void)addProperty:(NSString*)key value:(NSString*)value;
 
 @end

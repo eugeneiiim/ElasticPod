@@ -10,13 +10,19 @@
 
 @implementation EC2Instance
 
-@synthesize instanceId;
+@synthesize instanceProperties;
 
-- (id)init:(NSString*)id_ {
-	instanceId = id_;
+- (id)init {
+	instanceProperties = [[NSMutableDictionary alloc] init];
 	return self;
 }
 
+- (void)addProperty:(NSString*)key value:(NSString*)value {
+	[instanceProperties setValue:value forKey:key];
+}
 
+- (NSString*)getProperty:(NSString*)key {
+	return [instanceProperties valueForKey:key];
+}
 
 @end

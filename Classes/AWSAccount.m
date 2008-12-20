@@ -10,10 +10,14 @@
 
 @implementation AWSAccount
 
-@synthesize access_key;
-@synthesize secret_key;
+@synthesize name, access_key, secret_key;
 
-- (id)init:(NSString*)ak secret_key:(NSString*)sk {
++ (id)accountWithName:(NSString*)name_ accessKey:(NSString*)ak secretKey:(NSString*)sk {
+	return [[[AWSAccount alloc] initWithName:[name_ copy] accessKey:[ak copy] secretKey:[sk copy]] autorelease];
+}
+
+- (id)initWithName:(NSString*)name_ accessKey:(NSString*)ak secretKey:(NSString*)sk {
+	name = name_;
 	access_key = ak;
 	secret_key = sk;
 	return self;

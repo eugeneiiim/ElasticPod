@@ -8,38 +8,43 @@
 
 #import "InstanceGroupDataController.h"
 #import "EC2Instance.h"
+#import	"AWSAccount.h"
+#import "EC2DataController.h"
 
 @implementation InstanceGroupDataController
 
-@synthesize list;
-@synthesize instance_group;
+@synthesize instance_group, viewController, inReservationElement, account, lastElementName, urlreq_data, curInst, ec2Controller;
 
-- (id)init:(EC2InstanceGroup*)grp {
-  if (self = [super init]) {
-    [self requestInstanceGroupInstances];
-  }
+- (id)init:(NSString*)grp viewController:(InstanceGroupViewController*)vc account:(AWSAccount*)a ec2Controller:(EC2DataController*)ec2ctrl {
+	instance_group = grp;
+	viewController = vc;
+	account = a;
+	ec2Controller = ec2ctrl;
 
-  instance_group = grp;
-  return self;
+//	if (self = [super init]) {	}
+	
+	return self;
+}
+
+- (NSArray*)list {
+	return [ec2Controller getInstancesForGroup:instance_group];
 }
 
 - (unsigned)countOfList {
-  return [list count];
+	return [[self list] count];
 }
 
-- (id)objectInListAtIndex:(unsigned)theIndex {
-  return [list objectAtIndex:theIndex];
+- (void)refresh {
 }
 
-- (void)requestInstanceGroupInstances {
-  // TODO request instances for this group
-  NSMutableArray* instanceList = [[NSMutableArray alloc] init];
-  EC2Instance* i = [[EC2Instance alloc] init:@"qweqwerqwerqewr"];
+- (EC2Instance*)objectInListAtIndex:(unsigned)theIndex {
+	NSLog(@"instance id returned: %@", [[[self list] objectAtIndex:theIndex] getProperty:@"instanceId"]);
+	return [[self list] objectAtIndex:theIndex];
+}
 
-  [instanceList addObject:i];
-  self.list = instanceList;
-
-  [instanceList release];
+- (void)removeInstanceAtIndex:(NSInteger)index {
+	EC2Instance* inst = [[self list] objectAtIndex:index];
+	[ec2Controller terminateInstances:[NSArray arrayWithObject:inst]];
 }
 
 @end

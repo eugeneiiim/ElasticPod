@@ -52,14 +52,24 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 */
 
 #import <UIKit/UIKit.h>
+#import "AWSAccount.h"
+#import "EC2DataController.h"
 
 @interface AccountsController : NSObject {
-  NSMutableArray *list;
+	NSMutableDictionary* nameToAccount;
+	NSMutableDictionary* accountEc2Controllers;
 }
 
-@property (nonatomic, copy, readwrite) NSMutableArray *list;
+@property (nonatomic, assign, readwrite) NSMutableDictionary* nameToAccount;
+@property (nonatomic, assign, readwrite) NSMutableDictionary* accountEc2Controllers;
+
 - (unsigned)countOfList;
 - (id)objectInListAtIndex:(unsigned)theIndex;
-- (void)createDemoData;
+- (void)loadAccounts;
+- (void)saveAccounts;
+- (void)addAccount:(AWSAccount*)acct;
+- (void)removeAccountAtIndex:(NSInteger)index;
+- (void)updateAccount:(NSString*)prev_name newAccount:(AWSAccount*)new;
+- (EC2DataController*)ec2ControllerForAccount:(NSString*)acct;
 
 @end

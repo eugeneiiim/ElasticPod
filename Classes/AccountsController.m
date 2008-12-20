@@ -52,65 +52,112 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 */
 
 #import "AccountsController.h"
+#import "EC2DataController.h"
+
+#define EC2PHONE_ACCOUNTS @"EC2PHONE_ACCOUNTS"
 
 @implementation AccountsController
 
-@synthesize list;
+@synthesize nameToAccount, accountEc2Controllers;
 
 - (id)init {
 	printf("init");
 	
-if (self = [super init]) {
-    [self createDemoData];
-  }
-  return self;
+	if (self = [super init]) {
+		[self loadAccounts];
+	}
+	return self;
 }
 
-// Custom set accessor to ensure the new list is mutable
-- (void)setList:(NSMutableArray *)newList {
-  if (list != newList) {
-    [list release];
-    list = [newList mutableCopy];
-  }
+- (void)addAccount:(AWSAccount*)acct {
+	AWSAccount* existing = [self.nameToAccount objectForKey:[acct name]];
+	if (existing) {
+		printf("ERROR name conflict!\n");
+		/*
+		 		// TODO pop up warning message -- overwrite existing?
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Account exists" message:@"Account named ASDF already exists. Overwrite?"
+													   delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"other"];
+		[alert show];*/
+	}
+
+	[self.nameToAccount setValue:acct forKey:acct.name];
+	EC2DataController* c = [[EC2DataController alloc] initWithAccount:acct];
+	[c refreshInstanceData];
+	[self.accountEc2Controllers setValue:c forKey:acct.name];
+	[self saveAccounts];
+}
+
+- (void)updateAccount:(NSString*)prev_name newAccount:(AWSAccount*)new {
+	[self.nameToAccount removeObjectForKey:prev_name];
+	[self.nameToAccount setValue:new forKey:[new name]];
+	[self saveAccounts];
+}
+
+- (EC2DataController*)ec2ControllerForAccount:(NSString*)acct {
+	return [self.accountEc2Controllers valueForKey:acct];
 }
 
 // Accessor methods for list
 - (unsigned)countOfList {
-  return [list count];
+	return [[nameToAccount allKeys] count];
 }
 
 - (id)objectInListAtIndex:(unsigned)theIndex {
-  return [list objectAtIndex:theIndex];
+	return [[nameToAccount allValues] objectAtIndex:theIndex];
 }
 
 - (void)dealloc {
-  [list release];
-  [super dealloc];
+	[nameToAccount release];
+	[super dealloc];
 }
 
-- (void)createDemoData {
-	printf("adding stuff to array");
+- (void)saveAccounts {
+	NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+	for (NSString* name in [nameToAccount allKeys]) {
+		AWSAccount* acct = [nameToAccount objectForKey:name];
+		NSDictionary* d = [NSDictionary dictionaryWithObjectsAndKeys:[acct secret_key],@"secret",[acct access_key],@"access",nil];
+		[dict setValue:d forKey:[acct name]];
+	}
+
+	NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+	[userDefaults setObject:dict forKey:EC2PHONE_ACCOUNTS];
+	[userDefaults synchronize];
+}
+
+- (void)loadAccounts {
+	NSLog(@"loadaccounts");	
 	
-    NSMutableArray *playList = [[NSMutableArray alloc] init];
-    NSMutableDictionary *dictionary;
-    NSMutableDictionary *characters;
-    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+	NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+	NSDictionary* accounts = [userDefaults dictionaryForKey:EC2PHONE_ACCOUNTS];
+	
+	/*
+	if (accounts == nil) {
+		accounts = [NSDictionary dictionaryWithObjectsAndKeys:[NSDictionary dictionaryWithObjectsAndKeys:@"ACCESSKEY",@"access",@"SECRETKEY",@"secret",nil],@"Eugene",nil];
+		[userDefaults setObject:accounts forKey:EC2PHONE_ACCOUNTS];
+		[userDefaults synchronize];
+	}*/
 
-    characters = [[NSArray alloc] initWithObjects:@"Antony", @"Artemidorus", @"Brutus", @"Caesar", @"Calpurnia", @"Casca", @"Cassius", @"Cicero", @"Cinna", @"Cinna the Poet", @"Citizens", @"Claudius", @"Clitus", @"Dardanius", @"Decius Brutus", @"First Citizen", @"First Commoner", @"First Soldier", @"Flavius", @"Fourth Citizen", @"Lepidus", @"Ligarius", @"Lucilius", @"Lucius", @"Marullus", @"Messala", @"Messenger", @"Metellus Cimber", @"Octavius", @"Pindarus", @"Poet", @"Popilius", @"Portia", @"Publius", @"Second Citizen", @"Second Commoner", @"Second Soldier", @"Servant", @"Soothsayer", @"Strato", @"Third Citizen", @"Third Soldier", @"Tintinius", @"Trebonius", @"Varro", @"Volumnius", @"Young Cato", nil];
-    dictionary = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"Account 1", @"title", characters, @"mainCharacters", @"Tragedy", @"genre", nil];
-    [playList addObject:dictionary];
-    [dictionary release];
-    [characters release];
+	self.nameToAccount = [[NSMutableDictionary alloc] init];
+	self.accountEc2Controllers = [[NSMutableDictionary alloc] init];
 
-    characters = [[NSArray alloc] initWithObjects:@"Captain", @"Cordelia", @"Curan", @"Doctor", @"Duke of Albany", @"Duke of Burgundy", @"Duke of Cornwall", @"Earl of Gloucester", @"Earl of Kent", @"Edgar", @"Edmund", @"Fool", @"Gentleman", @"Goneril", @"Herald", @"King of France", @"Knight", @"Lear", @"Messenger", @"Old Man", @"Oswald", @"Regan", @"Servant 1", @"Servant 2", @"Servant 3", nil];
-    dictionary = [[NSMutableDictionary alloc] initWithObjectsAndKeys:@"Account 2", @"title", characters, @"mainCharacters", @"Tragedy", @"genre", nil];
-    [playList addObject:dictionary];
-    [dictionary release];
-    [characters release];
+	if (accounts != nil) {
+		for (NSString* a in [accounts allKeys]) {
+			NSDictionary* dict = [accounts valueForKey:a];
+			AWSAccount* acct = [AWSAccount accountWithName:a accessKey:[dict valueForKey:@"access"] secretKey:[dict valueForKey:@"secret"]];
+			[self.nameToAccount setValue:acct forKey:a];
 
-    self.list = playList;
-    [playList release];
-    [calendar release];
+			EC2DataController* c = [[EC2DataController alloc] initWithAccount:acct];
+			[c refreshInstanceData];
+			[self.accountEc2Controllers setValue:c forKey:acct.name];
+		}
+	}
+}
+
+- (void)removeAccountAtIndex:(NSInteger)index {
+	AWSAccount* acct = [[self.nameToAccount allValues] objectAtIndex:index];
+	[self.nameToAccount removeObjectForKey:[acct name]];
+	[self.accountEc2Controllers removeObjectForKey:[acct name]];
+	[self saveAccounts];
 }
 
 @end

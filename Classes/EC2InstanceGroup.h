@@ -13,6 +13,7 @@
 }
 
 @property (nonatomic, copy, readwrite) NSString* instanceGroupId;
+
 - (id)initWithInstanceGroupId:(NSString*)group_id;
 
 @end

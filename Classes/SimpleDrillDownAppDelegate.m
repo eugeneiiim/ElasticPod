@@ -49,29 +49,21 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 #import "SimpleDrillDownAppDelegate.h"
 #import "RootViewController.h"
 #import "AccountsController.h"
+#import "AddAccountViewController.h"
 
 @implementation SimpleDrillDownAppDelegate
 
-@synthesize window;
-@synthesize navigationController;
-@synthesize rootViewController;
-@synthesize dataController;
+@synthesize window, navigationController, rootViewController, dataController;
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
     // Create the data controller
-    AccountsController *controller = [[AccountsController alloc] init];
-    self.dataController = controller;
-    [controller release];
-    
+    self.dataController = [[AccountsController alloc] init];;
+
 	rootViewController.dataController = dataController;
     
     // Configure the window with its navicationController and then show it
     [window addSubview:[navigationController view]];
     [window makeKeyAndVisible];
-}
-
-- (IBAction)addAccount:(id)sender {
-	printf("TODO go to account screen");
 }
 
 - (void)dealloc {

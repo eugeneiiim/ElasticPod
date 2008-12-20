@@ -8,9 +8,16 @@
 
 #import <UIKit/UIKit.h>
 
+#import "EC2Instance.h"
+#import "EC2DataController.h"
 
 @interface InstanceViewController : UITableViewController {
-
+	EC2Instance* instance;
+	EC2DataController* ec2Controller;
 }
+
+@property (nonatomic, readwrite, assign) EC2Instance* instance;
+@property (nonatomic, readwrite, assign) EC2DataController* ec2Controller;
+
 
 @end

@@ -9,32 +9,38 @@
 #import "InstanceGroupSetViewController.h"
 #import "InstanceGroupViewController.h"
 #import "EC2InstanceGroup.h"
+#import "AddInstancesViewController.h"
+#import "EC2DataController.h"
 
 @implementation InstanceGroupSetViewController
 
-@synthesize dataController;
+@synthesize dataController, ec2Controller;
 
-/*
-- (id)initWithStyle:(UITableViewStyle)style {
-    // Override initWithStyle: if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
-    if (self = [super initWithStyle:style]) {
-    }
-    return self;
-}
-*/
+- (void)viewDidLoad {
+	self.navigationItem.rightBarButtonItem = self.editButtonItem;
+	self.title = [[dataController account] name];
 
-- (void)viewDidLoad
-{
-	UIBarButtonItem* add_group_button = [[UIBarButtonItem alloc]
-										 initWithTitle:@"Plus1"
-										 style:UIBarButtonItemStyleBordered
-										 target:self
-										 action:@selector(addInstanceGroup:)];
-
-	self.navigationItem.rightBarButtonItem = add_group_button;
+	[ec2Controller refreshInstanceData:nil/*@selector(ec2RefreshCallback:)*/ target:self];
 	
-	self.title = NSLocalizedString(@"?Account?", @"Master view navigation title");
+	[self refresh];
 	[super viewDidLoad];
+}
+
+- (void)refresh {
+	printf("instance group set view controller REFRESH\n");
+	//[ec2Controller refreshInstanceData:@selector(ec2RefreshCallback:) target:self];
+
+	[self ec2RefreshCallback];
+}
+
+- (void)ec2RefreshCallback {
+	printf("EC2 REFRESH CALLBACK\n");
+	[dataController refresh];
+	[self.tableView reloadData];
+}
+
+- (void)add {
+	printf("TODO prompt to add new instance set\n");
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -46,82 +52,57 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-  UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyIdentifier"];
+	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyIdentifier"];
 
-  if (cell == nil) {
-    cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"MyIdentifier"] autorelease];
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-  }
+	if (cell == nil) {
+		cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"MyIdentifier"] autorelease];
+		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+	}
     
-  // Get the object to display and set the value in the cell
-  EC2InstanceGroup* itemAtIndex = (EC2InstanceGroup*)[dataController objectInListAtIndex:indexPath.row];
-  cell.text = [itemAtIndex instanceGroupId];
-	
-  return cell;
+	// Get the object to display and set the value in the cell
+	cell.text = [dataController objectInListAtIndex:indexPath.row];
+
+	return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-  InstanceGroupViewController* igvc = [[InstanceGroupViewController alloc] initWithStyle:UITableViewStylePlain];
-  EC2InstanceGroup* grp = [[EC2InstanceGroup alloc] initWithInstanceGroupId:@"r-asdfasdf"];
-  igvc.dataController = [[InstanceGroupDataController alloc] init:grp];
-
-  [[self navigationController] pushViewController:igvc animated:YES];
-  [igvc release];
-}
-
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-  if (editingStyle == UITableViewCellEditingStyleDelete) {
-  }
-  if (editingStyle == UITableViewCellEditingStyleInsert) {
-  }
+	InstanceGroupViewController* igvc = [[InstanceGroupViewController alloc] initWithStyle:UITableViewStylePlain];
+	NSString* grp = [dataController objectInListAtIndex:indexPath.row];
+	igvc.dataController = [[InstanceGroupDataController alloc] init:grp viewController:igvc account:[dataController account] ec2Controller:ec2Controller];	
+	[[self navigationController] pushViewController:igvc animated:YES];
+	[igvc release];
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    return YES;
+	return YES;
 }
 
-/*
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
+- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+	return TRUE;
 }
-*/
-
-/*
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
-    return YES;
-}
-*/
-
-
-/*
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-}
-*/
-/*
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-}
-*/
-/*
-- (void)viewWillDisappear:(BOOL)animated {
-}
-*/
-/*
-- (void)viewDidDisappear:(BOOL)animated {
-}
-*/
-/*
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-}
-*/
 
 - (IBAction)addInstanceGroup:(id)sender {
-	printf("TODO go to instance group add screen");
+	AddInstancesViewController* c = [[AddInstancesViewController alloc] initWithNibName:@"AddInstancesView" bundle:nil];
+	c.ec2Controller = self.ec2Controller;
+	[[self navigationController] pushViewController:c animated:YES];
+	[c release];
 }
 
 - (void)dealloc {
-  [super dealloc];
+	[super dealloc];
+}
+
+- (UITableViewCellEditingStyle)tableView: (UITableView *)tableView editingStyleForRowAtIndexPath: (NSIndexPath *)indexPath { 
+	return UITableViewCellEditingStyleDelete;
+}
+
+- (void)tableView:(UITableView *)aTableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+	// Remove this instance group.
+	NSString* grp = [dataController objectInListAtIndex:indexPath.row];
+	[ec2Controller terminateInstanceGroup:grp];
+
+	[dataController removeGroupAtIndex:indexPath.row];
+	[self.tableView reloadData];
 }
 
 @end

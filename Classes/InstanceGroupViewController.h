@@ -12,14 +12,15 @@
 #import "EC2DataController.h";
 
 @interface InstanceGroupViewController : UITableViewController {
-	InstanceGroupDataController* dataController;
 	EC2DataController* ec2Controller;
+	NSString* instanceGroup;
 }
 
-@property (nonatomic, retain) InstanceGroupDataController *dataController;
 @property (nonatomic, readwrite, assign) EC2DataController* ec2Controller;
+@property (nonatomic, readwrite, assign) NSString* instanceGroup;
 
 - (IBAction)addInstances:(id)sender;
 - (void)refresh;
+- (InstanceGroupViewController*)initWithStyle:(UITableViewStyle)style instanceGroup:(NSString*)grp ec2Controller:(EC2DataController*)ec2Ctrl;
 
 @end

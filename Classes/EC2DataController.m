@@ -11,7 +11,6 @@
 #import <openssl/ssl.h>
 #import <openssl/hmac.h>
 
-
 @implementation NSData (OpenSSLWrapper)
 
 /*
@@ -94,15 +93,31 @@
 }
 
 - (void)terminateInstances:(NSArray*)instances {
-	printf("TODO terminate instances");
+	NSInteger count = 1;
+	NSMutableDictionary* args = [[NSMutableDictionary alloc] init];
+	for (EC2Instance* inst in instances) {
+		NSString* key = [NSString stringWithFormat:@"InstanceId.%d", count];
+		[args setValue:[inst getProperty:@"instanceId"] forKey:key];
+		count++;
+	}
+	
+	[self executeRequest:@"TerminateInstances" args:args];
 }
 
 - (void)terminateInstanceGroup:(NSString*)grp {
-	printf("TODO terminate instance group");
+	[self terminateInstances:[self getInstancesForGroup:grp]];
 }
 
 - (void)rebootInstances:(NSArray*)instances {
-	printf("TODO reboot instances");
+	NSInteger count = 1;
+	NSMutableDictionary* args = [[NSMutableDictionary alloc] init];
+	for (EC2Instance* inst in instances) {
+		NSString* key = [NSString stringWithFormat:@"InstanceId.%d", count];
+		[args setValue:[inst getProperty:@"instanceId"] forKey:key];
+		count++;
+	}
+	
+	[self executeRequest:@"RebootInstances" args:args];
 }
 
 - (void)runInstances:(EC2Instance*)modelInstance n:(NSInteger)numInstances {
@@ -116,8 +131,6 @@
 		return [[NSArray alloc] init];
 	}
 
-	//[self refreshInstanceData];
-
 	return [instanceData allKeys];
 }
 
@@ -126,21 +139,14 @@
 }
 
 - (NSString*)generateSignature:(NSString*)req secret:(NSString*)secret {
+	NSLog(req);
 	NSString* canonical = [req stringByReplacingOccurrencesOfString:@"&" withString:@""];
-	canonical = [canonical stringByReplacingOccurrencesOfString:@"=" withString:@""];
 	NSLog(canonical);
-	
-	NSString* stringToSign = canonical; //[NSString stringWithFormat:@"GET\nec2.amazonaws.com\n/\n%@", canonical];
-	NSLog(@"String to sign: %@", stringToSign);
-
-	NSString* sign = [[[stringToSign dataUsingEncoding:NSUTF8StringEncoding] sha1HMacWithKey:secret] encodeBase64];
-	NSLog(@"Signature is: %@", sign);
-	return sign;
+	NSString* stringToSign = [canonical stringByReplacingOccurrencesOfString:@"=" withString:@""];
+	return [[[stringToSign dataUsingEncoding:NSUTF8StringEncoding] sha1HMacWithKey:secret] encodeBase64];
 }
 
-- (void)refreshInstanceData {
-	urlreq_data = [[NSMutableData alloc] init];
-
+- (void)executeRequest:(NSString*)action args:(NSDictionary*)args {
 	NSDateFormatter* formatter = [[NSDateFormatter alloc] init];
 	[formatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
 	NSDate* now = [NSDate date];
@@ -149,27 +155,33 @@
 	[formatter setDateFormat:@"HH:mm:ss"];
 	NSString* timestamp_time = [formatter stringFromDate:now];
 	NSString* timestamp = [NSString stringWithFormat:@"%@T%@Z", timestamp_date, timestamp_time];
-	NSLog(timestamp);	
 
-	NSString* req1 = [NSString stringWithFormat:@"Action=DescribeInstances&AWSAccessKeyId=%@&SignatureVersion=1&Timestamp=%@&Version=2008-05-05", [account access_key], timestamp];
+	NSMutableString* argsStr = [[NSMutableString alloc] initWithString:@""];
+	for (NSString* k in [args allKeys]) {
+		[argsStr appendFormat:@"&%@=%@", k, [args valueForKey:k]];
+	}
+
+	NSString* req1 = [NSString stringWithFormat:@"Action=%@&AWSAccessKeyId=%@%@&SignatureVersion=1&Timestamp=%@&Version=2008-05-05", action, [account access_key], argsStr, timestamp];
 	NSString* sig = [self generateSignature:req1 secret:[account secret_key]];
-
+	
 	NSString* url = [[NSString alloc] initWithFormat:@"https://ec2.amazonaws.com/?%@&Signature=%@", req1, sig];
-	NSLog(url);
-	//url = @"http://localhost/~emarinel/x.xml";
-
+	
 	NSLog(@"making request...");
+	NSLog(url);
 	NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]
 										 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
 									 timeoutInterval:60.0];
 	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:req delegate:self];
 	if (theConnection) {
-		printf("connection true\n");
-		//receivedData=[[NSMutableData data] retain];
+		urlreq_data = [[NSMutableData alloc] init];
 	} else {
 		printf("connection false\n");
 		// inform the user that the download could not be made
 	}
+}
+
+- (void)refreshInstanceData {
+	[self executeRequest:@"DescribeInstances" args:[[[NSDictionary alloc] init] autorelease]];
 }
 
 - (void)refreshInstanceData:(SEL)callback target:(id)target {

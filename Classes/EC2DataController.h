@@ -41,6 +41,7 @@
 - (NSArray*)getInstancesForGroup:(NSString*)grp;
 - (void)refreshInstanceData:(SEL)callback target:(id)target;
 - (void)refreshInstanceData;
+- (void)executeRequest:(NSString*)action args:(NSDictionary*)args;
 
 @end
 

@@ -12,7 +12,7 @@
 
 @implementation InstanceViewController
 
-@synthesize instance, ec2Controller;
+@synthesize instance, ec2Controller, index, group;
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     return TRUE;
@@ -39,6 +39,19 @@
 	[super viewDidLoad];
 }
 
+- (void)segmentAction {
+	NSLog(@"segment action!!!");
+	[self.navigationController popViewControllerAnimated:NO];
+
+	InstanceViewController* new_ivc = [[InstanceViewController alloc] initWithStyle:UITableViewStyleGrouped];
+	
+	NSArray* neighs = [ec2Controller getInstancesForGroup:group];
+	NSInteger next_index = (index+1) % [neighs count];
+	
+	new_ivc.instance = [neighs objectAtIndex:next_index];
+	new_ivc.ec2Controller = ec2Controller;
+	[self.navigationController pushViewController:new_ivc animated:NO];
+}
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 2;
@@ -50,6 +63,10 @@
 			switch (indexPath.row) {
 				case 0:
 					// Reboot
+					NSLog(@"calling reboot instances on ec2 controller...");
+					//if (ec2Controller == nil) {
+					//	NSLog(@"ec2controller is nil!");
+					//}
 					[ec2Controller rebootInstances:[NSArray arrayWithObject:instance]];
 					break;
 				case 1:
@@ -112,37 +129,37 @@
 			// Information
 			switch (indexPath.row) {
 				case 0:
-					cellText = [[NSString alloc] initWithFormat:@"Instance ID: %@", [instance getProperty:@"instanceId"]];
+					cellText = [NSString stringWithFormat:@"Instance ID: %@", [instance getProperty:@"instanceId"]];
 					break;
 				case 1:
-					cellText = [[NSString alloc] initWithFormat:@"Image ID: %@", [instance getProperty:@"imageId"]];
+					cellText = [NSString stringWithFormat:@"Image ID: %@", [instance getProperty:@"imageId"]];
 					break;
 				case 2:
-					cellText = [[NSString alloc] initWithFormat:@"State: %@", [instance getProperty:@"state"]];
+					cellText = [NSString stringWithFormat:@"State: %@", [instance getProperty:@"state"]];
 					break;
 				case 3:
-					cellText = [[NSString alloc] initWithFormat:@"Private DNS: %@", [instance getProperty:@"privateDnsName"]];
+					cellText = [NSString stringWithFormat:@"Private DNS: %@", [instance getProperty:@"privateDnsName"]];
 					break;
 				case 4:
-					cellText = [[NSString alloc] initWithFormat:@"DNS: %@", [instance getProperty:@"dnsName"]];
+					cellText = [NSString stringWithFormat:@"DNS: %@", [instance getProperty:@"dnsName"]];
 					break;
 				case 5:
-					cellText = [[NSString alloc] initWithFormat:@"Key: %@", [instance getProperty:@"keyName"]];
+					cellText = [NSString stringWithFormat:@"Key: %@", [instance getProperty:@"keyName"]];
 					break;
 				case 6:
-					cellText = [[NSString alloc] initWithFormat:@"Type: %@", [instance getProperty:@"instanceType"]];
+					cellText = [NSString stringWithFormat:@"Type: %@", [instance getProperty:@"instanceType"]];
 					break;
 				case 7:
-					cellText = [[NSString alloc] initWithFormat:@"Launch time: %@", [instance getProperty:@"launchTime"]];
+					cellText = [NSString stringWithFormat:@"Launch time: %@", [instance getProperty:@"launchTime"]];
 					break;
 				case 8:
-					cellText = [[NSString alloc] initWithFormat:@"Placement: %@", [instance getProperty:@"placement"]];
+					cellText = [NSString stringWithFormat:@"Placement: %@", [instance getProperty:@"placement"]];
 					break;
 				case 9:
-					cellText = [[NSString alloc] initWithFormat:@"Kernel ID: %@", [instance getProperty:@"kernelId"]];
+					cellText = [NSString stringWithFormat:@"Kernel ID: %@", [instance getProperty:@"kernelId"]];
 					break;
 				case 10:
-					cellText = [[NSString alloc] initWithFormat:@"Ramdisk: %@", [instance getProperty:@"ramdiskId"]];
+					cellText = [NSString stringWithFormat:@"Ramdisk: %@", [instance getProperty:@"ramdiskId"]];
 					break;
 				default:
 					break;

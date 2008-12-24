@@ -156,11 +156,13 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		[[self navigationController] pushViewController:c animated:YES];
 		[c release];
 	} else {
-		InstanceGroupSetViewController* igsvc = [[InstanceGroupSetViewController alloc] initWithStyle:UITableViewStylePlain];
 		AWSAccount* acct = [dataController objectInListAtIndex:indexPath.row];
-		EC2DataController* ec2ctrl = [dataController ec2ControllerForAccount:[acct name]];
-		igsvc.ec2Controller = ec2ctrl;
-		igsvc.dataController = [[InstanceGroupSetDataController alloc] initWithAccount:acct viewController:igsvc ec2Controller:ec2ctrl];
+		EC2DataController* ec2Ctrl = [dataController ec2ControllerForAccount:[acct name]];
+		InstanceGroupSetViewController* igsvc = [[InstanceGroupSetViewController alloc]
+												 initWithStyle:UITableViewStylePlain
+												 account:acct
+												 ec2Controller:ec2Ctrl];
+	//	igsvc.dataController = [[InstanceGroupSetDataController alloc] initWithAccount:acct viewController:igsvc ec2Controller:ec2Ctrl];
 
 		[[self navigationController] pushViewController:igsvc animated:YES];
 		[igsvc release];

@@ -14,10 +14,13 @@
 @interface InstanceViewController : UITableViewController {
 	EC2Instance* instance;
 	EC2DataController* ec2Controller;
+	NSInteger index;
+	NSString* group;
 }
 
 @property (nonatomic, readwrite, assign) EC2Instance* instance;
 @property (nonatomic, readwrite, assign) EC2DataController* ec2Controller;
-
+@property (nonatomic, readwrite, assign) NSInteger index;
+@property (nonatomic, readwrite, assign) NSString* group;
 
 @end

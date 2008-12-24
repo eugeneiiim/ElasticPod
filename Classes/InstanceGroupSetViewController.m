@@ -14,28 +14,33 @@
 
 @implementation InstanceGroupSetViewController
 
-@synthesize dataController, ec2Controller;
+@synthesize ec2Controller, account;
+
+- (InstanceGroupSetViewController*)initWithStyle:(UITableViewStyle)style account:(AWSAccount*)acct ec2Controller:(EC2DataController*)ec2Ctrl {
+	self.account = acct;
+	self.ec2Controller = ec2Ctrl;
+	return [super initWithStyle:style];
+}
 
 - (void)viewDidLoad {
 	self.navigationItem.rightBarButtonItem = self.editButtonItem;
-	self.title = [[dataController account] name];
+	self.title = [account name];
 
-	[ec2Controller refreshInstanceData:nil/*@selector(ec2RefreshCallback:)*/ target:self];
-	
-	[self refresh];
+	//[ec2Controller refreshInstanceData:nil/*@selector(ec2RefreshCallback:)*/ target:self];
+	//[self refresh];
+
 	[super viewDidLoad];
 }
 
 - (void)refresh {
 	printf("instance group set view controller REFRESH\n");
-	//[ec2Controller refreshInstanceData:@selector(ec2RefreshCallback:) target:self];
+	[ec2Controller refreshInstanceData:@selector(ec2RefreshCallback:) target:self];
 
 	[self ec2RefreshCallback];
 }
 
 - (void)ec2RefreshCallback {
 	printf("EC2 REFRESH CALLBACK\n");
-	[dataController refresh];
 	[self.tableView reloadData];
 }
 
@@ -48,7 +53,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-  return [dataController countOfList];
+  return [[ec2Controller getInstanceGroups] count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -60,15 +65,16 @@
 	}
     
 	// Get the object to display and set the value in the cell
-	cell.text = [dataController objectInListAtIndex:indexPath.row];
+	cell.text = [[ec2Controller getInstanceGroups] objectAtIndex:indexPath.row];
 
 	return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	InstanceGroupViewController* igvc = [[InstanceGroupViewController alloc] initWithStyle:UITableViewStylePlain];
-	NSString* grp = [dataController objectInListAtIndex:indexPath.row];
-	igvc.dataController = [[InstanceGroupDataController alloc] init:grp viewController:igvc account:[dataController account] ec2Controller:ec2Controller];	
+	NSString* grp = [[ec2Controller getInstanceGroups] objectAtIndex:indexPath.row];
+	InstanceGroupViewController* igvc = [[InstanceGroupViewController alloc] initWithStyle:UITableViewStylePlain
+																			 instanceGroup:grp ec2Controller:ec2Controller];
+
 	[[self navigationController] pushViewController:igvc animated:YES];
 	[igvc release];
 }
@@ -98,10 +104,9 @@
 
 - (void)tableView:(UITableView *)aTableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
 	// Remove this instance group.
-	NSString* grp = [dataController objectInListAtIndex:indexPath.row];
+	NSString* grp = [[ec2Controller getInstanceGroups] objectAtIndex:indexPath.row];
 	[ec2Controller terminateInstanceGroup:grp];
 
-	[dataController removeGroupAtIndex:indexPath.row];
 	[self.tableView reloadData];
 }
 

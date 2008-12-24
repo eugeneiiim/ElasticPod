@@ -17,7 +17,6 @@
 		28554E2C0DAC293600168C19 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 28554E2B0DAC293600168C19 /* Icon.png */; };
 		28A0A2200DCBAA090060EDFB /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 28A0A21F0DCBAA090060EDFB /* Default.png */; };
 		53A3862B0E6DD89B002F7F09 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53A386290E6DD89B002F7F09 /* MainWindow.xib */; };
-		CE0033030F022E3A005C7943 /* SHA256.m in Sources */ = {isa = PBXBuildFile; fileRef = CE0033020F022E3A005C7943 /* SHA256.m */; };
 		CE00336E0F02D828005C7943 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CE00336D0F02D828005C7943 /* libcrypto.0.9.8.dylib */; };
 		CED12B560EFEF5600083619D /* AddInstancesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12B550EFEF5600083619D /* AddInstancesViewController.m */; };
 		CED12B580EFEF59C0083619D /* AddInstancesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = CED12B570EFEF59C0083619D /* AddInstancesView.xib */; };
@@ -25,12 +24,10 @@
 		CED12FD00F00381D0083619D /* DetailCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12FCF0F00381D0083619D /* DetailCell.m */; };
 		CED1331C0F00BE980083619D /* ButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CED1331B0F00BE980083619D /* ButtonCell.m */; };
 		CED498BC0EFB566E000D0551 /* InstanceGroupSetViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED498BB0EFB566E000D0551 /* InstanceGroupSetViewController.m */; };
-		CED499270EFB5ADA000D0551 /* InstanceGroupSetDataController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED499260EFB5ADA000D0551 /* InstanceGroupSetDataController.m */; };
 		CED4992C0EFB5B01000D0551 /* AWSAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = CED4992B0EFB5B01000D0551 /* AWSAccount.m */; };
 		CED4992F0EFB5BE8000D0551 /* EC2Instance.m in Sources */ = {isa = PBXBuildFile; fileRef = CED4992E0EFB5BE8000D0551 /* EC2Instance.m */; };
 		CED499320EFB5C2A000D0551 /* EC2InstanceGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = CED499310EFB5C2A000D0551 /* EC2InstanceGroup.m */; };
 		CED49BDB0EFB84D9000D0551 /* InstanceGroupViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED49BDA0EFB84D9000D0551 /* InstanceGroupViewController.m */; };
-		CED49BE00EFB8523000D0551 /* InstanceGroupDataController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED49BDF0EFB8523000D0551 /* InstanceGroupDataController.m */; };
 		CED49D2F0EFB936A000D0551 /* InstanceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED49D2E0EFB936A000D0551 /* InstanceViewController.m */; };
 		CED49F5C0EFC9398000D0551 /* up.png in Resources */ = {isa = PBXBuildFile; fileRef = CED49F5A0EFC9398000D0551 /* up.png */; };
 		CED49F5D0EFC9398000D0551 /* down.png in Resources */ = {isa = PBXBuildFile; fileRef = CED49F5B0EFC9398000D0551 /* down.png */; };
@@ -55,8 +52,6 @@
 		32CA4F630368D1EE00C91783 /* SimpleDrillDown_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleDrillDown_Prefix.pch; sourceTree = "<group>"; };
 		53A3862A0E6DD89B002F7F09 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainWindow.xib; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CE0033010F022E3A005C7943 /* SHA256.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SHA256.h; sourceTree = "<group>"; };
-		CE0033020F022E3A005C7943 /* SHA256.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SHA256.m; sourceTree = "<group>"; };
 		CE00336D0F02D828005C7943 /* libcrypto.0.9.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.0.9.8.dylib; path = /opt/local/lib/libcrypto.0.9.8.dylib; sourceTree = "<absolute>"; };
 		CED12B540EFEF5600083619D /* AddInstancesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddInstancesViewController.h; sourceTree = "<group>"; };
 		CED12B550EFEF5600083619D /* AddInstancesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddInstancesViewController.m; sourceTree = "<group>"; };
@@ -69,8 +64,6 @@
 		CED1331B0F00BE980083619D /* ButtonCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ButtonCell.m; sourceTree = "<group>"; };
 		CED498BA0EFB566E000D0551 /* InstanceGroupSetViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InstanceGroupSetViewController.h; sourceTree = "<group>"; };
 		CED498BB0EFB566E000D0551 /* InstanceGroupSetViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InstanceGroupSetViewController.m; sourceTree = "<group>"; };
-		CED499250EFB5ADA000D0551 /* InstanceGroupSetDataController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InstanceGroupSetDataController.h; sourceTree = "<group>"; };
-		CED499260EFB5ADA000D0551 /* InstanceGroupSetDataController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InstanceGroupSetDataController.m; sourceTree = "<group>"; };
 		CED4992A0EFB5B01000D0551 /* AWSAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSAccount.h; sourceTree = "<group>"; };
 		CED4992B0EFB5B01000D0551 /* AWSAccount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AWSAccount.m; sourceTree = "<group>"; };
 		CED4992D0EFB5BE8000D0551 /* EC2Instance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EC2Instance.h; sourceTree = "<group>"; };
@@ -79,8 +72,6 @@
 		CED499310EFB5C2A000D0551 /* EC2InstanceGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EC2InstanceGroup.m; sourceTree = "<group>"; };
 		CED49BD90EFB84D9000D0551 /* InstanceGroupViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InstanceGroupViewController.h; sourceTree = "<group>"; };
 		CED49BDA0EFB84D9000D0551 /* InstanceGroupViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InstanceGroupViewController.m; sourceTree = "<group>"; };
-		CED49BDE0EFB8523000D0551 /* InstanceGroupDataController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InstanceGroupDataController.h; sourceTree = "<group>"; };
-		CED49BDF0EFB8523000D0551 /* InstanceGroupDataController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InstanceGroupDataController.m; sourceTree = "<group>"; };
 		CED49D2D0EFB936A000D0551 /* InstanceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InstanceViewController.h; sourceTree = "<group>"; };
 		CED49D2E0EFB936A000D0551 /* InstanceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InstanceViewController.m; sourceTree = "<group>"; };
 		CED49F5A0EFC9398000D0551 /* up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = up.png; sourceTree = "<group>"; };
@@ -119,8 +110,6 @@
 				CED12B5B0EFEF6DE0083619D /* EC2 */,
 				1D3623240D0F684500981E51 /* SimpleDrillDownAppDelegate.h */,
 				1D3623250D0F684500981E51 /* SimpleDrillDownAppDelegate.m */,
-				CE0033010F022E3A005C7943 /* SHA256.h */,
-				CE0033020F022E3A005C7943 /* SHA256.m */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -218,10 +207,6 @@
 			children = (
 				CED49FB80EFC9761000D0551 /* AccountsController.h */,
 				CED49FB90EFC9761000D0551 /* AccountsController.m */,
-				CED499250EFB5ADA000D0551 /* InstanceGroupSetDataController.h */,
-				CED499260EFB5ADA000D0551 /* InstanceGroupSetDataController.m */,
-				CED49BDE0EFB8523000D0551 /* InstanceGroupDataController.h */,
-				CED49BDF0EFB8523000D0551 /* InstanceGroupDataController.m */,
 				CED12BE30EFF05190083619D /* EC2DataController.h */,
 				CED12BE40EFF05190083619D /* EC2DataController.m */,
 			);
@@ -299,12 +284,10 @@
 				1D3623260D0F684500981E51 /* SimpleDrillDownAppDelegate.m in Sources */,
 				282DE87B0D999CA700F5050D /* RootViewController.m in Sources */,
 				CED498BC0EFB566E000D0551 /* InstanceGroupSetViewController.m in Sources */,
-				CED499270EFB5ADA000D0551 /* InstanceGroupSetDataController.m in Sources */,
 				CED4992C0EFB5B01000D0551 /* AWSAccount.m in Sources */,
 				CED4992F0EFB5BE8000D0551 /* EC2Instance.m in Sources */,
 				CED499320EFB5C2A000D0551 /* EC2InstanceGroup.m in Sources */,
 				CED49BDB0EFB84D9000D0551 /* InstanceGroupViewController.m in Sources */,
-				CED49BE00EFB8523000D0551 /* InstanceGroupDataController.m in Sources */,
 				CED49D2F0EFB936A000D0551 /* InstanceViewController.m in Sources */,
 				CED49FBA0EFC9761000D0551 /* AccountsController.m in Sources */,
 				CED4A1360EFCA9B0000D0551 /* AddAccountViewController.m in Sources */,
@@ -312,7 +295,6 @@
 				CED12BE50EFF05190083619D /* EC2DataController.m in Sources */,
 				CED12FD00F00381D0083619D /* DetailCell.m in Sources */,
 				CED1331C0F00BE980083619D /* ButtonCell.m in Sources */,
-				CE0033030F022E3A005C7943 /* SHA256.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -398,7 +380,7 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = c99;
@@ -406,6 +388,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
 				SDKROOT = iphoneos2.0;
+				USER_HEADER_SEARCH_PATHS = /opt/local/include;
 			};
 			name = Release;
 		};

@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-#import "InstanceGroupSetDataController.h"
+#import "EC2DataController.h"
 
 @interface AddInstancesViewController : UIViewController {
 	EC2DataController* ec2Controller;

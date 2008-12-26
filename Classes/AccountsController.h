@@ -54,17 +54,23 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 #import <UIKit/UIKit.h>
 #import "AWSAccount.h"
 #import "EC2DataController.h"
+#import "RootViewController.h"
+
+@class RootViewController;
+@class EC2DataController;
 
 @interface AccountsController : NSObject {
 	NSMutableDictionary* nameToAccount;
 	NSMutableDictionary* accountEc2Controllers;
+	RootViewController* rootViewController;
 }
 
 @property (nonatomic, assign, readwrite) NSMutableDictionary* nameToAccount;
 @property (nonatomic, assign, readwrite) NSMutableDictionary* accountEc2Controllers;
+@property (nonatomic, assign, readwrite) RootViewController* rootViewController;
 
 - (unsigned)countOfList;
-- (id)objectInListAtIndex:(unsigned)theIndex;
+- (AWSAccount*)objectInListAtIndex:(unsigned)theIndex;
 - (void)loadAccounts;
 - (void)saveAccounts;
 - (void)addAccount:(AWSAccount*)acct;

@@ -82,12 +82,13 @@
 
 @implementation EC2DataController
 
-@synthesize account, instanceData, tempInstanceData, urlreq_data, curGroupDict, curInst, lastElementName, refreshCallback;
+@synthesize account, instanceData, tempInstanceData, urlreq_data, curGroupDict, curInst, lastElementName, refreshCallback, rootViewController;
 
-- (id)initWithAccount:(AWSAccount*)acct {
-	refreshCallback = [[NSInvocation alloc] init];
-	instanceData = nil; //[[NSDictionary alloc] init];
+- (id)initWithAccount:(AWSAccount*)acct rootViewController:(RootViewController*)rvc {
+	self.refreshCallback = [[NSInvocation alloc] init];
+	self.instanceData = nil; //[[NSDictionary alloc] init];
 	self.account = acct;
+	self.rootViewController = rvc;
 	//[self refreshInstanceData];
 	return self;
 }
@@ -147,6 +148,9 @@
 }
 
 - (void)executeRequest:(NSString*)action args:(NSDictionary*)args {
+	NSLog(@"START ANIMATING");
+	[[rootViewController activityIndicator] startAnimating];
+
 	NSDateFormatter* formatter = [[NSDateFormatter alloc] init];
 	[formatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
 	NSDate* now = [NSDate date];
@@ -258,7 +262,7 @@
 		curInst = [[EC2Instance alloc] init];
 		[curGroupDict setValue:curInst forKey:[string copy]];
 	}
-	
+
 	if (curInst != nil) {
 		[curInst addProperty:[lastElementName copy] value:[string copy]];
 	}
@@ -274,6 +278,9 @@
 		printf("YES calling refresh callback!\n");
 		[refreshCallback invoke];
 	}
+	
+	NSLog(@"STOP ANIMATING");
+	[[rootViewController activityIndicator] stopAnimating];
 }
 
 - (void)setInstanceData:(NSDictionary *)newdict {

@@ -10,6 +10,9 @@
 
 #import "AWSAccount.h"
 #import "EC2Instance.h"
+#import "RootViewController.h"
+
+@class RootViewController;
 
 @interface EC2DataController : NSObject {
 	AWSAccount* account;
@@ -21,6 +24,7 @@
 	NSMutableDictionary* curGroupDict;
 	EC2Instance* curInst;
 	NSInvocation* refreshCallback;
+	RootViewController* rootViewController;
 }
 
 @property (assign, readwrite) AWSAccount* account;
@@ -31,10 +35,11 @@
 @property (nonatomic, assign, readwrite) NSMutableDictionary* curGroupDict;
 @property (nonatomic, assign, readwrite) EC2Instance* curInst;
 @property (nonatomic, assign, readwrite) NSInvocation* refreshCallback;
+@property (nonatomic, assign, readwrite) RootViewController* rootViewController;
 
 - (void)terminateInstances:(NSArray*)instances;
 - (void)terminateInstanceGroup:(NSString*)grp;
-- (id)initWithAccount:(AWSAccount*)account;
+- (id)initWithAccount:(AWSAccount*)account rootViewController:(RootViewController*)rvc;
 - (void)rebootInstances:(NSArray*)instances;
 - (void)runInstances:(EC2Instance*)modelInstance n:(NSInteger)numInstances;
 - (NSArray*)getInstanceGroups;

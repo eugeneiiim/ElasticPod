@@ -52,7 +52,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 @implementation RootViewController
 
-@synthesize dataController, toolbar;
+@synthesize accountsController, toolbar, activityIndicator;
 
 - (void)viewDidLoad {
 	self.title = @"AWS Accounts";
@@ -88,7 +88,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	rectArea = CGRectMake(rootViewWidth/2 - spinnerWidth/2, rootViewHeight/2 - spinnerWidth/2, spinnerWidth, spinnerWidth);
 	[activityIndicator setFrame:rectArea];
 	[self.navigationController.view addSubview:activityIndicator];
-	//[activityIndicator startAnimating];
 
 	self.tableView.allowsSelectionDuringEditing = TRUE;
 	[super viewDidLoad];
@@ -117,7 +116,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 - (void)addAccount {
 	AddAccountViewController* c = [[AddAccountViewController alloc] initWithStyle:UITableViewStyleGrouped];
-	c.accountsController = dataController;
+	c.accountsController = accountsController;
 	[[self navigationController] pushViewController:c animated:YES];
 	[c release];
 }
@@ -127,7 +126,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [dataController countOfList];
+    return [accountsController countOfList];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
@@ -141,7 +140,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 	}
 	
-	AWSAccount* itemAtIndex = (AWSAccount*)[dataController objectInListAtIndex:indexPath.row];
+	AWSAccount* itemAtIndex = [accountsController objectInListAtIndex:indexPath.row];
 	cell.text = [itemAtIndex name];
 	cell.hidesAccessoryWhenEditing = NO;
 	
@@ -151,13 +150,13 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	if (self.editing) {
 		AddAccountViewController* c = [[AddAccountViewController alloc] initWithStyle:UITableViewStyleGrouped];
-		c.accountsController = dataController;
-		c.account = [dataController objectInListAtIndex:indexPath.row];
+		c.accountsController = accountsController;
+		c.account = [accountsController objectInListAtIndex:indexPath.row];
 		[[self navigationController] pushViewController:c animated:YES];
 		[c release];
 	} else {
-		AWSAccount* acct = [dataController objectInListAtIndex:indexPath.row];
-		EC2DataController* ec2Ctrl = [dataController ec2ControllerForAccount:[acct name]];
+		AWSAccount* acct = [accountsController objectInListAtIndex:indexPath.row];
+		EC2DataController* ec2Ctrl = [accountsController ec2ControllerForAccount:[acct name]];
 		InstanceGroupSetViewController* igsvc = [[InstanceGroupSetViewController alloc]
 												 initWithStyle:UITableViewStylePlain
 												 account:acct
@@ -170,7 +169,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 }
 
 - (void)dealloc {
-    [dataController release];
+    [accountsController release];
     [super dealloc];
 }
 
@@ -180,7 +179,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 - (void)tableView:(UITableView *)aTableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
 	// Remove this account.
-	[dataController removeAccountAtIndex:indexPath.row];
+	[accountsController removeAccountAtIndex:indexPath.row];
 	[self.tableView reloadData];
 }
 

@@ -9,6 +9,7 @@
 #import "InstanceViewController.h"
 #import "EC2Instance.h"
 #import "ButtonCell.h"
+#import "AddInstancesViewController.h"
 
 @implementation InstanceViewController
 
@@ -102,7 +103,8 @@
 }
 
 - (void)add {
-	printf("TODO this action should not be allowed (doesn't make sense here)...\n");
+	AddInstancesViewController* aivc = [[AddInstancesViewController alloc] initWithStyle:UITableViewStyleGrouped ec2Controller:ec2Controller];
+	[self.navigationController pushViewController:aivc animated:YES];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -139,7 +141,8 @@
 					cellText = [NSString stringWithFormat:@"Image ID: %@", [instance getProperty:@"imageId"]];
 					break;
 				case 2:
-					cellText = [NSString stringWithFormat:@"State: %@", [instance getProperty:@"state"]];
+					//cellText = [NSString stringWithFormat:@"State: %@", [instance getProperty:@"state"]];
+					cellText = [NSString stringWithFormat:@"State: %@", [instance getProperty:@"name"]]; // TODO FIX ME
 					break;
 				case 3:
 					cellText = [NSString stringWithFormat:@"Private DNS: %@", [instance getProperty:@"privateDnsName"]];
@@ -157,7 +160,8 @@
 					cellText = [NSString stringWithFormat:@"Launch time: %@", [instance getProperty:@"launchTime"]];
 					break;
 				case 8:
-					cellText = [NSString stringWithFormat:@"Placement: %@", [instance getProperty:@"placement"]];
+					//cellText = [NSString stringWithFormat:@"Placement: %@", [instance getProperty:@"placement"]];
+					cellText = [NSString stringWithFormat:@"Placement: %@", [instance getProperty:@"availabilityZone"]];  // TODO FIX
 					break;
 				case 9:
 					cellText = [NSString stringWithFormat:@"Kernel ID: %@", [instance getProperty:@"kernelId"]];

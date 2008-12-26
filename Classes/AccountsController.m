@@ -58,11 +58,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 @implementation AccountsController
 
-@synthesize nameToAccount, accountEc2Controllers;
+@synthesize nameToAccount, accountEc2Controllers, rootViewController;
 
 - (id)init {
-	printf("init");
-	
 	if (self = [super init]) {
 		[self loadAccounts];
 	}
@@ -81,7 +79,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	}
 
 	[self.nameToAccount setValue:acct forKey:acct.name];
-	EC2DataController* c = [[EC2DataController alloc] initWithAccount:acct];
+	EC2DataController* c = [[EC2DataController alloc] initWithAccount:acct rootViewController:rootViewController];
 	[c refreshInstanceData];
 	[self.accountEc2Controllers setValue:c forKey:acct.name];
 	[self saveAccounts];
@@ -102,7 +100,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	return [[nameToAccount allKeys] count];
 }
 
-- (id)objectInListAtIndex:(unsigned)theIndex {
+- (AWSAccount*)objectInListAtIndex:(unsigned)theIndex {
 	return [[nameToAccount allValues] objectAtIndex:theIndex];
 }
 
@@ -125,8 +123,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 }
 
 - (void)loadAccounts {
-	NSLog(@"loadaccounts");	
-	
 	NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
 	NSDictionary* accounts = [userDefaults dictionaryForKey:EC2PHONE_ACCOUNTS];
 	
@@ -146,7 +142,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 			AWSAccount* acct = [AWSAccount accountWithName:a accessKey:[dict valueForKey:@"access"] secretKey:[dict valueForKey:@"secret"]];
 			[self.nameToAccount setValue:acct forKey:a];
 
-			EC2DataController* c = [[EC2DataController alloc] initWithAccount:acct];
+			EC2DataController* c = [[EC2DataController alloc] initWithAccount:acct rootViewController:rootViewController];
 			[c refreshInstanceData];
 			[self.accountEc2Controllers setValue:c forKey:acct.name];
 		}

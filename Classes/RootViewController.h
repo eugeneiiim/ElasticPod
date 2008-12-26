@@ -48,13 +48,15 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 #import <UIKit/UIKit.h>
 #import "AccountsController.h"
 
+@class AccountsController;
+
 @interface RootViewController : UITableViewController <UITableViewDelegate, UITableViewDataSource> {
-	AccountsController *dataController;
+	AccountsController *accountsController;
 	UIToolbar* toolbar;
 	UIActivityIndicatorView* activityIndicator;
 }
 
-@property (nonatomic, assign) AccountsController *dataController;
+@property (nonatomic, assign) AccountsController *accountsController;
 @property (nonatomic, readonly) UIToolbar* toolbar;
 @property (nonatomic, assign) UIActivityIndicatorView* activityIndicator;
 

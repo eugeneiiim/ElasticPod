@@ -59,7 +59,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     // Create the data controller
     self.dataController = [[AccountsController alloc] init];;
 
-	rootViewController.dataController = dataController;
+	rootViewController.accountsController = dataController;
     
     // Configure the window with its navicationController and then show it
     [window addSubview:[navigationController view]];

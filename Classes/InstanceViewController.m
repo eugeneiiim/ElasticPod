@@ -16,42 +16,53 @@
 @synthesize instance, ec2Controller, index, group;
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    return TRUE;
+	return TRUE;
+}
+
+- (InstanceViewController*)initWithStyle:(UITableViewStyle)style instance:(EC2Instance*)inst ec2Controller:(EC2DataController*)ec2Ctrl
+								   group:(NSString*)grp {
+	if ([super initWithStyle:style]) {
+		self.instance = inst;
+		self.ec2Controller = ec2Ctrl;
+		self.group = grp;
+	}
+	return self;
 }
 
 // Implement viewDidLoad to do additional setup after loading the view.
 - (void)viewDidLoad {
-	// Up/down arrows
-	UISegmentedControl *segmentedControl = [[[UISegmentedControl alloc] initWithItems:
-											 [NSArray arrayWithObjects:
-											  [UIImage imageNamed:@"up.png"],
-											  [UIImage imageNamed:@"down.png"],
-											  nil]] autorelease];
-	[segmentedControl addTarget:self action:@selector(segmentAction:) forControlEvents:UIControlEventValueChanged];
-	segmentedControl.frame = CGRectMake(0, 0, 90, 30);
-	segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
-	segmentedControl.momentary = YES;
+	if ([[ec2Controller getInstancesForGroup:group] count] > 1) {
+		// Up/down arrows
+		UISegmentedControl *segmentedControl = [[[UISegmentedControl alloc] initWithItems:
+												 [NSArray arrayWithObjects:
+												  [UIImage imageNamed:@"up.png"],
+												[UIImage imageNamed:@"down.png"],
+												  nil]] autorelease];
+		[segmentedControl addTarget:self action:@selector(segmentAction:) forControlEvents:UIControlEventValueChanged];
+		segmentedControl.frame = CGRectMake(0, 0, 90, 30);
+		segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
+		segmentedControl.momentary = YES;
 
-	UIBarButtonItem *segmentBarItem = [[[UIBarButtonItem alloc] initWithCustomView:segmentedControl] autorelease];
-	self.navigationItem.rightBarButtonItem = segmentBarItem;
+		UIBarButtonItem *segmentBarItem = [[[UIBarButtonItem alloc] initWithCustomView:segmentedControl] autorelease];
+		self.navigationItem.rightBarButtonItem = segmentBarItem;
+	}
 
 	self.title = NSLocalizedString([instance getProperty:@"instanceId"], @"Master view navigation title");
-    
+
 	[super viewDidLoad];
 }
 
-- (void)segmentAction {
-	NSLog(@"segment action!!!");
-	[self.navigationController popViewControllerAnimated:NO];
-
-	InstanceViewController* new_ivc = [[InstanceViewController alloc] initWithStyle:UITableViewStyleGrouped];
-	
+- (IBAction)segmentAction:(id)sender {
 	NSArray* neighs = [ec2Controller getInstancesForGroup:group];
+	if (neighs == nil) {
+		NSLog(@"ERROR! no neighbors for group %@", group);
+		return;
+	}
 	NSInteger next_index = (index+1) % [neighs count];
-	
-	new_ivc.instance = [neighs objectAtIndex:next_index];
-	new_ivc.ec2Controller = ec2Controller;
-	[self.navigationController pushViewController:new_ivc animated:NO];
+	NSLog(@"next index is: %d", next_index);
+
+	self.instance = [neighs objectAtIndex:next_index];
+	[self.tableView reloadData];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {

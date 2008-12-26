@@ -62,10 +62,11 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	InstanceViewController* ivc = [[InstanceViewController alloc] initWithStyle:UITableViewStyleGrouped];
-	ivc.instance = [[ec2Controller getInstancesForGroup:instanceGroup] objectAtIndex:indexPath.row];
-	ivc.ec2Controller = self.ec2Controller;
-	
+	InstanceViewController* ivc = [[InstanceViewController alloc] initWithStyle:UITableViewStyleGrouped
+																	   instance:[[ec2Controller getInstancesForGroup:instanceGroup] objectAtIndex:indexPath.row]
+																  ec2Controller:self.ec2Controller
+																		  group:self.instanceGroup];
+
 	[[self navigationController] pushViewController:ivc animated:YES];
 	[ivc release];
 }

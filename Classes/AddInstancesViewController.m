@@ -14,8 +14,8 @@
 @synthesize ec2Controller, numinstances_cell, availabilityzone_cell, imageid_cell, keyname_cell, instancetype_cell;
 
 - (AddInstancesViewController*)initWithStyle:(UITableViewStyle)style ec2Controller:(EC2DataController*)ec2Ctrl {
-
 	if ([super initWithStyle:style]) {
+		self.title = @"Run Instances";
 		self.ec2Controller = ec2Ctrl;
 		UIBarButtonItem* launch_button = [[UIBarButtonItem alloc] initWithTitle:@"Launch" style:UIBarButtonItemStyleBordered
 																		 target:self action:@selector(runInstances:)];

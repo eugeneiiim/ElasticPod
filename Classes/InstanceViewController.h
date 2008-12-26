@@ -10,6 +10,7 @@
 
 #import "EC2Instance.h"
 #import "EC2DataController.h"
+#import "InstanceGroupViewController.h"
 
 @interface InstanceViewController : UITableViewController {
 	EC2Instance* instance;
@@ -22,5 +23,7 @@
 @property (nonatomic, readwrite, assign) EC2DataController* ec2Controller;
 @property (nonatomic, readwrite, assign) NSInteger index;
 @property (nonatomic, readwrite, assign) NSString* group;
+
+- (id)initWithStyle:(UITableViewStyle) instance:(EC2Instance*)inst ec2Controller:(EC2DataController*)ec2Ctrl group:(NSString*)group;
 
 @end

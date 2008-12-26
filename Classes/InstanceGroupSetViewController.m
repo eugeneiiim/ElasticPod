@@ -45,7 +45,8 @@
 }
 
 - (void)add {
-	printf("TODO prompt to add new instance set\n");
+	AddInstancesViewController* aivc = [[AddInstancesViewController alloc] initWithStyle:UITableViewStyleGrouped ec2Controller:ec2Controller];
+	[self.navigationController pushViewController:aivc animated:YES];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {

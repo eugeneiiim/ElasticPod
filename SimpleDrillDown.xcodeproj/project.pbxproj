@@ -19,7 +19,6 @@
 		53A3862B0E6DD89B002F7F09 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53A386290E6DD89B002F7F09 /* MainWindow.xib */; };
 		CE00336E0F02D828005C7943 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CE00336D0F02D828005C7943 /* libcrypto.0.9.8.dylib */; };
 		CED12B560EFEF5600083619D /* AddInstancesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12B550EFEF5600083619D /* AddInstancesViewController.m */; };
-		CED12B580EFEF59C0083619D /* AddInstancesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = CED12B570EFEF59C0083619D /* AddInstancesView.xib */; };
 		CED12BE50EFF05190083619D /* EC2DataController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12BE40EFF05190083619D /* EC2DataController.m */; };
 		CED12FD00F00381D0083619D /* DetailCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12FCF0F00381D0083619D /* DetailCell.m */; };
 		CED1331C0F00BE980083619D /* ButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CED1331B0F00BE980083619D /* ButtonCell.m */; };
@@ -55,7 +54,6 @@
 		CE00336D0F02D828005C7943 /* libcrypto.0.9.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.0.9.8.dylib; path = /opt/local/lib/libcrypto.0.9.8.dylib; sourceTree = "<absolute>"; };
 		CED12B540EFEF5600083619D /* AddInstancesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddInstancesViewController.h; sourceTree = "<group>"; };
 		CED12B550EFEF5600083619D /* AddInstancesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddInstancesViewController.m; sourceTree = "<group>"; };
-		CED12B570EFEF59C0083619D /* AddInstancesView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AddInstancesView.xib; sourceTree = "<group>"; };
 		CED12BE30EFF05190083619D /* EC2DataController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EC2DataController.h; sourceTree = "<group>"; };
 		CED12BE40EFF05190083619D /* EC2DataController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EC2DataController.m; sourceTree = "<group>"; };
 		CED12FCE0F00381D0083619D /* DetailCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailCell.h; sourceTree = "<group>"; };
@@ -154,7 +152,6 @@
 				8D1107310486CEB800E47090 /* Info.plist */,
 				2846CFC60DBFDD18009410C2 /* Localizable.strings */,
 				CED4A11A0EFCA782000D0551 /* AddAccountView.xib */,
-				CED12B570EFEF59C0083619D /* AddInstancesView.xib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -269,7 +266,6 @@
 				CED49F5C0EFC9398000D0551 /* up.png in Resources */,
 				CED49F5D0EFC9398000D0551 /* down.png in Resources */,
 				CED4A11B0EFCA782000D0551 /* AddAccountView.xib in Resources */,
-				CED12B580EFEF59C0083619D /* AddInstancesView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

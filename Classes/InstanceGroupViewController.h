@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import "InstanceGroupDataController.h"
 #import "EC2DataController.h";
 
 @interface InstanceGroupViewController : UITableViewController {

@@ -7,10 +7,10 @@
 //
 
 #import "InstanceGroupViewController.h"
-#import "InstanceGroupDataController.h"
 #import "EC2Instance.h"
 #import "InstanceViewController.h"
 #import "EC2DataController.h"
+#import "AddInstancesViewController.h"
 
 @implementation InstanceGroupViewController
 
@@ -56,6 +56,11 @@
 	return cell;
 }
 
+- (void)add {
+	AddInstancesViewController* aivc = [[AddInstancesViewController alloc] initWithStyle:UITableViewStyleGrouped ec2Controller:ec2Controller];
+	[self.navigationController pushViewController:aivc animated:YES];
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	InstanceViewController* ivc = [[InstanceViewController alloc] initWithStyle:UITableViewStyleGrouped];
 	ivc.instance = [[ec2Controller getInstancesForGroup:instanceGroup] objectAtIndex:indexPath.row];
@@ -86,11 +91,6 @@
 	NSInteger num_instances;
 	
 	[ec2Controller runInstances:model_instance n:num_instances];
-}
-
-- (void)add {
-	printf("TODO prompt to add new instances\n");
-	//[navigationController pushNavigationItem: animated:YES];
 }
 
 - (UITableViewCellEditingStyle)tableView: (UITableView *)tableView editingStyleForRowAtIndexPath: (NSIndexPath *)indexPath { 

@@ -94,6 +94,10 @@
 }
 
 - (void)refresh {
+	[ec2Controller refreshInstanceData:@selector(refreshEC2Callback:) target:self];
+}
+
+- (void)refreshEC2Callback {
 	[self.tableView reloadData];
 }
 

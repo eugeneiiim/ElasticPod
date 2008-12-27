@@ -77,5 +77,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 - (void)removeAccountAtIndex:(NSInteger)index;
 - (void)updateAccount:(NSString*)prev_name newAccount:(AWSAccount*)new;
 - (EC2DataController*)ec2ControllerForAccount:(NSString*)acct;
+- (id)init:(RootViewController*)rvc;
+- (void)refreshEC2Controllers;
 
 @end

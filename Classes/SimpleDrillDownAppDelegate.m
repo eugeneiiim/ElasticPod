@@ -57,10 +57,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 - (void)applicationDidFinishLaunching:(UIApplication *)application {
     // Create the data controller
-    self.dataController = [[AccountsController alloc] init];;
-
+    self.dataController = [[AccountsController alloc] init:rootViewController];
 	rootViewController.accountsController = dataController;
-    
+
     // Configure the window with its navicationController and then show it
     [window addSubview:[navigationController view]];
     [window makeKeyAndVisible];

@@ -34,12 +34,10 @@
 
 - (void)refresh {
 	printf("instance group set view controller REFRESH\n");
-	[ec2Controller refreshInstanceData:@selector(ec2RefreshCallback:) target:self];
-
-	[self ec2RefreshCallback];
+	[ec2Controller refreshInstanceData];
 }
 
-- (void)ec2RefreshCallback {
+- (void)refreshEC2Callback {
 	printf("EC2 REFRESH CALLBACK\n");
 	[self.tableView reloadData];
 }
@@ -67,17 +65,20 @@
     
 	// Get the object to display and set the value in the cell
 	cell.text = [[ec2Controller getInstanceGroups] objectAtIndex:indexPath.row];
-	
+
 	return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	NSString* grp = [[ec2Controller getInstanceGroups] objectAtIndex:indexPath.row];
-	InstanceGroupViewController* igvc = [[InstanceGroupViewController alloc] initWithStyle:UITableViewStylePlain
-																			 instanceGroup:grp ec2Controller:ec2Controller];
-
-	[[self navigationController] pushViewController:igvc animated:YES];
-	[igvc release];
+	NSString* grp = [ec2Controller getInstanceGroupAtIndex:indexPath.row];
+	if (grp != nil) {
+		InstanceGroupViewController* igvc = [[InstanceGroupViewController alloc] initWithStyle:UITableViewStylePlain
+													instanceGroup:grp ec2Controller:ec2Controller];
+		[[self navigationController] pushViewController:igvc animated:YES];
+		[igvc release];
+	} else {
+		NSLog(@"group is nil!");
+	}
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {

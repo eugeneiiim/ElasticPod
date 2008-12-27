@@ -82,13 +82,14 @@
 
 @implementation EC2DataController
 
-@synthesize account, instanceData, tempInstanceData, urlreq_data, curGroupDict, curInst, lastElementName, refreshCallback, rootViewController;
+@synthesize account, instanceData, tempInstanceData, urlreq_data, curGroupDict, curInst, lastElementName, rootViewController, currentReqType, requestLock;
 
 - (id)initWithAccount:(AWSAccount*)acct rootViewController:(RootViewController*)rvc {
-	self.refreshCallback = [[NSInvocation alloc] init];
 	self.instanceData = nil; //[[NSDictionary alloc] init];
 	self.account = acct;
 	self.rootViewController = rvc;
+	self.requestLock = [[NSLock alloc] init];
+	self.currentReqType = NO_REQUEST;
 	//[self refreshInstanceData];
 	return self;
 }
@@ -128,7 +129,6 @@
 - (NSArray*)getInstanceGroups {
 	if (instanceData == nil) {
 		NSLog(@"instance data is nil!");
-		[self refreshInstanceData:nil target:self];
 		return [[NSArray alloc] init];
 	}
 
@@ -148,8 +148,26 @@
 }
 
 - (void)executeRequest:(NSString*)action args:(NSDictionary*)args {
-	NSLog(@"START ANIMATING");
-	[[rootViewController activityIndicator] startAnimating];
+	[requestLock lock]; // prevent simultaneous requests.
+	[rootViewController showLoadingScreen];
+
+	if ([action compare:@"DescribeInstances"] == NSOrderedSame) {
+		currentReqType = DESCRIBE_INSTANCES;
+	} else if ([action compare:@"RebootInstances"] == NSOrderedSame) {
+		currentReqType = REBOOT_INSTANCES;
+	} else if ([action compare:@"TerminateInstances"] == NSOrderedSame) {
+		currentReqType = TERMINATE_INSTANCES;
+	} else {
+		NSLog(@"ERROR invalid request type!!! %@", action);
+
+		[rootViewController hideLoadingScreen];
+		currentReqType = NO_REQUEST;
+		[requestLock unlock];
+		
+		return;
+	}
+	
+	
 
 	NSDateFormatter* formatter = [[NSDateFormatter alloc] init];
 	[formatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
@@ -165,11 +183,11 @@
 		[argsStr appendFormat:@"&%@=%@", k, [args valueForKey:k]];
 	}
 
-	NSString* req1 = [NSString stringWithFormat:@"Action=%@&AWSAccessKeyId=%@%@&SignatureVersion=1&Timestamp=%@&Version=2008-05-05", action, [account access_key], argsStr, timestamp];
-	NSString* sig = [self generateSignature:req1 secret:[account secret_key]];
-	
+	NSString* req1 = [NSString stringWithFormat:@"Action=%@&AWSAccessKeyId=%@%@&SignatureVersion=1&Timestamp=%@&Version=2008-05-05", action, account.access_key, argsStr, timestamp];
+	NSString* sig = [self generateSignature:req1 secret:account.secret_key];
+
 	NSString* url = [[NSString alloc] initWithFormat:@"https://ec2.amazonaws.com/?%@&Signature=%@", req1, sig];
-	
+
 	NSLog(@"making request...");
 	NSLog(url);
 	NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]
@@ -180,21 +198,16 @@
 		urlreq_data = [[NSMutableData alloc] init];
 	} else {
 		printf("connection false\n");
+
+		[rootViewController hideLoadingScreen];
+		currentReqType = NO_REQUEST;
+		[requestLock unlock];
 		// inform the user that the download could not be made
 	}
 }
 
 - (void)refreshInstanceData {
 	[self executeRequest:@"DescribeInstances" args:[[[NSDictionary alloc] init] autorelease]];
-}
-
-- (void)refreshInstanceData:(SEL)callback target:(id)target {
-		//NSMethodSignature* sign = [[target class] instanceMethodSignatureForSelector:callback];
-		//refreshCallback = [NSInvocation invocationWithMethodSignature:sign];
-		//[refreshCallback setSelector:callback];
-		//[refreshCallback setTarget:target];
-	
-	[self refreshInstanceData];
 }
 
 // Connection event handlers.
@@ -214,6 +227,15 @@
     // inform the user
 	NSLog(@"Connection failed! Error - %@ %@", [error localizedDescription],
 		[[error userInfo] objectForKey:NSErrorFailingURLStringKey]);
+
+	NSString* msg = @"Connection failed.  Check your Internet connection.";
+	UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:msg
+												   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+	[alert show];
+	[alert release];
+	
+	[rootViewController hideLoadingScreen];
+	[requestLock unlock];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
@@ -221,7 +243,10 @@
 	
 	curGroupDict = nil;
 	curInst = nil;
-	tempInstanceData = [[NSMutableDictionary alloc] init];
+
+	if (currentReqType == DESCRIBE_INSTANCES) {
+		tempInstanceData = [[NSMutableDictionary alloc] init];
+	}
 
 	NSLog([[NSString alloc] initWithData:urlreq_data encoding:NSASCIIStringEncoding]);
 	
@@ -232,9 +257,34 @@
 	[urlreq_data release];
 }
 
+- (EC2Instance*)getInstance:(NSString*)group instanceId:(NSString*)inst_id {
+	return [[instanceData valueForKey:group] valueForKey:inst_id];
+}
+
 // Parser event handlers
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict {
 	lastElementName = elementName;
+}
+
+- (NSString*)getInstanceGroupAtIndex:(NSInteger)index {
+	NSArray* instanceGroups = [self getInstanceGroups];
+	if (index >= [instanceGroups count]) {
+		NSLog(@"ERROR index outside of range of instance groups...");
+		return nil;
+	} else {
+		return [instanceGroups objectAtIndex:index];
+	}
+}
+
+- (EC2Instance*)getInstanceAtIndex:(NSInteger)index group:(NSString*)grp {
+	NSDictionary* instances = [self.instanceData valueForKey:grp];
+	if (index >= [[instances allKeys] count]) {
+		NSLog(@"ERROR no instance at this index.");
+		return nil;
+	} else {
+		NSString* instanceId = [[instances allKeys] objectAtIndex:index];
+		return [instances valueForKey:instanceId];
+	}
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
@@ -261,6 +311,25 @@
 	} else if ([lastElementName compare:@"instanceId"] == NSOrderedSame) {
 		curInst = [[EC2Instance alloc] init];
 		[curGroupDict setValue:curInst forKey:[string copy]];
+	} else if ([lastElementName compare:@"Code"] == NSOrderedSame) {
+		self.tempInstanceData = nil; // indicate that this new data should not be used.
+		
+		if ([string compare:@"SignatureDoesNotMatch"] == NSOrderedSame) {
+			NSString* msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your secret key.", self.account.name];
+			UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Invalid Request Signature" message:msg
+	 													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+			[alert show];
+			[alert release];
+			return;
+		} else if ([string compare:@"InvalidClientTokenId"] == NSOrderedSame) {
+			NSString* msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your access key.", self.account.name];
+			UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Invalid Access Key" message:msg
+	 													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+			[alert show];
+			[alert release];
+			return;
+		}
+		// TODO check for other errors
 	}
 
 	if (curInst != nil) {
@@ -269,18 +338,18 @@
 }
 
 - (void)parserDidEndDocument:(NSXMLParser *)parser {
-	self.instanceData = [NSDictionary dictionaryWithDictionary:tempInstanceData];
-	[tempInstanceData release];
+	if (currentReqType == DESCRIBE_INSTANCES && tempInstanceData != nil) {
+		self.instanceData = [NSDictionary dictionaryWithDictionary:tempInstanceData];
+		[tempInstanceData release];
+		tempInstanceData = nil;
+	}
 
 	// Refresh the view.
-	printf("calling refresh callback!\n");
-	if ([refreshCallback selector] != nil) {
-		printf("YES calling refresh callback!\n");
-		[refreshCallback invoke];
-	}
+	[rootViewController.navigationController.topViewController refreshEC2Callback];
 	
-	NSLog(@"STOP ANIMATING");
-	[[rootViewController activityIndicator] stopAnimating];
+	[rootViewController hideLoadingScreen];
+	currentReqType = NO_REQUEST;
+	[requestLock unlock];
 }
 
 - (void)setInstanceData:(NSDictionary *)newdict {

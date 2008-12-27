@@ -23,5 +23,6 @@
 - (IBAction)addInstanceGroup:(id)sender;
 - (void)refresh;
 - (InstanceGroupSetViewController*)initWithStyle:(UITableViewStyle)style account:(AWSAccount*)acct ec2Controller:(EC2DataController*)ec2Ctrl;
+- (void)refreshEC2Callback;
 
 @end

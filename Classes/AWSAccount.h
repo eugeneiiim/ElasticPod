@@ -14,9 +14,9 @@
 	NSString* secret_key;
 }
 
-@property (nonatomic, copy, readwrite) NSString *name;
-@property (nonatomic, copy, readwrite) NSString *access_key;
-@property (nonatomic, copy, readwrite) NSString *secret_key;
+@property (nonatomic, assign, readwrite) NSString *name;
+@property (nonatomic, assign, readwrite) NSString *access_key;
+@property (nonatomic, assign, readwrite) NSString *secret_key;
 
 - (id)initWithName:(NSString*)name accessKey:(NSString*)ak secretKey:(NSString*)sk;
 + (id)accountWithName:(NSString*)name_ accessKey:(NSString*)ak secretKey:(NSString*)sk;

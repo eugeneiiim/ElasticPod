@@ -52,7 +52,16 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 @implementation RootViewController
 
-@synthesize accountsController, toolbar, activityIndicator;
+@synthesize accountsController, toolbar, activityIndicator, loadingOverlay, loadingCount, loadingCountLock;
+
+- (id)init {
+	if ([super init]) {
+		self.loadingCount = 0;
+		self.loadingCountLock = [[NSLock alloc] init];
+	}
+
+	return self;
+}
 
 - (void)viewDidLoad {
 	self.title = @"AWS Accounts";
@@ -82,13 +91,17 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	[add_account_button release];
 	[self.navigationController.view addSubview:toolbar];
 
+	loadingOverlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, rootViewWidth, rootViewHeight)];
+	loadingOverlay.backgroundColor = [UIColor blackColor];
+	loadingOverlay.alpha = 0.0;
+	[self.navigationController.view addSubview:loadingOverlay];
+
 	// Add spinner/activity indicator.
 	activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
 	CGFloat spinnerWidth = CGRectGetWidth(activityIndicator.bounds);
-	rectArea = CGRectMake(rootViewWidth/2 - spinnerWidth/2, rootViewHeight/2 - spinnerWidth/2, spinnerWidth, spinnerWidth);
-	[activityIndicator setFrame:rectArea];
+	[activityIndicator setFrame:CGRectMake(rootViewWidth/2 - spinnerWidth/2, rootViewHeight/2 - spinnerWidth/2, spinnerWidth, spinnerWidth)];
 	[self.navigationController.view addSubview:activityIndicator];
-
+	
 	self.tableView.allowsSelectionDuringEditing = TRUE;
 	[super viewDidLoad];
 }
@@ -110,7 +123,12 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	[[self.navigationController topViewController] refresh];
 }
 
+- (void)refreshEC2Callback {
+	//[self.activityIndicator stopAnimating];
+}
+
 - (void)refresh {
+	[accountsController refreshEC2Controllers];
 	[self.tableView reloadData];
 }
 
@@ -181,6 +199,28 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	// Remove this account.
 	[accountsController removeAccountAtIndex:indexPath.row];
 	[self.tableView reloadData];
+}
+
+- (void)showLoadingScreen {
+	[loadingCountLock lock];
+	loadingCount++;
+	if (loadingCount == 1) {
+		[activityIndicator startAnimating];
+		self.navigationController.view.userInteractionEnabled = false;
+		self.loadingOverlay.alpha = 0.4;
+	}
+	[loadingCountLock unlock];
+}
+
+- (void)hideLoadingScreen {
+	[loadingCountLock lock];
+	loadingCount--;
+	if (loadingCount == 0) {
+		[activityIndicator stopAnimating];
+		self.navigationController.view.userInteractionEnabled = true;
+		self.loadingOverlay.alpha = 0.0;
+	}
+	[loadingCountLock unlock];
 }
 
 @end

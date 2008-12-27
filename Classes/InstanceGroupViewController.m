@@ -45,9 +45,9 @@
 	}
 
 	// Get the object to display and set the value in the cell
-	EC2Instance* inst = [[ec2Controller getInstancesForGroup:instanceGroup] objectAtIndex:indexPath.row];
+	EC2Instance* inst = [ec2Controller getInstanceAtIndex:indexPath.row group:self.instanceGroup];
 	if (inst == nil) {
-		cell.text = @"MISSING";
+		cell.text = @"MISSING INSTANCE";
 		NSLog(@"ERROR instance is nil!");
 	} else {
 		cell.text = [inst getProperty:@"instanceId"];
@@ -80,10 +80,10 @@
 }
 
 - (void)refresh {
-	[ec2Controller refreshInstanceData:@selector(ec2RefreshCallback:) target:self];
+	[ec2Controller refreshInstanceData];
 }
 
-- (void)ec2RefreshCallback {
+- (void)refreshEC2Callback {
 	[self.tableView reloadData];
 }
 

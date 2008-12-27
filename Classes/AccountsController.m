@@ -60,34 +60,64 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 @synthesize nameToAccount, accountEc2Controllers, rootViewController;
 
-- (id)init {
+- (id)init:(RootViewController*)rvc {
 	if (self = [super init]) {
+		self.rootViewController = rvc;
 		[self loadAccounts];
 	}
 	return self;
 }
 
 - (void)addAccount:(AWSAccount*)acct {
-	AWSAccount* existing = [self.nameToAccount objectForKey:[acct name]];
-	if (existing) {
-		printf("ERROR name conflict!\n");
-		/*
-		 		// TODO pop up warning message -- overwrite existing?
-		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Account exists" message:@"Account named ASDF already exists. Overwrite?"
-													   delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"other"];
-		[alert show];*/
+	if (acct.name == nil || [acct.name length] == 0) {
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Account is missing a name."
+													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+	} else if (acct.access_key == nil || [acct.access_key length] == 0) {
+		NSString* msg = [NSString stringWithFormat:@"Account \"%@\" is missing an access key.", acct.name];
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:msg
+													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+	} else if (acct.secret_key == nil || [acct.secret_key length] == 0) {
+		NSString* msg = [NSString stringWithFormat:@"Account \"%@\" is missing a secret key.", acct.name];
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:msg
+													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+	} else {
+		AWSAccount* existing = [self.nameToAccount objectForKey:[acct name]];
+		if (existing) {
+			printf("ERROR name conflict!\n");
+		
+			// TODO pop up warning message -- overwrite existing?
+			NSString* msg = [NSString stringWithFormat:@"Account \"%@\" already exists.", [acct name]];
+			UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Account exists" message:msg
+													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+			[alert show];
+			[alert release];
+		} else {
+			[self.nameToAccount setValue:acct forKey:acct.name];
+			EC2DataController* c = [[EC2DataController alloc] initWithAccount:acct rootViewController:rootViewController];
+			[c refreshInstanceData];
+			[self.accountEc2Controllers setValue:c forKey:acct.name];
+			[self saveAccounts];
+		}
 	}
-
-	[self.nameToAccount setValue:acct forKey:acct.name];
-	EC2DataController* c = [[EC2DataController alloc] initWithAccount:acct rootViewController:rootViewController];
-	[c refreshInstanceData];
-	[self.accountEc2Controllers setValue:c forKey:acct.name];
-	[self saveAccounts];
 }
 
 - (void)updateAccount:(NSString*)prev_name newAccount:(AWSAccount*)new {
+	NSLog(@"UPDATE ACCOUNT");
+	
 	[self.nameToAccount removeObjectForKey:prev_name];
-	[self.nameToAccount setValue:new forKey:[new name]];
+	[self.nameToAccount setValue:new forKey:new.name];
+	
+	EC2DataController* c = [self.accountEc2Controllers valueForKey:prev_name];
+	c.account = new;
+	[self.accountEc2Controllers removeObjectForKey:prev_name];
+	[self.accountEc2Controllers setValue:c forKey:new.name];
+
 	[self saveAccounts];
 }
 
@@ -154,6 +184,12 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	[self.nameToAccount removeObjectForKey:[acct name]];
 	[self.accountEc2Controllers removeObjectForKey:[acct name]];
 	[self saveAccounts];
+}
+
+- (void)refreshEC2Controllers {
+	for (EC2DataController* e in [accountEc2Controllers allValues]) {
+		[e refreshInstanceData];
+	}
 }
 
 @end

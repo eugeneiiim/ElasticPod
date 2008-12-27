@@ -14,6 +14,8 @@
 
 @class RootViewController;
 
+typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQUEST} RequestType;
+
 @interface EC2DataController : NSObject {
 	AWSAccount* account;
 	NSDictionary* instanceData; /* reservation group name -> {instance name -> instance} */
@@ -23,8 +25,9 @@
 	NSString* lastElementName;
 	NSMutableDictionary* curGroupDict;
 	EC2Instance* curInst;
-	NSInvocation* refreshCallback;
 	RootViewController* rootViewController;
+	RequestType currentReqType;
+	NSLock* requestLock;
 }
 
 @property (assign, readwrite) AWSAccount* account;
@@ -34,8 +37,9 @@
 @property (assign, readwrite) NSString* lastElementName;
 @property (nonatomic, assign, readwrite) NSMutableDictionary* curGroupDict;
 @property (nonatomic, assign, readwrite) EC2Instance* curInst;
-@property (nonatomic, assign, readwrite) NSInvocation* refreshCallback;
 @property (nonatomic, assign, readwrite) RootViewController* rootViewController;
+@property (nonatomic, assign, readwrite) RequestType currentReqType;
+@property (nonatomic, assign, readwrite) NSLock* requestLock;
 
 - (void)terminateInstances:(NSArray*)instances;
 - (void)terminateInstanceGroup:(NSString*)grp;
@@ -44,9 +48,11 @@
 - (void)runInstances:(EC2Instance*)modelInstance n:(NSInteger)numInstances;
 - (NSArray*)getInstanceGroups;
 - (NSArray*)getInstancesForGroup:(NSString*)grp;
-- (void)refreshInstanceData:(SEL)callback target:(id)target;
 - (void)refreshInstanceData;
 - (void)executeRequest:(NSString*)action args:(NSDictionary*)args;
+- (EC2Instance*)getInstance:(NSString*)group instanceId:(NSString*)inst_id;
+- (NSString*)getInstanceGroupAtIndex:(NSInteger)index;
+- (EC2Instance*)getInstanceAtIndex:(NSInteger)index group:(NSString*)grp;
 
 @end
 

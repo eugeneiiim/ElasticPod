@@ -13,7 +13,7 @@
 
 @implementation InstanceViewController
 
-@synthesize instance, ec2Controller, index, group;
+@synthesize instance, ec2Controller, index, group, reboot_cell, terminate_cell, lastAction;
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	return TRUE;
@@ -25,6 +25,7 @@
 		self.instance = inst;
 		self.ec2Controller = ec2Ctrl;
 		self.group = grp;
+		self.lastAction = NO_ACTION;
 	}
 	return self;
 }
@@ -47,7 +48,7 @@
 		self.navigationItem.rightBarButtonItem = segmentBarItem;
 	}
 
-	self.title = NSLocalizedString([instance getProperty:@"instanceId"], @"Master view navigation title");
+	self.title = [instance getProperty:@"instanceId"];
 
 	[super viewDidLoad];
 }
@@ -58,10 +59,25 @@
 		NSLog(@"ERROR! no neighbors for group %@", group);
 		return;
 	}
-	NSInteger next_index = (index+1) % [neighs count];
+	NSInteger num_neighs = [neighs count];
+
+	NSInteger next_index;
+	UISegmentedControl* seg = sender;
+	switch (seg.selectedSegmentIndex) {
+		case 0:
+			next_index = (index+1) % num_neighs;
+			NSLog(@"%d", next_index);
+			break;
+		case 1:
+			next_index = (index-1+num_neighs) % num_neighs;
+			NSLog(@"%d", next_index);
+			break;
+	}
 
 	// Just reuse the current instance.
 	self.instance = [neighs objectAtIndex:next_index];
+	self.title = [instance getProperty:@"instanceId"];
+	self.index = next_index;
 	[self.tableView reloadData];
 }
 
@@ -69,18 +85,55 @@
     return 2;
 }
 
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+	switch (buttonIndex) {
+		case 0:
+			switch (self.lastAction) {
+				case REBOOT:
+					[ec2Controller rebootInstances:[NSArray arrayWithObject:instance]];
+					break;
+				case TERMINATE:
+					[ec2Controller terminateInstances:[NSArray arrayWithObject:instance]];
+					break;
+				default:
+					break;
+			}
+			self.lastAction = NO_ACTION;
+			break;
+		case 1:
+			break;
+	}
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+	UIAlertView* alert;
+	
 	switch (indexPath.section) {
 		case 0:
 			switch (indexPath.row) {
 				case 0:
 					// Reboot
-					NSLog(@"calling reboot instances on ec2 controller...");
-					[ec2Controller rebootInstances:[NSArray arrayWithObject:instance]];
+					[self.reboot_cell setSelected:NO animated:YES];
+					self.lastAction = REBOOT;
+
+					alert = [[UIAlertView alloc] initWithTitle:@"Warning"
+													   message:[NSString stringWithFormat:@"Really reboot %@?", [instance getProperty:@"instanceId"]]
+													  delegate:self cancelButtonTitle:@"Yes" otherButtonTitles:nil];
+					[alert addButtonWithTitle:@"No"];
+					[alert show];
+					[alert release];
 					break;
 				case 1:
 					// Terminate
-					[ec2Controller terminateInstances:[NSArray arrayWithObject:instance]];
+					[self.terminate_cell setSelected:NO animated:YES];
+					self.lastAction = TERMINATE;
+
+					alert = [[UIAlertView alloc] initWithTitle:@"Warning"
+													message:[NSString stringWithFormat:@"Really terminate %@?", [instance getProperty:@"instanceId"]]
+													  delegate:self cancelButtonTitle:@"Yes" otherButtonTitles:nil];
+					[alert addButtonWithTitle:@"No"];
+					[alert show];
+					[alert release];
 					break;
 				default:
 					return;
@@ -103,11 +156,17 @@
 }
 
 - (void)refresh {
-	[ec2Controller refreshInstanceData:@selector(refreshEC2Callback:) target:self];
+	[ec2Controller refreshInstanceData];
 }
 
 - (void)refreshEC2Callback {
-	[self.tableView reloadData];
+	EC2Instance* new_inst = [[[ec2Controller instanceData] valueForKey:self.group] valueForKey:[self.instance getProperty:@"instanceId"]];
+	if (new_inst != nil) {
+		self.instance = new_inst;
+		[self.tableView reloadData];
+	} else {
+		NSLog(@"ERROR instance is now null.  Might be gone, might have been a failed request.");
+	}
 }
 
 - (void)add {
@@ -117,26 +176,32 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	//UITableViewCell* cell;// = [tableView dequeueReusableCellWithIdentifier:@"tvc"];
-	UITableViewCell* cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"tvc"] autorelease];
+	UITableViewCell* cell;
 
 	switch(indexPath.section) {
 		case 0:
-			cell.accessoryType = UITableViewCellAccessoryNone;
-			cell.textAlignment = UITextAlignmentCenter;
-
 			// Controls -- reboot and terminate buttons
 			switch (indexPath.row) {
 				case 0:
-					cell.text = @"Reboot";
-					break;
+					if (self.reboot_cell == nil) {
+						self.reboot_cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"tvc"] autorelease];
+						self.reboot_cell.accessoryType = UITableViewCellAccessoryNone;
+						self.reboot_cell.textAlignment = UITextAlignmentCenter;
+						self.reboot_cell.text = @"Reboot";
+					}
+					return self.reboot_cell;
 				case 1:
-					cell.text = @"Terminate";
-					break;
+					if (self.terminate_cell == nil) {
+						self.terminate_cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"tvc"] autorelease];
+						self.terminate_cell.accessoryType = UITableViewCellAccessoryNone;
+						self.terminate_cell.textAlignment = UITextAlignmentCenter;
+						self.terminate_cell.text = @"Terminate";
+					}
+					return self.terminate_cell;
 			}
 
-			return cell;
-
-		case 1:			
+		case 1:
+			cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"tvc"] autorelease];
 			cell.selectionStyle = UITableViewCellSelectionStyleNone;
 			NSString *cellText = nil;
 
@@ -180,14 +245,13 @@
 				default:
 					break;
 			}
-			
+
 			cell.text = cellText;
 			return cell;
 
 		default:
 			return nil;
-			break;
-    }
+	}
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {

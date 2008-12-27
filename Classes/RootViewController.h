@@ -54,14 +54,23 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	AccountsController *accountsController;
 	UIToolbar* toolbar;
 	UIActivityIndicatorView* activityIndicator;
+	UIView* loadingOverlay;
+	NSInteger loadingCount;
+	NSLock* loadingCountLock;
 }
 
 @property (nonatomic, assign) AccountsController *accountsController;
 @property (nonatomic, readonly) UIToolbar* toolbar;
 @property (nonatomic, assign) UIActivityIndicatorView* activityIndicator;
+@property (nonatomic, assign, readwrite) UIView* loadingOverlay;
+@property (nonatomic, assign, readwrite) NSInteger loadingCount;
+@property (nonatomic, assign, readwrite) NSLock* loadingCountLock;
 
 - (void)refresh;
 - (void)addAccount;
 - (IBAction)refreshButtonHandler:(id)sender;
+- (void)refreshEC2Callback;
+- (void)showLoadingScreen;
+- (void)hideLoadingScreen;
 
 @end

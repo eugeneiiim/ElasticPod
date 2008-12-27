@@ -21,5 +21,6 @@
 - (IBAction)addInstances:(id)sender;
 - (void)refresh;
 - (InstanceGroupViewController*)initWithStyle:(UITableViewStyle)style instanceGroup:(NSString*)grp ec2Controller:(EC2DataController*)ec2Ctrl;
+- (void)refreshEC2Callback;
 
 @end

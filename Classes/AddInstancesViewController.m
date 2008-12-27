@@ -20,6 +20,10 @@
 		UIBarButtonItem* launch_button = [[UIBarButtonItem alloc] initWithTitle:@"Launch" style:UIBarButtonItemStyleBordered
 																		 target:self action:@selector(runInstances:)];
 		self.navigationItem.rightBarButtonItem = launch_button;
+		
+		
+		UIPickerView* availabilityzone_picker = [[UIPickerView alloc] init];
+		[self.navigationController.view addSubview:availabilityzone_picker];
 	}
 	return self;
 }

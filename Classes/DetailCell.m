@@ -57,7 +57,6 @@
 - (id)initWithFrame:(CGRect)frame reuseIdentifier:(NSString *)reuseIdentifier {
     if (self = [super initWithFrame:frame reuseIdentifier:reuseIdentifier]) {
         // Initialize the labels, their fonts, colors, alignment, and background color.
- 
         prompt = [[UILabel alloc] initWithFrame:CGRectZero];
         prompt.font = [UIFont boldSystemFontOfSize:12];
         prompt.textColor = [UIColor darkGrayColor];
@@ -112,6 +111,7 @@
 }
 
 // Update the text color of each label when entering and exiting selected mode.
+/*
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];
     if (selected) {
@@ -121,6 +121,6 @@
         name.textColor = [UIColor blackColor];
         prompt.textColor = [UIColor darkGrayColor];
     }
-}
+}*/
 
 @end

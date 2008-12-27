@@ -24,6 +24,6 @@
 @property (nonatomic, readwrite, assign) NSInteger index;
 @property (nonatomic, readwrite, assign) NSString* group;
 
-- (id)initWithStyle:(UITableViewStyle) instance:(EC2Instance*)inst ec2Controller:(EC2DataController*)ec2Ctrl group:(NSString*)group;
+- (InstanceViewController*)initWithStyle:(UITableViewStyle)style instance:(EC2Instance*)inst ec2Controller:(EC2DataController*)ec2Ctrl group:(NSString*)group;
 
 @end

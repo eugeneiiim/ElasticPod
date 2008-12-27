@@ -51,6 +51,15 @@
 		NSLog(@"ERROR instance is nil!");
 	} else {
 		cell.text = [inst getProperty:@"instanceId"];
+		
+		NSString* state = [inst getProperty:@"name"];
+		if ([state compare:@"terminated"] == NSOrderedSame) {
+			cell.contentView.backgroundColor = [UIColor redColor];
+		} else if ([state compare:@"running"] == NSOrderedSame) {
+			cell.contentView.backgroundColor = [UIColor greenColor];
+		} else if ([state compare:@"booting"] == NSOrderedSame) {
+			cell.contentView.backgroundColor = [UIColor yellowColor];
+		}
 	}
 
 	return cell;

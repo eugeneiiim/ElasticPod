@@ -67,7 +67,7 @@
     
 	// Get the object to display and set the value in the cell
 	cell.text = [[ec2Controller getInstanceGroups] objectAtIndex:indexPath.row];
-
+	
 	return cell;
 }
 

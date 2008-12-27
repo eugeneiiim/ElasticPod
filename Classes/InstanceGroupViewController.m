@@ -75,7 +75,6 @@
 																	   instance:[[ec2Controller getInstancesForGroup:instanceGroup] objectAtIndex:indexPath.row]
 																  ec2Controller:self.ec2Controller
 																		  group:self.instanceGroup];
-
 	[[self navigationController] pushViewController:ivc animated:YES];
 	[ivc release];
 }
@@ -100,7 +99,7 @@
 	EC2Instance* model_instance;
 	NSInteger num_instances;
 	
-	[ec2Controller runInstances:model_instance n:num_instances];
+	//[ec2Controller runInstances:model_instance n:num_instances];
 }
 
 - (UITableViewCellEditingStyle)tableView: (UITableView *)tableView editingStyleForRowAtIndexPath: (NSIndexPath *)indexPath { 

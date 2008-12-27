@@ -59,8 +59,8 @@
 		return;
 	}
 	NSInteger next_index = (index+1) % [neighs count];
-	NSLog(@"next index is: %d", next_index);
 
+	// Just reuse the current instance.
 	self.instance = [neighs objectAtIndex:next_index];
 	[self.tableView reloadData];
 }
@@ -76,9 +76,6 @@
 				case 0:
 					// Reboot
 					NSLog(@"calling reboot instances on ec2 controller...");
-					//if (ec2Controller == nil) {
-					//	NSLog(@"ec2controller is nil!");
-					//}
 					[ec2Controller rebootInstances:[NSArray arrayWithObject:instance]];
 					break;
 				case 1:
@@ -101,7 +98,7 @@
         case 1:
 			return 11;
         default:
-			return -1;
+			return 0;
     }
 }
 
@@ -121,12 +118,12 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	//UITableViewCell* cell;// = [tableView dequeueReusableCellWithIdentifier:@"tvc"];
 	UITableViewCell* cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"tvc"] autorelease];
-	
+
 	switch(indexPath.section) {
 		case 0:
 			cell.accessoryType = UITableViewCellAccessoryNone;
 			cell.textAlignment = UITextAlignmentCenter;
-			
+
 			// Controls -- reboot and terminate buttons
 			switch (indexPath.row) {
 				case 0:
@@ -136,7 +133,7 @@
 					cell.text = @"Terminate";
 					break;
 			}
-			
+
 			return cell;
 
 		case 1:			

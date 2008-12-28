@@ -30,6 +30,7 @@
 
 - (void)viewDidLoad {
 	[ec2Controller refreshAvailabilityZones];
+	[ec2Controller refreshKeyNames];
 }
 
 - (IBAction)runInstances:(id)sender {
@@ -143,12 +144,18 @@
 }
 
 - (void)refreshEC2Callback {
-	NSArray* availzones = [ec2Controller getAvailabilityZones];
+	//NSArray* availzones = ec2Controller.availabilityZones;
+
+	NSLog(@"listing key names");
+	for (NSString* s in ec2Controller.keyNames) {
+		NSLog(s);
+	}
 }
 
 -(void)refresh {
 	[ec2Controller refreshInstanceData];
 	[ec2Controller refreshAvailabilityZones];
+	[ec2Controller refreshKeyNames];
 }
 
 @end

@@ -81,11 +81,13 @@
 
 @implementation EC2DataController
 
-@synthesize account, instanceData, tempInstanceData, urlreq_data, curGroupDict, curInst, lastElementName, rootViewController, currentReqType, requestLock, instDataState, availabilityZones, tempAvailabilityZones, curAvailZone;
+@synthesize account, instanceData, tempInstanceData, urlreq_data, curGroupDict, curInst, lastElementName, rootViewController,
+	currentReqType, requestLock, instDataState, availabilityZones, tempAvailabilityZones, curAvailZone, tempKeyNames, keyNames;
 
 - (id)initWithAccount:(AWSAccount*)acct rootViewController:(RootViewController*)rvc {
 	self.instanceData = nil; //[[NSDictionary alloc] init];
 	self.availabilityZones = nil;
+	self.keyNames = nil;
 	self.account = acct;
 	self.rootViewController = rvc;
 	self.requestLock = [[NSRecursiveLock alloc] init];
@@ -158,13 +160,15 @@
 	[rootViewController showLoadingScreen];
 
 	if ([action compare:@"DescribeInstances"] == NSOrderedSame) {
-		currentReqType = DESCRIBE_INSTANCES;
+		self.currentReqType = DESCRIBE_INSTANCES;
 	} else if ([action compare:@"RebootInstances"] == NSOrderedSame) {
-		currentReqType = REBOOT_INSTANCES;
+		self.currentReqType = REBOOT_INSTANCES;
 	} else if ([action compare:@"TerminateInstances"] == NSOrderedSame) {
-		currentReqType = TERMINATE_INSTANCES;
+		self.currentReqType = TERMINATE_INSTANCES;
 	} else if ([action compare:@"DescribeAvailabilityZones"] == NSOrderedSame) {		
-		currentReqType = DESCRIBE_AVAILABILITY_ZONES;
+		self.currentReqType = DESCRIBE_AVAILABILITY_ZONES;
+	} else if ([action compare:@"DescribeKeyPairs"] == NSOrderedSame) {
+		self.currentReqType = DESCRIBE_KEY_PAIRS;
 	} else {
 		NSLog(@"ERROR invalid request type!!! %@", action);
 		[rootViewController hideLoadingScreen];
@@ -189,15 +193,11 @@
 
 	NSString* req1 = [NSString stringWithFormat:@"Action=%@&AWSAccessKeyId=%@%@&SignatureVersion=1&Timestamp=%@&Version=2008-05-05", action, account.access_key, argsStr, timestamp];
 	NSString* sig = [self generateSignature:req1 secret:account.secret_key];
-
 	NSString* url = [[NSString alloc] initWithFormat:@"https://ec2.amazonaws.com/?%@&Signature=%@", req1, sig];
-
-	NSLog(@"making request...");
-	NSLog(url);
+	//NSLog(url);
 
 	urlreq_data = [[NSMutableData alloc] init];
-	NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]
-										 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+	NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
 									 timeoutInterval:20.0];
 	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:req delegate:self];
 	if (!theConnection) {
@@ -264,6 +264,8 @@
 		self.tempInstanceData = [[NSMutableDictionary alloc] init];
 	} else if (currentReqType == DESCRIBE_AVAILABILITY_ZONES) {
 		self.tempAvailabilityZones = [[NSMutableArray alloc] init];
+	} else if (currentReqType == DESCRIBE_KEY_PAIRS) {
+		self.tempKeyNames = [[NSMutableArray alloc] init];
 	}
 
 	NSLog([[NSString alloc] initWithData:urlreq_data encoding:NSASCIIStringEncoding]);
@@ -290,7 +292,6 @@
 			// End of this reservation group.
 			curGroupDict = nil;
 		}
-
 		if ([elementName compare:@"item"] == NSOrderedSame) {
 			// End of this instance.
 			curInst = nil;
@@ -313,6 +314,9 @@
 		} else if (self.currentReqType == DESCRIBE_AVAILABILITY_ZONES) {
 			[self.tempAvailabilityZones release];
 			self.tempAvailabilityZones = nil;
+		} else if (self.currentReqType == DESCRIBE_KEY_PAIRS) {
+			[self.tempKeyNames release];
+			self.tempKeyNames = nil;
 		}
 		
 		if ([string compare:@"SignatureDoesNotMatch"] == NSOrderedSame) {
@@ -354,21 +358,29 @@
 			curAvailZone = [string copy];
 		} else if ([lastElementName compare:@"zoneState"] == NSOrderedSame) {
 			if ([string compare:@"available"] == NSOrderedSame) {
-				[tempAvailabilityZones addObject:curAvailZone];
+				[tempAvailabilityZones addObject:[curAvailZone copy]];
 			}
+		}
+	} else if (self.currentReqType == DESCRIBE_KEY_PAIRS) {
+		if ([lastElementName compare:@"keyName"] == NSOrderedSame) {
+			[self.tempKeyNames addObject:[string copy]];
 		}
 	}
 }
 
 - (void)parserDidEndDocument:(NSXMLParser *)parser {
-	if (currentReqType == DESCRIBE_INSTANCES && tempInstanceData != nil) {
-		self.instanceData = [NSDictionary dictionaryWithDictionary:tempInstanceData];
-		[tempInstanceData release];
-		tempInstanceData = nil;
-	} else if (currentReqType == DESCRIBE_AVAILABILITY_ZONES && tempAvailabilityZones != nil) {
-		self.availabilityZones = [NSArray arrayWithArray:tempAvailabilityZones];
-		[tempAvailabilityZones release];
-		tempAvailabilityZones = nil;
+	if (self.currentReqType == DESCRIBE_INSTANCES && self.tempInstanceData != nil) {
+		self.instanceData = [NSDictionary dictionaryWithDictionary:self.tempInstanceData];
+		[self.tempInstanceData release];
+		self.tempInstanceData = nil;
+	} else if (self.currentReqType == DESCRIBE_AVAILABILITY_ZONES && self.tempAvailabilityZones != nil) {
+		self.availabilityZones = [NSArray arrayWithArray:self.tempAvailabilityZones];
+		[self.tempAvailabilityZones release];
+		self.tempAvailabilityZones = nil;
+	} else if (self.currentReqType == DESCRIBE_KEY_PAIRS && self.tempKeyNames != nil) {
+		self.keyNames = [NSArray arrayWithArray:self.tempKeyNames];
+		[self.tempKeyNames release];
+		self.tempKeyNames = nil;
 	}
 
 	// Refresh the view.
@@ -427,6 +439,25 @@
 		return [[[NSArray alloc] init] autorelease];
 	} else {
 		return self.availabilityZones;
+	}
+}
+
+- (NSArray*)getKeyNames {
+	if (self.keyNames == nil) {
+		return [[[NSArray alloc] init] autorelease];
+	} else {
+		return self.keyNames;
+	}
+}
+
+- (void)refreshKeyNames { 
+	[self executeRequest:@"DescribeKeyPairs" args:[[[NSDictionary alloc] init] autorelease]];
+}
+
+- (void)setKeyNames:(NSArray*)newarr {
+	if (keyNames != newarr) {
+		[keyNames release];
+		keyNames = [newarr mutableCopy];
 	}
 }
 

@@ -14,7 +14,7 @@
 
 @class RootViewController;
 
-typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQUEST, DESCRIBE_AVAILABILITY_ZONES} RequestType;
+typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQUEST, DESCRIBE_AVAILABILITY_ZONES, DESCRIBE_KEY_PAIRS} RequestType;
 
 typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED} InstanceDataState;
 
@@ -34,6 +34,9 @@ typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED
 	NSArray* availabilityZones;
 	NSMutableArray* tempAvailabilityZones;
 	NSString* curAvailZone;
+
+	NSArray* keyNames;
+	NSMutableArray* tempKeyNames;
 	
 	InstanceDataState instDataState;
 }
@@ -52,6 +55,8 @@ typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED
 @property (nonatomic, assign, readwrite) NSMutableArray* tempAvailabilityZones;
 @property (nonatomic, assign, readwrite) NSArray* availabilityZones;
 @property (nonatomic, assign, readwrite) NSString* curAvailZone;
+@property (nonatomic, assign, readwrite) NSArray* keyNames;
+@property (nonatomic, assign, readwrite) NSMutableArray* tempKeyNames;
 
 - (void)terminateInstances:(NSArray*)instances;
 - (void)terminateInstanceGroup:(NSString*)grp;
@@ -67,6 +72,8 @@ typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED
 - (EC2Instance*)getInstanceAtIndex:(NSInteger)index group:(NSString*)grp;
 - (NSArray*)getAvailabilityZones;
 - (void)refreshAvailabilityZones;
+- (NSArray*)getKeyNames;
+- (void)refreshKeyNames;
 
 @end
 

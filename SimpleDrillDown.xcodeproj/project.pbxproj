@@ -96,8 +96,7 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				CED12FCE0F00381D0083619D /* DetailCell.h */,
-				CED12FCF0F00381D0083619D /* DetailCell.m */,
+				CE77F17A0F0762F100F7B285 /* Views */,
 				CED49F860EFC9697000D0551 /* ViewControllers */,
 				CED49F910EFC96C2000D0551 /* DataControllers */,
 				CED12B5B0EFEF6DE0083619D /* EC2 */,
@@ -160,6 +159,15 @@
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CE77F17A0F0762F100F7B285 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				CED12FCE0F00381D0083619D /* DetailCell.h */,
+				CED12FCF0F00381D0083619D /* DetailCell.m */,
+			);
+			name = Views;
 			sourceTree = "<group>";
 		};
 		CED12B5B0EFEF6DE0083619D /* EC2 */ = {

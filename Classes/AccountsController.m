@@ -102,14 +102,15 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 			EC2DataController* c = [[EC2DataController alloc] initWithAccount:acct rootViewController:rootViewController];
 			[c refreshInstanceData];
 			[self.accountEc2Controllers setValue:c forKey:acct.name];
+			
+			[c refreshInstanceData];
+
 			[self saveAccounts];
 		}
 	}
 }
 
 - (void)updateAccount:(NSString*)prev_name newAccount:(AWSAccount*)new {
-	NSLog(@"UPDATE ACCOUNT");
-	
 	[self.nameToAccount removeObjectForKey:prev_name];
 	[self.nameToAccount setValue:new forKey:new.name];
 	
@@ -117,6 +118,8 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	c.account = new;
 	[self.accountEc2Controllers removeObjectForKey:prev_name];
 	[self.accountEc2Controllers setValue:c forKey:new.name];
+
+	[c refreshInstanceData];
 
 	[self saveAccounts];
 }

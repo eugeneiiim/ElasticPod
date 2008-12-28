@@ -24,14 +24,31 @@
 }
 
 - (IBAction)saveAccount:(id)sender {
-	AWSAccount* new_acct = [AWSAccount accountWithName:name_cell.name.text accessKey:access_cell.name.text secretKey:secret_cell.name.text];
-	if (account) {
-		[accountsController updateAccount:[account name] newAccount:new_acct];
+	if (name_cell.name.text == nil || [name_cell.name.text length] == 0) {
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"You must enter a name for this account." delegate:nil
+											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+	} else if (access_cell.name.text == nil || [access_cell.name.text length] == 0) {
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"You must enter an access key." delegate:nil
+											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+	} else if (secret_cell.name.text == nil || [secret_cell.name.text length] == 0) {
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"You must enter a secret key." delegate:nil
+											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
 	} else {
-		[accountsController addAccount:new_acct];
-	}
+		AWSAccount* new_acct = [AWSAccount accountWithName:name_cell.name.text accessKey:access_cell.name.text secretKey:secret_cell.name.text];
+		if (account) {
+			[accountsController updateAccount:self.account.name newAccount:new_acct];
+		} else {
+			[accountsController addAccount:new_acct];
+		}
 
-	[self.navigationController popViewControllerAnimated:YES];
+		[self.navigationController popViewControllerAnimated:YES];
+	}
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {

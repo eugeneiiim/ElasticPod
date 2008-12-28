@@ -84,7 +84,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	[add_account_button release];
 	[self.navigationController.view addSubview:toolbar];
 
-
 	loadingOverlay = [[UIView alloc] init];
 	loadingOverlay.backgroundColor = [UIColor blackColor];
 	loadingOverlay.alpha = 0.0;
@@ -172,11 +171,11 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"MyIdentifier"] autorelease];
 		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 	}
-	
-	AWSAccount* itemAtIndex = [accountsController objectInListAtIndex:indexPath.row];
-	cell.text = [itemAtIndex name];
+
+	AWSAccount* acct = [accountsController objectInListAtIndex:indexPath.row];
+	cell.text = acct.name;
 	cell.hidesAccessoryWhenEditing = NO;
-	
+
 	return cell;
 }
 
@@ -190,19 +189,31 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	} else {
 		AWSAccount* acct = [accountsController objectInListAtIndex:indexPath.row];
 		EC2DataController* ec2Ctrl = [accountsController ec2ControllerForAccount:[acct name]];
-		InstanceGroupSetViewController* igsvc = [[InstanceGroupSetViewController alloc]
-												 initWithStyle:UITableViewStylePlain
-												 account:acct
-												 ec2Controller:ec2Ctrl];
+
 	//	igsvc.dataController = [[InstanceGroupSetDataController alloc] initWithAccount:acct viewController:igsvc ec2Controller:ec2Ctrl];
 
-		[[self navigationController] pushViewController:igsvc animated:YES];
-		[igsvc release];
+		/*
+		 TODO maybe put this back in.
+		if (ec2Ctrl.instDataState != INSTANCE_DATA_READY) {
+			NSLog(@"INSTANCE DATA IS NOT READY FOR THIS ACCOUNT.");
+		} else {*/
+			InstanceGroupSetViewController* igsvc = [[InstanceGroupSetViewController alloc]
+													 initWithStyle:UITableViewStylePlain
+													 account:acct
+													 ec2Controller:ec2Ctrl];
+			
+			[[self navigationController] pushViewController:igsvc animated:YES];
+			[igsvc release];
+		/*}*/
 	}
 }
 
 - (void)dealloc {
+	[loadingOverlay release];
+	[loadingCountLock release];
     [accountsController release];
+	[activityIndicator release];
+	[toolbar release];
     [super dealloc];
 }
 

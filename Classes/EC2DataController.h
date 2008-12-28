@@ -16,6 +16,8 @@
 
 typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQUEST} RequestType;
 
+typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED} InstanceDataState;
+
 @interface EC2DataController : NSObject {
 	AWSAccount* account;
 	NSDictionary* instanceData; /* reservation group name -> {instance name -> instance} */
@@ -28,6 +30,8 @@ typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQU
 	RootViewController* rootViewController;
 	RequestType currentReqType;
 	NSLock* requestLock;
+	
+	InstanceDataState instDataState;
 }
 
 @property (assign, readwrite) AWSAccount* account;
@@ -40,6 +44,7 @@ typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQU
 @property (nonatomic, assign, readwrite) RootViewController* rootViewController;
 @property (nonatomic, assign, readwrite) RequestType currentReqType;
 @property (nonatomic, assign, readwrite) NSLock* requestLock;
+@property (nonatomic, assign, readwrite) InstanceDataState instDataState;
 
 - (void)terminateInstances:(NSArray*)instances;
 - (void)terminateInstanceGroup:(NSString*)grp;
@@ -57,12 +62,9 @@ typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQU
 @end
 
 @interface NSData (OpenSSLWrapper)
-
 //- (NSData *)md5Digest;
 - (NSData *)sha1Digest;
 - (NSData *)sha1HMacWithKey:(NSString*)key;
-
 - (NSString *)encodeBase64;
 - (NSString *)encodeBase64WithNewlines: (BOOL)encodeWithNewlines;
-
 @end

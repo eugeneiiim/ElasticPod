@@ -82,7 +82,7 @@
 
 @implementation EC2DataController
 
-@synthesize account, instanceData, tempInstanceData, urlreq_data, curGroupDict, curInst, lastElementName, rootViewController, currentReqType, requestLock;
+@synthesize account, instanceData, tempInstanceData, urlreq_data, curGroupDict, curInst, lastElementName, rootViewController, currentReqType, requestLock, instDataState;
 
 - (id)initWithAccount:(AWSAccount*)acct rootViewController:(RootViewController*)rvc {
 	self.instanceData = nil; //[[NSDictionary alloc] init];
@@ -90,6 +90,7 @@
 	self.rootViewController = rvc;
 	self.requestLock = [[NSLock alloc] init];
 	self.currentReqType = NO_REQUEST;
+	self.instDataState = INSTANCE_DATA_NOT_READY;
 	//[self refreshInstanceData];
 	return self;
 }
@@ -102,7 +103,7 @@
 		[args setValue:[inst getProperty:@"instanceId"] forKey:key];
 		count++;
 	}
-	
+
 	[self executeRequest:@"TerminateInstances" args:args];
 }
 
@@ -118,7 +119,7 @@
 		[args setValue:[inst getProperty:@"instanceId"] forKey:key];
 		count++;
 	}
-	
+
 	[self executeRequest:@"RebootInstances" args:args];
 }
 
@@ -129,7 +130,7 @@
 - (NSArray*)getInstanceGroups {
 	if (instanceData == nil) {
 		NSLog(@"instance data is nil!");
-		return [[NSArray alloc] init];
+		return [[[NSArray alloc] init] autorelease];
 	}
 
 	return [instanceData allKeys];
@@ -164,15 +165,11 @@
 		currentReqType = TERMINATE_INSTANCES;
 	} else {
 		NSLog(@"ERROR invalid request type!!! %@", action);
-
 		[rootViewController hideLoadingScreen];
 		currentReqType = NO_REQUEST;
 		[requestLock unlock];
-		
 		return;
 	}
-	
-	
 
 	NSDateFormatter* formatter = [[NSDateFormatter alloc] init];
 	[formatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"GMT"]];
@@ -197,12 +194,14 @@
 	NSLog(url);
 	NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]
 										 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-									 timeoutInterval:30.0];
+									 timeoutInterval:20.0];
 	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:req delegate:self];
 	if (theConnection) {
 		urlreq_data = [[NSMutableData alloc] init];
 	} else {
 		printf("connection false\n");
+		
+		self.instDataState = INSTANCE_DATA_NOT_READY;
 
 		[rootViewController hideLoadingScreen];
 		currentReqType = NO_REQUEST;
@@ -229,6 +228,8 @@
 	[connection release];
 	[urlreq_data release];
 
+	self.instDataState = INSTANCE_DATA_NOT_READY;
+
     // inform the user
 	NSLog(@"Connection failed! Error - %@ %@", [error localizedDescription],
 		[[error userInfo] objectForKey:NSErrorFailingURLStringKey]);
@@ -238,7 +239,7 @@
 												   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
 	[alert show];
 	[alert release];
-	
+
 	[rootViewController hideLoadingScreen];
 	[requestLock unlock];
 }
@@ -268,7 +269,11 @@
 
 // Parser event handlers
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict {
-	lastElementName = elementName;
+	if (self.currentReqType == DESCRIBE_INSTANCES && [elementName compare:@"DescribeInstancesResponse"] == NSOrderedSame) {
+		self.instDataState = INSTANCE_DATA_READY;
+	}
+
+	self.lastElementName = elementName;
 }
 
 - (NSString*)getInstanceGroupAtIndex:(NSInteger)index {
@@ -318,13 +323,15 @@
 		[curGroupDict setValue:curInst forKey:[string copy]];
 	} else if ([lastElementName compare:@"Code"] == NSOrderedSame) {
 		self.tempInstanceData = nil; // indicate that this new data should not be used.
-		
+
 		if ([string compare:@"SignatureDoesNotMatch"] == NSOrderedSame) {
 			NSString* msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your secret key.", self.account.name];
 			UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Invalid Request Signature" message:msg
 	 													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
 			[alert show];
 			[alert release];
+			
+			self.instDataState = INSTANCE_DATA_FAILED;
 			return;
 		} else if ([string compare:@"InvalidClientTokenId"] == NSOrderedSame) {
 			NSString* msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your access key.", self.account.name];
@@ -332,6 +339,8 @@
 	 													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
 			[alert show];
 			[alert release];
+
+			self.instDataState = INSTANCE_DATA_FAILED;
 			return;
 		}
 		// TODO check for other errors
@@ -351,7 +360,7 @@
 
 	// Refresh the view.
 	[rootViewController.navigationController.topViewController refreshEC2Callback];
-	
+
 	[rootViewController hideLoadingScreen];
 	currentReqType = NO_REQUEST;
 	[requestLock unlock];

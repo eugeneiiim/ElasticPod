@@ -46,7 +46,6 @@
 		} else {
 			[accountsController addAccount:new_acct];
 		}
-
 		[self.navigationController popViewControllerAnimated:YES];
 	}
 }
@@ -103,10 +102,6 @@
     }
 
     return cell;
-}
-
-- (void)editcell {
-	printf("edit cell\n");
 }
 
 // Implement viewDidLoad to do additional setup after loading the view.

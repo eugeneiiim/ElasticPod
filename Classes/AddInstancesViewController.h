@@ -11,7 +11,7 @@
 #import "EC2DataController.h"
 #import "DetailCell.h"
 
-@interface AddInstancesViewController : UITableViewController {
+@interface AddInstancesViewController : UITableViewController <UIAlertViewDelegate> {
 	EC2DataController* ec2Controller;
 	DetailCell* numinstances_cell;
 	DetailCell* imageid_cell;

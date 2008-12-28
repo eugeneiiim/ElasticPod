@@ -35,7 +35,18 @@
 
 - (IBAction)runInstances:(id)sender {
 	if (self.numinstances_cell.name.text == nil || [self.numinstances_cell.name.text length] == 0) {
+		// TODO check that it is a number.
+		
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Missing number of instances." delegate:nil
+											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+		return;
+	}
+	
+	NSInteger num_insts = [self.numinstances_cell.name.text intValue];
+	if (num_insts <= 0) {
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Number of instances must be a positive integer." delegate:nil
 											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
@@ -68,10 +79,26 @@
 
 		//  result = ec2.run_instances(:image_id => image_id, :min_count => n, :max_count => n, :key_name => ASDF_KEY_ID,
 		//							  :availability_zone => ASDF_AVAILABILITY_ZONE, :instance_type => instance_type)
-	
-		//[ec2Controller runInstances:model_inst n:];
-	
-		[self.navigationController popViewControllerAnimated:YES];
+
+		NSString* msg = [NSString stringWithFormat:@"Launch %d instances of type %@?", num_insts, [model_inst getProperty:@"instanceType"]];
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Confirm Launch" message:msg delegate:self
+											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert addButtonWithTitle:@"Cancel"];
+		[alert show];
+		[alert release];
+	}
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+	switch (buttonIndex) {
+		case 0:
+			NSLog(@"LAUNCH INSTANCES");
+			//[ec2Controller runInstances:model_inst n:];
+			[self.navigationController popViewControllerAnimated:YES];
+			break;
+		case 1:
+			NSLog(@"Launch cancelled.");
+			break;
 	}
 }
 
@@ -80,12 +107,12 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    switch (section) {
+	switch (section) {
 		case 0:
 			return 5;
         default:
 			return 0;
-    }
+	}
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {

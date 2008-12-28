@@ -197,7 +197,7 @@
 	NSLog(url);
 	NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]
 										 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-									 timeoutInterval:60.0];
+									 timeoutInterval:30.0];
 	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:req delegate:self];
 	if (theConnection) {
 		urlreq_data = [[NSMutableData alloc] init];

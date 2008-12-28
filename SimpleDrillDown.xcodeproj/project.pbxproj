@@ -21,7 +21,6 @@
 		CED12B560EFEF5600083619D /* AddInstancesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12B550EFEF5600083619D /* AddInstancesViewController.m */; };
 		CED12BE50EFF05190083619D /* EC2DataController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12BE40EFF05190083619D /* EC2DataController.m */; };
 		CED12FD00F00381D0083619D /* DetailCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12FCF0F00381D0083619D /* DetailCell.m */; };
-		CED1331C0F00BE980083619D /* ButtonCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CED1331B0F00BE980083619D /* ButtonCell.m */; };
 		CED498BC0EFB566E000D0551 /* InstanceGroupSetViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED498BB0EFB566E000D0551 /* InstanceGroupSetViewController.m */; };
 		CED4992C0EFB5B01000D0551 /* AWSAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = CED4992B0EFB5B01000D0551 /* AWSAccount.m */; };
 		CED4992F0EFB5BE8000D0551 /* EC2Instance.m in Sources */ = {isa = PBXBuildFile; fileRef = CED4992E0EFB5BE8000D0551 /* EC2Instance.m */; };
@@ -58,8 +57,6 @@
 		CED12BE40EFF05190083619D /* EC2DataController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EC2DataController.m; sourceTree = "<group>"; };
 		CED12FCE0F00381D0083619D /* DetailCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailCell.h; sourceTree = "<group>"; };
 		CED12FCF0F00381D0083619D /* DetailCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailCell.m; sourceTree = "<group>"; };
-		CED1331A0F00BE980083619D /* ButtonCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ButtonCell.h; sourceTree = "<group>"; };
-		CED1331B0F00BE980083619D /* ButtonCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ButtonCell.m; sourceTree = "<group>"; };
 		CED498BA0EFB566E000D0551 /* InstanceGroupSetViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InstanceGroupSetViewController.h; sourceTree = "<group>"; };
 		CED498BB0EFB566E000D0551 /* InstanceGroupSetViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InstanceGroupSetViewController.m; sourceTree = "<group>"; };
 		CED4992A0EFB5B01000D0551 /* AWSAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AWSAccount.h; sourceTree = "<group>"; };
@@ -99,8 +96,6 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				CED1331A0F00BE980083619D /* ButtonCell.h */,
-				CED1331B0F00BE980083619D /* ButtonCell.m */,
 				CED12FCE0F00381D0083619D /* DetailCell.h */,
 				CED12FCF0F00381D0083619D /* DetailCell.m */,
 				CED49F860EFC9697000D0551 /* ViewControllers */,
@@ -290,7 +285,6 @@
 				CED12B560EFEF5600083619D /* AddInstancesViewController.m in Sources */,
 				CED12BE50EFF05190083619D /* EC2DataController.m in Sources */,
 				CED12FD00F00381D0083619D /* DetailCell.m in Sources */,
-				CED1331C0F00BE980083619D /* ButtonCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

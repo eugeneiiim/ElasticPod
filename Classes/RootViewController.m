@@ -101,7 +101,10 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 }
 
 - (void)updateViewForCurrentOrientation {
-	CGFloat toolbarHeight = [toolbar frame].size.height;
+	//CGFloat toolbarHeight = toolbar.frame.size.height;
+
+	CGFloat toolbarHeight = self.navigationController.navigationBar.frame.size.height;
+
 	CGRect rootViewBounds = self.parentViewController.view.bounds;
 	CGFloat rootViewHeight = CGRectGetHeight(rootViewBounds);
 	CGFloat rootViewWidth = CGRectGetWidth(rootViewBounds);

@@ -14,14 +14,14 @@
 
 @class RootViewController;
 
-typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQUEST} RequestType;
+typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQUEST, DESCRIBE_AVAILABILITY_ZONES} RequestType;
 
 typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED} InstanceDataState;
 
 @interface EC2DataController : NSObject {
 	AWSAccount* account;
 	NSDictionary* instanceData; /* reservation group name -> {instance name -> instance} */
-
+	
 	NSMutableDictionary* tempInstanceData;
 	NSMutableData* urlreq_data;
 	NSString* lastElementName;
@@ -29,7 +29,11 @@ typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED
 	EC2Instance* curInst;
 	RootViewController* rootViewController;
 	RequestType currentReqType;
-	NSLock* requestLock;
+	NSRecursiveLock* requestLock;
+	
+	NSArray* availabilityZones;
+	NSMutableArray* tempAvailabilityZones;
+	NSString* curAvailZone;
 	
 	InstanceDataState instDataState;
 }
@@ -43,8 +47,11 @@ typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED
 @property (nonatomic, assign, readwrite) EC2Instance* curInst;
 @property (nonatomic, assign, readwrite) RootViewController* rootViewController;
 @property (nonatomic, assign, readwrite) RequestType currentReqType;
-@property (nonatomic, assign, readwrite) NSLock* requestLock;
+@property (nonatomic, assign, readwrite) NSRecursiveLock* requestLock;
 @property (nonatomic, assign, readwrite) InstanceDataState instDataState;
+@property (nonatomic, assign, readwrite) NSMutableArray* tempAvailabilityZones;
+@property (nonatomic, assign, readwrite) NSArray* availabilityZones;
+@property (nonatomic, assign, readwrite) NSString* curAvailZone;
 
 - (void)terminateInstances:(NSArray*)instances;
 - (void)terminateInstanceGroup:(NSString*)grp;
@@ -58,6 +65,8 @@ typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED
 - (EC2Instance*)getInstance:(NSString*)group instanceId:(NSString*)inst_id;
 - (NSString*)getInstanceGroupAtIndex:(NSInteger)index;
 - (EC2Instance*)getInstanceAtIndex:(NSInteger)index group:(NSString*)grp;
+- (NSArray*)getAvailabilityZones;
+- (void)refreshAvailabilityZones;
 
 @end
 

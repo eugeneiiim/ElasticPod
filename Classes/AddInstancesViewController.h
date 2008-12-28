@@ -29,5 +29,7 @@
 
 - (IBAction)runInstances:(id)sender;
 - (AddInstancesViewController*)initWithStyle:(UITableViewStyle)style ec2Controller:(EC2DataController*)ec2Ctrl;
+- (void)refreshEC2Callback;
+- (void)refresh;
 
 @end

@@ -138,7 +138,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 }
 
 - (void)refreshEC2Callback {
-	//[self.activityIndicator stopAnimating];
 }
 
 - (void)refresh {

@@ -28,19 +28,50 @@
 	return self;
 }
 
+- (void)viewDidLoad {
+	[ec2Controller refreshAvailabilityZones];
+}
+
 - (IBAction)runInstances:(id)sender {
-	EC2Instance* model_inst = [[EC2Instance alloc] init];
-	[model_inst addProperty:@"imageId" value:@"IMAGEID"];
-	[model_inst addProperty:@"keyName" value:@"KEYNAME"];
-	[model_inst addProperty:@"availabilityZone" value:@"AVAILABILITYZONE"];
-	[model_inst addProperty:@"instanceType" value:@"INSTANCETYPE"];
+	if (self.numinstances_cell.name.text == nil || [self.numinstances_cell.name.text length] == 0) {
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Missing number of instances." delegate:nil
+											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+	} else if (self.imageid_cell.name.text == nil || [self.imageid_cell.name.text length] == 0) {
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Missing image ID." delegate:nil
+											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+	} else if (self.keyname_cell.name.text == nil || [self.keyname_cell.name.text length] == 0) {
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Missing key name." delegate:nil
+											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+	} else if (self.availabilityzone_cell.name.text == nil || [self.availabilityzone_cell.name.text length] == 0) {
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Missing availability zone." delegate:nil
+											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+	} else if (self.instancetype_cell.name.text == nil || [self.instancetype_cell.name.text length] == 0) {
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Missing instance type." delegate:nil
+											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
+	} else {
+		EC2Instance* model_inst = [[EC2Instance alloc] init];
+		[model_inst addProperty:@"imageId" value:@"IMAGEID"];
+		[model_inst addProperty:@"keyName" value:@"KEYNAME"];
+		[model_inst addProperty:@"availabilityZone" value:@"AVAILABILITYZONE"];
+		[model_inst addProperty:@"instanceType" value:@"INSTANCETYPE"];
+
+		//  result = ec2.run_instances(:image_id => image_id, :min_count => n, :max_count => n, :key_name => ASDF_KEY_ID,
+		//							  :availability_zone => ASDF_AVAILABILITY_ZONE, :instance_type => instance_type)
 	
-	//  result = ec2.run_instances(:image_id => image_id, :min_count => n, :max_count => n, :key_name => ASDF_KEY_ID,
-	//							  :availability_zone => ASDF_AVAILABILITY_ZONE, :instance_type => instance_type)
+		//[ec2Controller runInstances:model_inst n:];
 	
-	//[ec2Controller runInstances:model_inst n:];
-	
-	[self.navigationController popViewControllerAnimated:YES];
+		[self.navigationController popViewControllerAnimated:YES];
+	}
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -68,6 +99,7 @@
 	switch (indexPath.row) {
 		case 0:
 			cell.prompt.text = @"# instances";
+			self.numinstances_cell.name.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
 			self.numinstances_cell = cell;
 			break;
 		case 1:
@@ -108,6 +140,15 @@
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
 	[ec2Controller.rootViewController updateViewForCurrentOrientation];
+}
+
+- (void)refreshEC2Callback {
+	NSArray* availzones = [ec2Controller getAvailabilityZones];
+}
+
+-(void)refresh {
+	[ec2Controller refreshInstanceData];
+	[ec2Controller refreshAvailabilityZones];
 }
 
 @end

@@ -53,8 +53,7 @@
 	return [NSData dataWithBytes:md_value length:md_len];
 }
 
-- (NSString *) encodeBase64WithNewlines:(BOOL) encodeWithNewlines
-{
+- (NSString *) encodeBase64WithNewlines:(BOOL) encodeWithNewlines {
     BIO *mem = BIO_new(BIO_s_mem());
 	BIO *b64 = BIO_new(BIO_f_base64());
     if (!encodeWithNewlines)
@@ -82,13 +81,14 @@
 
 @implementation EC2DataController
 
-@synthesize account, instanceData, tempInstanceData, urlreq_data, curGroupDict, curInst, lastElementName, rootViewController, currentReqType, requestLock, instDataState;
+@synthesize account, instanceData, tempInstanceData, urlreq_data, curGroupDict, curInst, lastElementName, rootViewController, currentReqType, requestLock, instDataState, availabilityZones, tempAvailabilityZones, curAvailZone;
 
 - (id)initWithAccount:(AWSAccount*)acct rootViewController:(RootViewController*)rvc {
 	self.instanceData = nil; //[[NSDictionary alloc] init];
+	self.availabilityZones = nil;
 	self.account = acct;
 	self.rootViewController = rvc;
-	self.requestLock = [[NSLock alloc] init];
+	self.requestLock = [[NSRecursiveLock alloc] init];
 	self.currentReqType = NO_REQUEST;
 	self.instDataState = INSTANCE_DATA_NOT_READY;
 	//[self refreshInstanceData];
@@ -154,7 +154,7 @@
 }
 
 - (void)executeRequest:(NSString*)action args:(NSDictionary*)args {
-	[requestLock lock]; // prevent simultaneous requests.
+	[self.requestLock lock]; // prevent simultaneous requests.
 	[rootViewController showLoadingScreen];
 
 	if ([action compare:@"DescribeInstances"] == NSOrderedSame) {
@@ -163,6 +163,8 @@
 		currentReqType = REBOOT_INSTANCES;
 	} else if ([action compare:@"TerminateInstances"] == NSOrderedSame) {
 		currentReqType = TERMINATE_INSTANCES;
+	} else if ([action compare:@"DescribeAvailabilityZones"] == NSOrderedSame) {		
+		currentReqType = DESCRIBE_AVAILABILITY_ZONES;
 	} else {
 		NSLog(@"ERROR invalid request type!!! %@", action);
 		[rootViewController hideLoadingScreen];
@@ -192,21 +194,24 @@
 
 	NSLog(@"making request...");
 	NSLog(url);
+
+	urlreq_data = [[NSMutableData alloc] init];
 	NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]
 										 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
 									 timeoutInterval:20.0];
 	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:req delegate:self];
-	if (theConnection) {
-		urlreq_data = [[NSMutableData alloc] init];
-	} else {
-		printf("connection false\n");
-		
+	if (!theConnection) {
 		self.instDataState = INSTANCE_DATA_NOT_READY;
 
+		[urlreq_data release];
 		[rootViewController hideLoadingScreen];
 		currentReqType = NO_REQUEST;
 		[requestLock unlock];
-		// inform the user that the download could not be made
+
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Connection failed.  Check your Internet connection."
+													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		[alert show];
+		[alert release];
 	}
 }
 
@@ -228,7 +233,9 @@
 	[connection release];
 	[urlreq_data release];
 
-	self.instDataState = INSTANCE_DATA_NOT_READY;
+	if (currentReqType == DESCRIBE_INSTANCES) {
+		self.instDataState = INSTANCE_DATA_NOT_READY;
+	}
 
     // inform the user
 	NSLog(@"Connection failed! Error - %@ %@", [error localizedDescription],
@@ -241,17 +248,22 @@
 	[alert release];
 
 	[rootViewController hideLoadingScreen];
+	self.currentReqType = NO_REQUEST;
 	[requestLock unlock];
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	[connection release];
-	
-	curGroupDict = nil;
-	curInst = nil;
+
+	if (self.currentReqType == DESCRIBE_INSTANCES)  {
+		curGroupDict = nil;
+		curInst = nil;
+	}
 
 	if (currentReqType == DESCRIBE_INSTANCES) {
-		tempInstanceData = [[NSMutableDictionary alloc] init];
+		self.tempInstanceData = [[NSMutableDictionary alloc] init];
+	} else if (currentReqType == DESCRIBE_AVAILABILITY_ZONES) {
+		self.tempAvailabilityZones = [[NSMutableArray alloc] init];
 	}
 
 	NSLog([[NSString alloc] initWithData:urlreq_data encoding:NSASCIIStringEncoding]);
@@ -263,10 +275,6 @@
 	[urlreq_data release];
 }
 
-- (EC2Instance*)getInstance:(NSString*)group instanceId:(NSString*)inst_id {
-	return [[instanceData valueForKey:group] valueForKey:inst_id];
-}
-
 // Parser event handlers
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict {
 	if (self.currentReqType == DESCRIBE_INSTANCES && [elementName compare:@"DescribeInstancesResponse"] == NSOrderedSame) {
@@ -274,6 +282,105 @@
 	}
 
 	self.lastElementName = elementName;
+}
+
+- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
+	if (currentReqType == DESCRIBE_INSTANCES) {
+		if ([elementName compare:@"instancesSet"] == NSOrderedSame) {
+			// End of this reservation group.
+			curGroupDict = nil;
+		}
+
+		if ([elementName compare:@"item"] == NSOrderedSame) {
+			// End of this instance.
+			curInst = nil;
+		}
+	}
+}
+
+- (void)parser:(NSXMLParser*)parser foundCharacters:(NSString*)string {
+	string = [string stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@" \n"]];
+	if (string == nil || [string length] == 0) {
+		return;
+	}
+
+	if ([lastElementName compare:@"Code"] == NSOrderedSame) {
+		// This is an error -- todo make sure Code isn't used for other stuff.
+		
+		if (self.currentReqType == DESCRIBE_INSTANCES) {
+			[self.tempInstanceData release];
+			self.tempInstanceData = nil; // indicate that this new data should not be used.
+		} else if (self.currentReqType == DESCRIBE_AVAILABILITY_ZONES) {
+			[self.tempAvailabilityZones release];
+			self.tempAvailabilityZones = nil;
+		}
+		
+		if ([string compare:@"SignatureDoesNotMatch"] == NSOrderedSame) {
+			NSString* msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your secret key.", self.account.name];
+			UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Invalid Request Signature" message:msg
+														   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+			[alert show];
+			[alert release];
+			
+			self.instDataState = INSTANCE_DATA_FAILED;
+			return;
+		} else if ([string compare:@"InvalidClientTokenId"] == NSOrderedSame) {
+			NSString* msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your access key.", self.account.name];
+			UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Invalid Access Key" message:msg
+														   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+			[alert show];
+			[alert release];
+			
+			self.instDataState = INSTANCE_DATA_FAILED;
+			return;
+		}
+		// TODO check for other errors
+	}
+
+	if (self.currentReqType == DESCRIBE_INSTANCES) {
+		if ([lastElementName compare:@"reservationId"] == NSOrderedSame) {
+			curGroupDict = [[NSMutableDictionary alloc] init];
+			[tempInstanceData setValue:curGroupDict forKey:[string copy]];
+		} else if ([lastElementName compare:@"instanceId"] == NSOrderedSame) {
+			curInst = [[EC2Instance alloc] init];
+			[curGroupDict setValue:curInst forKey:[string copy]];
+		}
+
+		if (curInst != nil) {
+			[curInst addProperty:[lastElementName copy] value:[string copy]];
+		}
+	} else if (self.currentReqType == DESCRIBE_AVAILABILITY_ZONES) {
+		if ([lastElementName compare:@"zoneName"] == NSOrderedSame) {
+			curAvailZone = [string copy];
+		} else if ([lastElementName compare:@"zoneState"] == NSOrderedSame) {
+			if ([string compare:@"available"] == NSOrderedSame) {
+				[tempAvailabilityZones addObject:curAvailZone];
+			}
+		}
+	}
+}
+
+- (void)parserDidEndDocument:(NSXMLParser *)parser {
+	if (currentReqType == DESCRIBE_INSTANCES && tempInstanceData != nil) {
+		self.instanceData = [NSDictionary dictionaryWithDictionary:tempInstanceData];
+		[tempInstanceData release];
+		tempInstanceData = nil;
+	} else if (currentReqType == DESCRIBE_AVAILABILITY_ZONES && tempAvailabilityZones != nil) {
+		self.availabilityZones = [NSArray arrayWithArray:tempAvailabilityZones];
+		[tempAvailabilityZones release];
+		tempAvailabilityZones = nil;
+	}
+
+	// Refresh the view.
+	[rootViewController.navigationController.topViewController refreshEC2Callback];
+
+	[rootViewController hideLoadingScreen];
+	currentReqType = NO_REQUEST;
+	[requestLock unlock];
+}
+
+- (EC2Instance*)getInstance:(NSString*)group instanceId:(NSString*)inst_id {
+	return [[instanceData valueForKey:group] valueForKey:inst_id];
 }
 
 - (NSString*)getInstanceGroupAtIndex:(NSInteger)index {
@@ -297,79 +404,29 @@
 	}
 }
 
-- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
-	if ([elementName compare:@"instancesSet"] == NSOrderedSame) {
-		// End of this reservation group.
-		curGroupDict = nil;
-	}
-
-	if ([elementName compare:@"item"] == NSOrderedSame) {
-		// End of this instance.
-		curInst = nil;
-	}
-}
-
-- (void)parser:(NSXMLParser*)parser foundCharacters:(NSString*)string {
-	string = [string stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@" \n"]];
-	if (string == nil || [string length] == 0) {
-		return;
-	}
-
-	if ([lastElementName compare:@"reservationId"] == NSOrderedSame) {
-		curGroupDict = [[NSMutableDictionary alloc] init];
-		[tempInstanceData setValue:curGroupDict forKey:[string copy]];
-	} else if ([lastElementName compare:@"instanceId"] == NSOrderedSame) {
-		curInst = [[EC2Instance alloc] init];
-		[curGroupDict setValue:curInst forKey:[string copy]];
-	} else if ([lastElementName compare:@"Code"] == NSOrderedSame) {
-		self.tempInstanceData = nil; // indicate that this new data should not be used.
-
-		if ([string compare:@"SignatureDoesNotMatch"] == NSOrderedSame) {
-			NSString* msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your secret key.", self.account.name];
-			UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Invalid Request Signature" message:msg
-	 													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-			[alert show];
-			[alert release];
-			
-			self.instDataState = INSTANCE_DATA_FAILED;
-			return;
-		} else if ([string compare:@"InvalidClientTokenId"] == NSOrderedSame) {
-			NSString* msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your access key.", self.account.name];
-			UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Invalid Access Key" message:msg
-	 													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-			[alert show];
-			[alert release];
-
-			self.instDataState = INSTANCE_DATA_FAILED;
-			return;
-		}
-		// TODO check for other errors
-	}
-
-	if (curInst != nil) {
-		[curInst addProperty:[lastElementName copy] value:[string copy]];
-	}
-}
-
-- (void)parserDidEndDocument:(NSXMLParser *)parser {
-	if (currentReqType == DESCRIBE_INSTANCES && tempInstanceData != nil) {
-		self.instanceData = [NSDictionary dictionaryWithDictionary:tempInstanceData];
-		[tempInstanceData release];
-		tempInstanceData = nil;
-	}
-
-	// Refresh the view.
-	[rootViewController.navigationController.topViewController refreshEC2Callback];
-
-	[rootViewController hideLoadingScreen];
-	currentReqType = NO_REQUEST;
-	[requestLock unlock];
-}
-
 - (void)setInstanceData:(NSDictionary *)newdict {
 	if (instanceData != newdict) {
 		[instanceData release];
 		instanceData = [newdict mutableCopy];
+	}
+}
+
+- (void)setAvailabilityZones:(NSArray*)newarr {
+	if (availabilityZones != newarr) {
+		[availabilityZones release];
+		availabilityZones = [newarr mutableCopy];
+	}
+}
+
+- (void)refreshAvailabilityZones {
+	[self executeRequest:@"DescribeAvailabilityZones" args:[[[NSDictionary alloc] init] autorelease]];
+}
+
+- (NSArray*)getAvailabilityZones {
+	if (self.availabilityZones == nil) {
+		return [[[NSArray alloc] init] autorelease];
+	} else {
+		return self.availabilityZones;
 	}
 }
 

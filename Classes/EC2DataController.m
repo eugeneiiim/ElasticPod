@@ -140,11 +140,16 @@
 }
 
 - (NSString*)generateSignature:(NSString*)req secret:(NSString*)secret {
-	NSLog(req);
 	NSString* canonical = [req stringByReplacingOccurrencesOfString:@"&" withString:@""];
-	NSLog(canonical);
 	NSString* stringToSign = [canonical stringByReplacingOccurrencesOfString:@"=" withString:@""];
-	return [[[stringToSign dataUsingEncoding:NSUTF8StringEncoding] sha1HMacWithKey:secret] encodeBase64];
+	
+	NSLog(stringToSign);
+	
+	NSString* sig = [[[stringToSign dataUsingEncoding:NSUTF8StringEncoding] sha1HMacWithKey:secret] encodeBase64];
+	sig = [sig stringByReplacingOccurrencesOfString:@"+" withString:@"%2B"];
+	NSLog(sig);
+	
+	return sig;
 }
 
 - (void)executeRequest:(NSString*)action args:(NSDictionary*)args {

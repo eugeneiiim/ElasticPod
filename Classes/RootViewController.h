@@ -72,5 +72,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 - (void)refreshEC2Callback;
 - (void)showLoadingScreen;
 - (void)hideLoadingScreen;
+- (void)updateViewForCurrentOrientation;
 
 @end

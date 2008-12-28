@@ -106,4 +106,8 @@
     [super dealloc];
 }
 
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+	[ec2Controller.rootViewController updateViewForCurrentOrientation];
+}
+
 @end

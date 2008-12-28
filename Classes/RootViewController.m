@@ -67,16 +67,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	self.title = @"AWS Accounts";
 	self.navigationItem.rightBarButtonItem = self.editButtonItem;
 
-	// Set up toolbar.
 	toolbar = [[UIToolbar alloc] init];
 	toolbar.barStyle = UIBarStyleDefault;
 	[toolbar sizeToFit];
-	CGFloat toolbarHeight = [toolbar frame].size.height;
-	CGRect rootViewBounds = self.parentViewController.view.bounds;
-	CGFloat rootViewHeight = CGRectGetHeight(rootViewBounds);
-	CGFloat rootViewWidth = CGRectGetWidth(rootViewBounds);
-	CGRect rectArea = CGRectMake(0, rootViewHeight - toolbarHeight, rootViewWidth, toolbarHeight);
-	[toolbar setFrame:rectArea];	
 
 	UIBarButtonItem* refresh_button = [[UIBarButtonItem alloc]
 									   initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
@@ -91,19 +84,38 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	[add_account_button release];
 	[self.navigationController.view addSubview:toolbar];
 
-	loadingOverlay = [[UIView alloc] initWithFrame:CGRectMake(0, 0, rootViewWidth, rootViewHeight)];
+
+	loadingOverlay = [[UIView alloc] init];
 	loadingOverlay.backgroundColor = [UIColor blackColor];
 	loadingOverlay.alpha = 0.0;
 	[self.navigationController.view addSubview:loadingOverlay];
-
-	// Add spinner/activity indicator.
+	
 	activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-	CGFloat spinnerWidth = CGRectGetWidth(activityIndicator.bounds);
-	[activityIndicator setFrame:CGRectMake(rootViewWidth/2 - spinnerWidth/2, rootViewHeight/2 - spinnerWidth/2, spinnerWidth, spinnerWidth)];
+	
 	[self.navigationController.view addSubview:activityIndicator];
+	
+	[self updateViewForCurrentOrientation];
 	
 	self.tableView.allowsSelectionDuringEditing = TRUE;
 	[super viewDidLoad];
+}
+
+- (void)updateViewForCurrentOrientation {
+	CGFloat toolbarHeight = [toolbar frame].size.height;
+	CGRect rootViewBounds = self.parentViewController.view.bounds;
+	CGFloat rootViewHeight = CGRectGetHeight(rootViewBounds);
+	CGFloat rootViewWidth = CGRectGetWidth(rootViewBounds);
+
+	[toolbar setFrame:CGRectMake(0, rootViewHeight - toolbarHeight, rootViewWidth, toolbarHeight)];
+
+	[loadingOverlay setFrame:CGRectMake(0, 0, rootViewWidth, rootViewHeight)];
+	
+	CGFloat spinnerWidth = CGRectGetWidth(activityIndicator.bounds);
+	[activityIndicator setFrame:CGRectMake(rootViewWidth/2 - spinnerWidth/2, rootViewHeight/2 - spinnerWidth/2, spinnerWidth, spinnerWidth)];
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+	[self updateViewForCurrentOrientation];
 }
 
 - (void)viewWillAppear:(BOOL)animated {

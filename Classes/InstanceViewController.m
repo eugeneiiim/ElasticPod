@@ -176,8 +176,10 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 	//UITableViewCell* cell;// = [tableView dequeueReusableCellWithIdentifier:@"tvc"];
-	UITableViewCell* cell;
+	//UITableViewCell* cell;
 
+	DetailCell* cell;
+	
 	switch(indexPath.section) {
 		case 0:
 			// Controls -- reboot and terminate buttons
@@ -201,52 +203,64 @@
 			}
 
 		case 1:
-			cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"tvc"] autorelease];
-			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-			NSString *cellText = nil;
+			//cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"tvc"] autorelease];
+			//cell.selectionStyle = UITableViewCellSelectionStyleNone;
+			//NSString *cellText = nil;
+			
+			cell = [[[DetailCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell"] autorelease];
+			cell.name.userInteractionEnabled = false;
+			[cell setSelectionStyle:UITableViewCellSelectionStyleNone];
 
 			// Information
 			switch (indexPath.row) {
 				case 0:
-					cellText = [NSString stringWithFormat:@"Instance ID: %@", [instance getProperty:@"instanceId"]];
+					cell.prompt.text = @"Name";
+					cell.name.text = [instance getProperty:@"instanceId"];
 					break;
 				case 1:
-					cellText = [NSString stringWithFormat:@"Image ID: %@", [instance getProperty:@"imageId"]];
+					cell.prompt.text = @"Image ID";
+					cell.name.text = [instance getProperty:@"imageId"];
 					break;
 				case 2:
-					//cellText = [NSString stringWithFormat:@"State: %@", [instance getProperty:@"state"]];
-					cellText = [NSString stringWithFormat:@"State: %@", [instance getProperty:@"name"]]; // TODO FIX ME
+					cell.prompt.text = @"State";
+					cell.name.text = [instance getProperty:@"name"]; // TODO FIX ME
 					break;
 				case 3:
-					cellText = [NSString stringWithFormat:@"Private DNS: %@", [instance getProperty:@"privateDnsName"]];
+					cell.prompt.text = @"Private DNS";
+					cell.name.text = [instance getProperty:@"privateDnsName"];
 					break;
 				case 4:
-					cellText = [NSString stringWithFormat:@"DNS: %@", [instance getProperty:@"dnsName"]];
+					cell.prompt.text = @"DNS";
+					cell.name.text = [instance getProperty:@"dnsName"];
 					break;
 				case 5:
-					cellText = [NSString stringWithFormat:@"Key: %@", [instance getProperty:@"keyName"]];
+					cell.prompt.text = @"Key";
+					cell.name.text = [instance getProperty:@"keyName"];
 					break;
 				case 6:
-					cellText = [NSString stringWithFormat:@"Type: %@", [instance getProperty:@"instanceType"]];
+					cell.prompt.text = @"Type";
+					cell.name.text = [instance getProperty:@"instanceType"];
 					break;
 				case 7:
-					cellText = [NSString stringWithFormat:@"Launch time: %@", [instance getProperty:@"launchTime"]];
+					cell.prompt.text = @"Launch Time";
+					cell.name.text = [instance getProperty:@"launchTime"];
 					break;
 				case 8:
-					//cellText = [NSString stringWithFormat:@"Placement: %@", [instance getProperty:@"placement"]];
-					cellText = [NSString stringWithFormat:@"Placement: %@", [instance getProperty:@"availabilityZone"]];  // TODO FIX
+					cell.prompt.text = @"Zone";
+					cell.name.text = [instance getProperty:@"availabilityZone"];  // TODO FIX
 					break;
 				case 9:
-					cellText = [NSString stringWithFormat:@"Kernel ID: %@", [instance getProperty:@"kernelId"]];
+					cell.prompt.text = @"Kernel ID";
+					cell.name.text = [instance getProperty:@"kernelId"];
 					break;
 				case 10:
-					cellText = [NSString stringWithFormat:@"Ramdisk: %@", [instance getProperty:@"ramdiskId"]];
+					cell.prompt.text = @"Ramdisk ID";
+					cell.name.text = [instance getProperty:@"ramdiskId"];
 					break;
 				default:
 					break;
 			}
 
-			cell.text = cellText;
 			return cell;
 
 		default:
@@ -267,6 +281,10 @@
 
 - (void)dealloc {
 	[super dealloc];
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+	[ec2Controller.rootViewController updateViewForCurrentOrientation];
 }
 
 @end

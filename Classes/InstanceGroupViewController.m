@@ -117,4 +117,8 @@
 	[self.tableView reloadData];
 }
 
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+	[ec2Controller.rootViewController updateViewForCurrentOrientation];
+}
+
 @end

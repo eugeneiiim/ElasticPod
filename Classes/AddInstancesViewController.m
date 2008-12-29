@@ -175,7 +175,7 @@
 		cell = [[[DetailCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell"] autorelease];
 		//cell.selectionStyle = UITableViewCellSelectionStyleNone;
 	}
-
+	cell.selectionStyle = UITableViewCellSelectionStyleNone;
 
     // Set the text in the cell for the section/row
 	switch (indexPath.row) {

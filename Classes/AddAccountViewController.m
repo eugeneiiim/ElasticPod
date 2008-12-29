@@ -82,6 +82,7 @@
 			}
 			cell.prompt.text = @"Name";
 			self.name_cell = cell;
+			cell.selectionStyle = UITableViewCellSelectionStyleNone;
 			break;
 		case 1:
 			if (account) {
@@ -89,6 +90,7 @@
 			}
 			cell.prompt.text = @"Access key";
 			self.access_cell = cell;
+			cell.selectionStyle = UITableViewCellSelectionStyleNone;
 			break;
 		case 2:
 			if (account) {
@@ -96,6 +98,7 @@
 			}
 			cell.prompt.text = @"Secret key";
 			self.secret_cell = cell;
+			cell.selectionStyle = UITableViewCellSelectionStyleNone;
 			break;
 		default:
 			break;

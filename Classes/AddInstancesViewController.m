@@ -181,8 +181,8 @@
 	switch (indexPath.row) {
 		case 0:
 			cell.prompt.text = @"# instances";
-			self.numinstances_cell.name.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
 			self.numinstances_cell = cell;
+			self.numinstances_cell.name.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
 			break;
 		case 1:
 			cell.prompt.text = @"Image ID";
@@ -282,30 +282,27 @@
 		case KEYNAME_SELECTION:
 			return [ec2Controller.keyNames objectAtIndex:row];
 		case AVAILABILITYZONE_SELECTION:
-			NSLog(@"availability zones");
-			for (NSString* z in ec2Controller.availabilityZones) {
-				NSLog(z);
-			}
 			return [ec2Controller.availabilityZones objectAtIndex:row];
 	}
 	return @"BLAH";
 }
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
-	NSLog(@"did select row");
+	switch (self.input_selection) {
+		case KEYNAME_SELECTION:
+			keyname_picker.hidden = YES;
+			break;
+		case AVAILABILITYZONE_SELECTION:
+			availabilityzone_picker.hidden = YES;
+			break;
+	}
 }
 
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
 	switch (self.input_selection) {
 		case KEYNAME_SELECTION:
-			NSLog(@"returning count of keynames");
 			return [ec2Controller.keyNames count];
 		case AVAILABILITYZONE_SELECTION:
-			NSLog(@"returning count of availabilityzones");
-			NSLog(@"availability zones");
-			for (NSString* z in ec2Controller.availabilityZones) {
-				NSLog(z);
-			}
 			return [ec2Controller.availabilityZones count];
 	}
 

@@ -112,7 +112,6 @@
 			switch (indexPath.row) {
 				case 0:
 					// Reboot
-					[self.reboot_cell setSelected:NO animated:YES];
 					self.lastAction = REBOOT;
 
 					alert = [[UIAlertView alloc] initWithTitle:@"Warning"
@@ -124,7 +123,6 @@
 					break;
 				case 1:
 					// Terminate
-					[self.terminate_cell setSelected:NO animated:YES];
 					self.lastAction = TERMINATE;
 
 					alert = [[UIAlertView alloc] initWithTitle:@"Warning"
@@ -189,6 +187,7 @@
 						self.reboot_cell.accessoryType = UITableViewCellAccessoryNone;
 						self.reboot_cell.textAlignment = UITextAlignmentCenter;
 						self.reboot_cell.text = @"Reboot";
+						self.reboot_cell.selectionStyle = UITableViewCellSelectionStyleNone;
 					}
 					return self.reboot_cell;
 				case 1:
@@ -197,6 +196,7 @@
 						self.terminate_cell.accessoryType = UITableViewCellAccessoryNone;
 						self.terminate_cell.textAlignment = UITextAlignmentCenter;
 						self.terminate_cell.text = @"Terminate";
+						self.terminate_cell.selectionStyle = UITableViewCellSelectionStyleNone;
 					}
 					return self.terminate_cell;
 			}

@@ -21,24 +21,15 @@ typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED
 @interface EC2DataController : NSObject {
 	AWSAccount* account;
 	NSDictionary* instanceData; /* reservation group name -> {instance name -> instance} */
-	
 	RootViewController* rootViewController;
-	RequestType currentReqType;
-	//NSRecursiveLock* requestLock;
-	
 	NSArray* availabilityZones;
-
 	NSArray* keyNames;
-	
 	InstanceDataState instDataState;
 }
 
 @property (assign, readwrite) AWSAccount* account;
 @property (nonatomic, assign, readwrite) NSDictionary* instanceData;
-//@property (assign, readwrite) NSString* lastElementName;
 @property (nonatomic, assign, readwrite) RootViewController* rootViewController;
-//@property (nonatomic, assign, readwrite) RequestType currentReqType;
-//@property (nonatomic, assign, readwrite) NSRecursiveLock* requestLock;
 @property (nonatomic, assign, readwrite) InstanceDataState instDataState;
 @property (nonatomic, assign, readwrite) NSArray* availabilityZones;
 @property (nonatomic, assign, readwrite) NSArray* keyNames;

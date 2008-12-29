@@ -75,10 +75,7 @@
 	self.keyNames = nil;
 	self.account = acct;
 	self.rootViewController = rvc;
-	//self.requestLock = [[NSRecursiveLock alloc] init];
-	//self.currentReqType = NO_REQUEST;
 	self.instDataState = INSTANCE_DATA_NOT_READY;
-	//[self refreshInstanceData];
 	return self;
 }
 
@@ -151,24 +148,22 @@
 }
 
 - (void)executeRequest:(NSString*)action args:(NSDictionary*)args {
-	//[self.requestLock lock]; // prevent simultaneous requests.
 	[rootViewController showLoadingScreen];
 
+	RequestType req_type;
 	if ([action compare:@"DescribeInstances"] == NSOrderedSame) {
-//		self.currentReqType = DESCRIBE_INSTANCES;
+		req_type = DESCRIBE_INSTANCES;
 	} else if ([action compare:@"RebootInstances"] == NSOrderedSame) {
-//		self.currentReqType = REBOOT_INSTANCES;
+		req_type = REBOOT_INSTANCES;
 	} else if ([action compare:@"TerminateInstances"] == NSOrderedSame) {
-//		self.currentReqType = TERMINATE_INSTANCES;
+		req_type = TERMINATE_INSTANCES;
 	} else if ([action compare:@"DescribeAvailabilityZones"] == NSOrderedSame) {		
-//		self.currentReqType = DESCRIBE_AVAILABILITY_ZONES;
+		req_type = DESCRIBE_AVAILABILITY_ZONES;
 	} else if ([action compare:@"DescribeKeyPairs"] == NSOrderedSame) {
-//		self.currentReqType = DESCRIBE_KEY_PAIRS;
+		req_type = DESCRIBE_KEY_PAIRS;
 	} else {
 		NSLog(@"ERROR invalid request type!!! %@", action);
 		[rootViewController hideLoadingScreen];
-		currentReqType = NO_REQUEST;
-		//[requestLock unlock];
 		return;
 	}
 
@@ -192,16 +187,11 @@
 
 	NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
 									 timeoutInterval:20.0];
-	EC2RequestDelegate* req_delegate = [[[EC2RequestDelegate alloc] init] autorelease];
+	EC2RequestDelegate* req_delegate = [[[EC2RequestDelegate alloc] init:self requestType:req_type] autorelease];
 	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:req delegate:req_delegate];
 	if (!theConnection) {
 		self.instDataState = INSTANCE_DATA_NOT_READY;
-
-		//[urlreq_data release];
-		[rootViewController hideLoadingScreen];
-		currentReqType = NO_REQUEST;
-	//	[requestLock unlock];
-
+		[self.rootViewController hideLoadingScreen];
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Connection failed.  Check your Internet connection."
 													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];

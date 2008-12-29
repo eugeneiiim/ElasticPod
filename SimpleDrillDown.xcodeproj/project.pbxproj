@@ -210,10 +210,10 @@
 		CED49F910EFC96C2000D0551 /* DataControllers */ = {
 			isa = PBXGroup;
 			children = (
-				CED49FB80EFC9761000D0551 /* AccountsController.h */,
-				CED49FB90EFC9761000D0551 /* AccountsController.m */,
 				CED12BE30EFF05190083619D /* EC2DataController.h */,
 				CED12BE40EFF05190083619D /* EC2DataController.m */,
+				CED49FB80EFC9761000D0551 /* AccountsController.h */,
+				CED49FB90EFC9761000D0551 /* AccountsController.m */,
 			);
 			name = DataControllers;
 			sourceTree = "<group>";

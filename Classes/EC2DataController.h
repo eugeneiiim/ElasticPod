@@ -22,41 +22,26 @@ typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED
 	AWSAccount* account;
 	NSDictionary* instanceData; /* reservation group name -> {instance name -> instance} */
 	
-	NSMutableDictionary* tempInstanceData;
-	NSMutableData* urlreq_data;
-	NSString* lastElementName;
-	NSMutableDictionary* curGroupDict;
-	EC2Instance* curInst;
 	RootViewController* rootViewController;
 	RequestType currentReqType;
-	NSRecursiveLock* requestLock;
+	//NSRecursiveLock* requestLock;
 	
 	NSArray* availabilityZones;
-	NSMutableArray* tempAvailabilityZones;
-	NSString* curAvailZone;
 
 	NSArray* keyNames;
-	NSMutableArray* tempKeyNames;
 	
 	InstanceDataState instDataState;
 }
 
 @property (assign, readwrite) AWSAccount* account;
 @property (nonatomic, assign, readwrite) NSDictionary* instanceData;
-@property (assign, readwrite) NSMutableDictionary* tempInstanceData;
-@property (assign, readwrite) NSMutableData* urlreq_data;
-@property (assign, readwrite) NSString* lastElementName;
-@property (nonatomic, assign, readwrite) NSMutableDictionary* curGroupDict;
-@property (nonatomic, assign, readwrite) EC2Instance* curInst;
+//@property (assign, readwrite) NSString* lastElementName;
 @property (nonatomic, assign, readwrite) RootViewController* rootViewController;
-@property (nonatomic, assign, readwrite) RequestType currentReqType;
-@property (nonatomic, assign, readwrite) NSRecursiveLock* requestLock;
+//@property (nonatomic, assign, readwrite) RequestType currentReqType;
+//@property (nonatomic, assign, readwrite) NSRecursiveLock* requestLock;
 @property (nonatomic, assign, readwrite) InstanceDataState instDataState;
-@property (nonatomic, assign, readwrite) NSMutableArray* tempAvailabilityZones;
 @property (nonatomic, assign, readwrite) NSArray* availabilityZones;
-@property (nonatomic, assign, readwrite) NSString* curAvailZone;
 @property (nonatomic, assign, readwrite) NSArray* keyNames;
-@property (nonatomic, assign, readwrite) NSMutableArray* tempKeyNames;
 
 - (void)terminateInstances:(NSArray*)instances;
 - (void)terminateInstanceGroup:(NSString*)grp;

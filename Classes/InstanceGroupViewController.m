@@ -99,6 +99,8 @@
 	EC2Instance* model_instance;
 	NSInteger num_instances;
 	
+	
+	
 	//[ec2Controller runInstances:model_instance n:num_instances];
 }
 

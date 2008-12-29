@@ -10,23 +10,11 @@
 #import "EC2InstanceGroup.h"
 #import <openssl/ssl.h>
 #import <openssl/hmac.h>
+#import "EC2RequestDelegate.h"
 
 @implementation NSData (OpenSSLWrapper)
 
-/*
-- (NSData *)md5Digest
-{
-	EVP_MD_CTX mdctx;
-	unsigned char md_value[EVP_MAX_MD_SIZE];
-	unsigned int md_len;
-	EVP_DigestInit(&mdctx, EVP_md5());
-	EVP_DigestUpdate(&mdctx, [self bytes], [self length]);
-	EVP_DigestFinal(&mdctx, md_value, &md_len);
-	return [NSData dataWithBytes:md_value length:md_len];
-}*/
-
-- (NSData *)sha1Digest
-{
+- (NSData *)sha1Digest {
 	EVP_MD_CTX mdctx;
 	unsigned char md_value[EVP_MAX_MD_SIZE];
 	unsigned int md_len;
@@ -36,8 +24,7 @@
 	return [NSData dataWithBytes:md_value length:md_len];
 }
 
-- (NSData *)sha1HMacWithKey:(NSString *)key
-{
+- (NSData *)sha1HMacWithKey:(NSString *)key {
 	HMAC_CTX mdctx;
 	unsigned char md_value[EVP_MAX_MD_SIZE];
 	unsigned int md_len;
@@ -73,16 +60,14 @@
     return base64String;
 }
 
-- (NSString *)encodeBase64
-{
+- (NSString *)encodeBase64 {
     return [self encodeBase64WithNewlines:NO];
 }
 @end
 
 @implementation EC2DataController
 
-@synthesize account, instanceData, tempInstanceData, urlreq_data, curGroupDict, curInst, lastElementName, rootViewController,
-	currentReqType, requestLock, instDataState, availabilityZones, tempAvailabilityZones, curAvailZone, tempKeyNames, keyNames;
+@synthesize account, instanceData, rootViewController, instDataState, availabilityZones, keyNames;
 
 - (id)initWithAccount:(AWSAccount*)acct rootViewController:(RootViewController*)rvc {
 	self.instanceData = nil; //[[NSDictionary alloc] init];
@@ -90,8 +75,8 @@
 	self.keyNames = nil;
 	self.account = acct;
 	self.rootViewController = rvc;
-	self.requestLock = [[NSRecursiveLock alloc] init];
-	self.currentReqType = NO_REQUEST;
+	//self.requestLock = [[NSRecursiveLock alloc] init];
+	//self.currentReqType = NO_REQUEST;
 	self.instDataState = INSTANCE_DATA_NOT_READY;
 	//[self refreshInstanceData];
 	return self;
@@ -126,7 +111,17 @@
 }
 
 - (void)runInstances:(EC2Instance*)modelInstance n:(NSInteger)numInstances {
-	printf("TODO launch some instances");
+	NSString* numinsts_str = [NSString stringWithFormat:@"%d", numInstances];
+
+	NSMutableDictionary* args = [[NSMutableDictionary alloc] init];
+	[args setValue:[modelInstance getProperty:@"imageId"] forKey:@"ImageId"];
+	[args setValue:[modelInstance getProperty:@"instanceType"] forKey:@"InstanceType"];
+	[args setValue:[modelInstance getProperty:@"keyName"] forKey:@"KeyName"];
+	[args setValue:numinsts_str forKey:@"MaxCount"];
+	[args setValue:numinsts_str forKey:@"MinCount"];
+	[args setValue:[modelInstance getProperty:@"availabilityZone"] forKey:@"Placement.AvailabilityZone"];
+
+	//[self executeRequest:@"RunInstances" args:args];
 }
 
 - (NSArray*)getInstanceGroups {
@@ -156,24 +151,24 @@
 }
 
 - (void)executeRequest:(NSString*)action args:(NSDictionary*)args {
-	[self.requestLock lock]; // prevent simultaneous requests.
+	//[self.requestLock lock]; // prevent simultaneous requests.
 	[rootViewController showLoadingScreen];
 
 	if ([action compare:@"DescribeInstances"] == NSOrderedSame) {
-		self.currentReqType = DESCRIBE_INSTANCES;
+//		self.currentReqType = DESCRIBE_INSTANCES;
 	} else if ([action compare:@"RebootInstances"] == NSOrderedSame) {
-		self.currentReqType = REBOOT_INSTANCES;
+//		self.currentReqType = REBOOT_INSTANCES;
 	} else if ([action compare:@"TerminateInstances"] == NSOrderedSame) {
-		self.currentReqType = TERMINATE_INSTANCES;
+//		self.currentReqType = TERMINATE_INSTANCES;
 	} else if ([action compare:@"DescribeAvailabilityZones"] == NSOrderedSame) {		
-		self.currentReqType = DESCRIBE_AVAILABILITY_ZONES;
+//		self.currentReqType = DESCRIBE_AVAILABILITY_ZONES;
 	} else if ([action compare:@"DescribeKeyPairs"] == NSOrderedSame) {
-		self.currentReqType = DESCRIBE_KEY_PAIRS;
+//		self.currentReqType = DESCRIBE_KEY_PAIRS;
 	} else {
 		NSLog(@"ERROR invalid request type!!! %@", action);
 		[rootViewController hideLoadingScreen];
 		currentReqType = NO_REQUEST;
-		[requestLock unlock];
+		//[requestLock unlock];
 		return;
 	}
 
@@ -194,19 +189,18 @@
 	NSString* req1 = [NSString stringWithFormat:@"Action=%@&AWSAccessKeyId=%@%@&SignatureVersion=1&Timestamp=%@&Version=2008-05-05", action, account.access_key, argsStr, timestamp];
 	NSString* sig = [self generateSignature:req1 secret:account.secret_key];
 	NSString* url = [[NSString alloc] initWithFormat:@"https://ec2.amazonaws.com/?%@&Signature=%@", req1, sig];
-	//NSLog(url);
 
-	urlreq_data = [[NSMutableData alloc] init];
 	NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
 									 timeoutInterval:20.0];
-	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:req delegate:self];
+	EC2RequestDelegate* req_delegate = [[[EC2RequestDelegate alloc] init] autorelease];
+	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:req delegate:req_delegate];
 	if (!theConnection) {
 		self.instDataState = INSTANCE_DATA_NOT_READY;
 
-		[urlreq_data release];
+		//[urlreq_data release];
 		[rootViewController hideLoadingScreen];
 		currentReqType = NO_REQUEST;
-		[requestLock unlock];
+	//	[requestLock unlock];
 
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Connection failed.  Check your Internet connection."
 													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
@@ -217,178 +211,6 @@
 
 - (void)refreshInstanceData {
 	[self executeRequest:@"DescribeInstances" args:[[[NSDictionary alloc] init] autorelease]];
-}
-
-// Connection event handlers.
-/*
-- (void)connection:(NSURLConnection*)conn didReceiveResponse:(NSURLResponse*)response {
-}*/
-
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-	[urlreq_data appendData:data];
-}
-
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
-	// release the connection, and the data object
-	[connection release];
-	[urlreq_data release];
-
-	if (currentReqType == DESCRIBE_INSTANCES) {
-		self.instDataState = INSTANCE_DATA_NOT_READY;
-	}
-
-    // inform the user
-	NSLog(@"Connection failed! Error - %@ %@", [error localizedDescription],
-		[[error userInfo] objectForKey:NSErrorFailingURLStringKey]);
-
-	NSString* msg = @"Connection failed.  Check your Internet connection.";
-	UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:msg
-												   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-	[alert show];
-	[alert release];
-
-	[rootViewController hideLoadingScreen];
-	self.currentReqType = NO_REQUEST;
-	[requestLock unlock];
-}
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-	[connection release];
-
-	if (self.currentReqType == DESCRIBE_INSTANCES)  {
-		curGroupDict = nil;
-		curInst = nil;
-	}
-
-	if (currentReqType == DESCRIBE_INSTANCES) {
-		self.tempInstanceData = [[NSMutableDictionary alloc] init];
-	} else if (currentReqType == DESCRIBE_AVAILABILITY_ZONES) {
-		self.tempAvailabilityZones = [[NSMutableArray alloc] init];
-	} else if (currentReqType == DESCRIBE_KEY_PAIRS) {
-		self.tempKeyNames = [[NSMutableArray alloc] init];
-	}
-
-	NSLog([[NSString alloc] initWithData:urlreq_data encoding:NSASCIIStringEncoding]);
-	
-	NSXMLParser* x = [[NSXMLParser alloc] initWithData:urlreq_data];
-	[x setDelegate:self];
-	[x parse];
-
-	[urlreq_data release];
-}
-
-// Parser event handlers
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict {
-	if (self.currentReqType == DESCRIBE_INSTANCES && [elementName compare:@"DescribeInstancesResponse"] == NSOrderedSame) {
-		self.instDataState = INSTANCE_DATA_READY;
-	}
-
-	self.lastElementName = elementName;
-}
-
-- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
-	if (currentReqType == DESCRIBE_INSTANCES) {
-		if ([elementName compare:@"instancesSet"] == NSOrderedSame) {
-			// End of this reservation group.
-			curGroupDict = nil;
-		}
-		if ([elementName compare:@"item"] == NSOrderedSame) {
-			// End of this instance.
-			curInst = nil;
-		}
-	}
-}
-
-- (void)parser:(NSXMLParser*)parser foundCharacters:(NSString*)string {
-	string = [string stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@" \n"]];
-	if (string == nil || [string length] == 0) {
-		return;
-	}
-
-	if ([lastElementName compare:@"Code"] == NSOrderedSame) {
-		// This is an error -- todo make sure Code isn't used for other stuff.
-		
-		if (self.currentReqType == DESCRIBE_INSTANCES) {
-			[self.tempInstanceData release];
-			self.tempInstanceData = nil; // indicate that this new data should not be used.
-		} else if (self.currentReqType == DESCRIBE_AVAILABILITY_ZONES) {
-			[self.tempAvailabilityZones release];
-			self.tempAvailabilityZones = nil;
-		} else if (self.currentReqType == DESCRIBE_KEY_PAIRS) {
-			[self.tempKeyNames release];
-			self.tempKeyNames = nil;
-		}
-		
-		if ([string compare:@"SignatureDoesNotMatch"] == NSOrderedSame) {
-			NSString* msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your secret key.", self.account.name];
-			UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Invalid Request Signature" message:msg
-														   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-			[alert show];
-			[alert release];
-			
-			self.instDataState = INSTANCE_DATA_FAILED;
-			return;
-		} else if ([string compare:@"InvalidClientTokenId"] == NSOrderedSame) {
-			NSString* msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your access key.", self.account.name];
-			UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Invalid Access Key" message:msg
-														   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-			[alert show];
-			[alert release];
-			
-			self.instDataState = INSTANCE_DATA_FAILED;
-			return;
-		}
-		// TODO check for other errors
-	}
-
-	if (self.currentReqType == DESCRIBE_INSTANCES) {
-		if ([lastElementName compare:@"reservationId"] == NSOrderedSame) {
-			curGroupDict = [[NSMutableDictionary alloc] init];
-			[tempInstanceData setValue:curGroupDict forKey:[string copy]];
-		} else if ([lastElementName compare:@"instanceId"] == NSOrderedSame) {
-			curInst = [[EC2Instance alloc] init];
-			[curGroupDict setValue:curInst forKey:[string copy]];
-		}
-
-		if (curInst != nil) {
-			[curInst addProperty:[lastElementName copy] value:[string copy]];
-		}
-	} else if (self.currentReqType == DESCRIBE_AVAILABILITY_ZONES) {
-		if ([lastElementName compare:@"zoneName"] == NSOrderedSame) {
-			curAvailZone = [string copy];
-		} else if ([lastElementName compare:@"zoneState"] == NSOrderedSame) {
-			if ([string compare:@"available"] == NSOrderedSame) {
-				[tempAvailabilityZones addObject:[curAvailZone copy]];
-			}
-		}
-	} else if (self.currentReqType == DESCRIBE_KEY_PAIRS) {
-		if ([lastElementName compare:@"keyName"] == NSOrderedSame) {
-			[self.tempKeyNames addObject:[string copy]];
-		}
-	}
-}
-
-- (void)parserDidEndDocument:(NSXMLParser *)parser {
-	if (self.currentReqType == DESCRIBE_INSTANCES && self.tempInstanceData != nil) {
-		self.instanceData = [NSDictionary dictionaryWithDictionary:self.tempInstanceData];
-		[self.tempInstanceData release];
-		self.tempInstanceData = nil;
-	} else if (self.currentReqType == DESCRIBE_AVAILABILITY_ZONES && self.tempAvailabilityZones != nil) {
-		self.availabilityZones = [NSArray arrayWithArray:self.tempAvailabilityZones];
-		[self.tempAvailabilityZones release];
-		self.tempAvailabilityZones = nil;
-	} else if (self.currentReqType == DESCRIBE_KEY_PAIRS && self.tempKeyNames != nil) {
-		self.keyNames = [NSArray arrayWithArray:self.tempKeyNames];
-		[self.tempKeyNames release];
-		self.tempKeyNames = nil;
-	}
-
-	// Refresh the view.
-	[rootViewController.navigationController.topViewController refreshEC2Callback];
-
-	[rootViewController hideLoadingScreen];
-	currentReqType = NO_REQUEST;
-	[requestLock unlock];
 }
 
 - (EC2Instance*)getInstance:(NSString*)group instanceId:(NSString*)inst_id {

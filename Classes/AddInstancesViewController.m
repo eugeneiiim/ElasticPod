@@ -11,7 +11,8 @@
 
 @implementation AddInstancesViewController
 
-@synthesize ec2Controller, numinstances_cell, availabilityzone_cell, imageid_cell, keyname_cell, instancetype_cell;
+@synthesize ec2Controller, numinstances_cell, availabilityzone_cell, imageid_cell, keyname_cell, instancetype_cell,
+	keyname_picker, availabilityzone_picker, imageid_picker, instancetype_picker, input_selection;
 
 - (AddInstancesViewController*)initWithStyle:(UITableViewStyle)style ec2Controller:(EC2DataController*)ec2Ctrl {
 	if ([super initWithStyle:style]) {
@@ -20,10 +21,63 @@
 		UIBarButtonItem* launch_button = [[UIBarButtonItem alloc] initWithTitle:@"Launch" style:UIBarButtonItemStyleBordered
 																		 target:self action:@selector(runInstances:)];
 		self.navigationItem.rightBarButtonItem = launch_button;
+
+		self.input_selection = NO_SELECTION;
+
+
+
+/*
+		CGRect screenRect = [[UIScreen mainScreen] applicationFrame];
+		CGSize pickerSize = [keyname_picker sizeThatFits:CGSizeZero];
+		CGRect pickerRect = CGRectMake(0.0, screenRect.size.height - pickerSize.height, pickerSize.width, pickerSize.height);*/
 		
+		keyname_picker = [[UIPickerView alloc] initWithFrame:CGRectZero];
+		keyname_picker.delegate = self;
+		keyname_picker.showsSelectionIndicator = YES;	// note this is default to NO
+		keyname_picker.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+
 		
-		UIPickerView* availabilityzone_picker = [[UIPickerView alloc] init];
+		availabilityzone_picker = [[UIPickerView alloc] initWithFrame:CGRectZero];
+		availabilityzone_picker.delegate = self;
+		availabilityzone_picker.showsSelectionIndicator = YES;	// note this is default to NO
+		availabilityzone_picker.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+		
+		/*
+		[self.navigationController.view addSubview:keyname_picker];
+		[self.navigationController.view bringSubviewToFront:keyname_picker];*/
+
+/*
+		CGRect screenRect = [[UIScreen mainScreen] applicationFrame];
+		CGSize pickerSize = [keyname_picker sizeThatFits:CGSizeZero];
+		CGRect pickerRect = CGRectMake(	0.0, screenRect.size.height - pickerSize.height, pickerSize.width, pickerSize.height);
+		
+		keyname_picker = [[UIPickerView alloc] initWithFrame:CGRectZero];
+		keyname_picker.frame = pickerRect;
+		keyname_picker.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+		keyname_picker.delegate = self;
+		keyname_picker.showsSelectionIndicator = YES;	// note this is default to NO
+		keyname_picker.hidden = NO;
+		[self.navigationController.view addSubview:keyname_picker];
+		[self.navigationController.view bringSubviewToFront:keyname_picker];
+*/
+ 
+/*
+		availabilityzone_picker = [[UIPickerView alloc] initWithFrame:CGRectZero];
+		availabilityzone_picker.frame = pickerRect;
+		availabilityzone_picker.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+		availabilityzone_picker.delegate = self;
+		availabilityzone_picker.showsSelectionIndicator = YES;	// note this is default to NO
+		availabilityzone_picker.hidden = NO;
 		[self.navigationController.view addSubview:availabilityzone_picker];
+		[self.navigationController.view bringSubviewToFront:availabilityzone_picker];
+*/
+		
+		
+		
+		/*
+		imageid_picker;
+		instancetype_picker;  */
+
 	}
 	return self;
 }
@@ -43,7 +97,7 @@
 		[alert release];
 		return;
 	}
-	
+
 	NSInteger num_insts = [self.numinstances_cell.name.text intValue];
 	if (num_insts <= 0) {
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Number of instances must be a positive integer." delegate:nil
@@ -183,6 +237,79 @@
 	[ec2Controller refreshInstanceData];
 	[ec2Controller refreshAvailabilityZones];
 	[ec2Controller refreshKeyNames];
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+	CGRect screenRect = [[UIScreen mainScreen] applicationFrame];
+	CGSize pickerSize = [keyname_picker sizeThatFits:CGSizeZero];
+	CGRect pickerRect = CGRectMake(0.0, screenRect.size.height - pickerSize.height, pickerSize.width, pickerSize.height);
+	
+	switch (indexPath.row) {
+		case 0:
+			break;
+		case 1:
+			imageid_picker.hidden = FALSE;
+			break;
+		case 2:
+
+			self.input_selection = KEYNAME_SELECTION;
+			
+			keyname_picker.frame = pickerRect;
+			keyname_picker.hidden = NO;
+			
+			[self.navigationController.view addSubview:keyname_picker];
+			[self.navigationController.view bringSubviewToFront:keyname_picker];
+			break;
+		case 3:
+	//		availabilityzone_picker.hidden = FALSE;
+
+			self.input_selection = AVAILABILITYZONE_SELECTION;
+
+			availabilityzone_picker.frame = pickerRect;
+			availabilityzone_picker.hidden = NO;
+
+			[self.navigationController.view addSubview:availabilityzone_picker];
+			[self.navigationController.view bringSubviewToFront:availabilityzone_picker];
+			break;
+		case 4:
+			instancetype_picker.hidden = FALSE;
+			break;
+	}
+}
+
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+	switch (self.input_selection) {
+		case KEYNAME_SELECTION:
+			return [ec2Controller.keyNames objectAtIndex:row];
+		case AVAILABILITYZONE_SELECTION:
+			NSLog(@"availability zones");
+			for (NSString* z in ec2Controller.availabilityZones) {
+				NSLog(z);
+			}
+			return [ec2Controller.availabilityZones objectAtIndex:row];
+	}
+	return @"BLAH";
+}
+
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
+	NSLog(@"did select row");
+}
+
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+	switch (self.input_selection) {
+		case KEYNAME_SELECTION:
+			NSLog(@"returning count of keynames");
+			return [ec2Controller.keyNames count];
+		case AVAILABILITYZONE_SELECTION:
+			NSLog(@"returning count of availabilityzones");
+			NSLog(@"availability zones");
+			for (NSString* z in ec2Controller.availabilityZones) {
+				NSLog(z);
+			}
+			return [ec2Controller.availabilityZones count];
+	}
+
+	return 0;
 }
 
 @end

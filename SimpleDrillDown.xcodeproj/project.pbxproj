@@ -18,6 +18,7 @@
 		28A0A2200DCBAA090060EDFB /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 28A0A21F0DCBAA090060EDFB /* Default.png */; };
 		53A3862B0E6DD89B002F7F09 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53A386290E6DD89B002F7F09 /* MainWindow.xib */; };
 		CE00336E0F02D828005C7943 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CE00336D0F02D828005C7943 /* libcrypto.0.9.8.dylib */; };
+		CE77F4BE0F08896A00F7B285 /* EC2RequestDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CE77F4BD0F08896A00F7B285 /* EC2RequestDelegate.m */; };
 		CED12B560EFEF5600083619D /* AddInstancesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12B550EFEF5600083619D /* AddInstancesViewController.m */; };
 		CED12BE50EFF05190083619D /* EC2DataController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12BE40EFF05190083619D /* EC2DataController.m */; };
 		CED12FD00F00381D0083619D /* DetailCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12FCF0F00381D0083619D /* DetailCell.m */; };
@@ -51,6 +52,8 @@
 		53A3862A0E6DD89B002F7F09 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainWindow.xib; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CE00336D0F02D828005C7943 /* libcrypto.0.9.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.0.9.8.dylib; path = /opt/local/lib/libcrypto.0.9.8.dylib; sourceTree = "<absolute>"; };
+		CE77F4BC0F08896A00F7B285 /* EC2RequestDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EC2RequestDelegate.h; sourceTree = "<group>"; };
+		CE77F4BD0F08896A00F7B285 /* EC2RequestDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EC2RequestDelegate.m; sourceTree = "<group>"; };
 		CED12B540EFEF5600083619D /* AddInstancesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddInstancesViewController.h; sourceTree = "<group>"; };
 		CED12B550EFEF5600083619D /* AddInstancesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddInstancesViewController.m; sourceTree = "<group>"; };
 		CED12BE30EFF05190083619D /* EC2DataController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EC2DataController.h; sourceTree = "<group>"; };
@@ -96,6 +99,8 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				CE77F4BC0F08896A00F7B285 /* EC2RequestDelegate.h */,
+				CE77F4BD0F08896A00F7B285 /* EC2RequestDelegate.m */,
 				CE77F17A0F0762F100F7B285 /* Views */,
 				CED49F860EFC9697000D0551 /* ViewControllers */,
 				CED49F910EFC96C2000D0551 /* DataControllers */,
@@ -293,6 +298,7 @@
 				CED12B560EFEF5600083619D /* AddInstancesViewController.m in Sources */,
 				CED12BE50EFF05190083619D /* EC2DataController.m in Sources */,
 				CED12FD00F00381D0083619D /* DetailCell.m in Sources */,
+				CE77F4BE0F08896A00F7B285 /* EC2RequestDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

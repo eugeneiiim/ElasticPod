@@ -10,9 +10,11 @@
 
 @interface EC2Instance : NSObject {
 	NSMutableDictionary* instanceProperties;
+	NSArray* securityGroups;
 }
 
-@property (nonatomic, copy, readwrite) NSMutableDictionary* instanceProperties;
+@property (nonatomic, assign, readwrite) NSMutableDictionary* instanceProperties;
+@property (nonatomic, readwrite, assign) NSArray* securityGroups;
 
 - (id)init;
 - (NSString*)getProperty:(NSString*)key;

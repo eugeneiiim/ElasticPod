@@ -16,6 +16,7 @@
 	
 	NSMutableDictionary* curGroupDict;
 	EC2Instance* curInst;
+	NSMutableArray* curSecurityGroups;
 	
 	NSMutableDictionary* tempInstanceData;
 	NSMutableArray* tempAvailabilityZones;
@@ -35,6 +36,7 @@
 @property (nonatomic, assign, readwrite) NSMutableArray* tempKeyNames;
 @property (nonatomic, assign, readwrite) NSString* lastElementName;
 @property (nonatomic, assign, readwrite) NSString* curAvailZone;
+@property (nonatomic, assign, readwrite) NSMutableArray* curSecurityGroups;
 
 - (EC2RequestDelegate*)init:(EC2DataController*)ec2ctrl requestType:(RequestType)type;
 

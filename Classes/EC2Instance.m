@@ -10,10 +10,11 @@
 
 @implementation EC2Instance
 
-@synthesize instanceProperties;
+@synthesize instanceProperties, securityGroups;
 
 - (id)init {
-	instanceProperties = [[NSMutableDictionary alloc] init];
+	self.instanceProperties = [[NSMutableDictionary alloc] init];
+	self.securityGroups = nil;
 	return self;
 }
 
@@ -23,6 +24,11 @@
 
 - (NSString*)getProperty:(NSString*)key {
 	return [instanceProperties valueForKey:key];
+}
+
+- (void)dealloc {
+	[self.instanceProperties release];
+	[super dealloc];
 }
 
 @end

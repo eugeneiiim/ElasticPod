@@ -149,13 +149,13 @@
 		if ([self.lastElementName compare:@"reservationId"] == NSOrderedSame) {
 			self.curGroupDict = [[NSMutableDictionary alloc] init];
 			[self.tempInstanceData setValue:self.curGroupDict forKey:[string copy]];
-			//self.curSecurityGroups = [[NSMutableArray alloc] init];
+			self.curSecurityGroups = [[NSMutableArray alloc] init];
 		} else if ([self.lastElementName compare:@"instanceId"] == NSOrderedSame) {
 			self.curInst = [[EC2Instance alloc] init];
 			[self.curGroupDict setValue:self.curInst forKey:[string copy]];
-			//self.curInst.securityGroups = [self.curSecurityGroups copy];
+			self.curInst.securityGroups = [self.curSecurityGroups copy];
 		} else if ([self.lastElementName compare:@"groupId"] == NSOrderedSame) {
-			//[self.curSecurityGroups addObject:[string copy]];
+			[self.curSecurityGroups addObject:[string copy]];
 		}
 
 		if (self.curInst != nil) {

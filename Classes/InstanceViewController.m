@@ -146,7 +146,7 @@
 		case 0:
 			return 2;
         case 1:
-			return 13;
+			return 14;
         default:
 			return 0;
     }
@@ -233,34 +233,43 @@
 					cell.name.text = [instance getProperty:@"dnsName"];
 					break;
 				case 5:
+					cell.prompt.text = @"Security Groups";
+					NSMutableString* str = [NSMutableString stringWithString:@""];
+					for (NSString* grp in self.instance.securityGroups) {
+						[str appendFormat:@"%@ ", grp];
+					}
+					
+					cell.name.text = str;
+					break;
+				case 6:
 					cell.prompt.text = @"Reason";
 					cell.name.text = [instance getProperty:@"reason"];
 					break;
-				case 6:
+				case 7:
 					cell.prompt.text = @"Key";
 					cell.name.text = [instance getProperty:@"keyName"];
 					break;
-				case 7:
+				case 8:
 					cell.prompt.text = @"Index";
 					cell.name.text = [instance getProperty:@"amiLaunchIndex"];
 					break;
-				case 8:
+				case 9:
 					cell.prompt.text = @"Type";
 					cell.name.text = [instance getProperty:@"instanceType"];
 					break;
-				case 9:
+				case 10:
 					cell.prompt.text = @"Launch Time";
 					cell.name.text = [instance getProperty:@"launchTime"];
 					break;
-				case 10:
+				case 11:
 					cell.prompt.text = @"Zone";
 					cell.name.text = [instance getProperty:@"availabilityZone"];  // TODO FIX
 					break;
-				case 11:
+				case 12:
 					cell.prompt.text = @"Kernel ID";
 					cell.name.text = [instance getProperty:@"kernelId"];
 					break;
-				case 12:
+				case 13:
 					cell.prompt.text = @"Ramdisk ID";
 					cell.name.text = [instance getProperty:@"ramdiskId"];
 					break;

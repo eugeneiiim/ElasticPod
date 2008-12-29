@@ -17,9 +17,9 @@
 }
 
 - (id)initWithName:(NSString*)name_ accessKey:(NSString*)ak secretKey:(NSString*)sk {
-	name = name_;
-	access_key = ak;
-	secret_key = sk;
+	self.name = name_;
+	self.access_key = ak;
+	self.secret_key = sk;
 	return self;
 }
 

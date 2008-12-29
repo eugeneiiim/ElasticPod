@@ -14,7 +14,7 @@
 
 - (id)init {
 	self.instanceProperties = [[NSMutableDictionary alloc] init];
-	self.securityGroups = nil;
+	self.securityGroups = [[NSArray alloc] init];
 	return self;
 }
 
@@ -28,6 +28,7 @@
 
 - (void)dealloc {
 	[self.instanceProperties release];
+	[self.securityGroups release];
 	[super dealloc];
 }
 

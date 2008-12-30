@@ -14,9 +14,10 @@
 
 @class RootViewController;
 
-typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQUEST, DESCRIBE_AVAILABILITY_ZONES, DESCRIBE_KEY_PAIRS} RequestType;
-
 typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED} InstanceDataState;
+
+typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQUEST,
+	DESCRIBE_AVAILABILITY_ZONES, DESCRIBE_KEY_PAIRS, RUN_INSTANCES, DESCRIBE_SECURITY_GROUPS} RequestType;
 
 @interface EC2DataController : NSObject {
 	AWSAccount* account;
@@ -25,14 +26,22 @@ typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED
 	NSArray* availabilityZones;
 	NSArray* keyNames;
 	InstanceDataState instDataState;
+	NSArray* instanceTypes;
+	BOOL errorDisplayed;
+	NSArray* securityGroups;
+	NSArray* orderedGroups;
 }
 
-@property (assign, readwrite) AWSAccount* account;
+@property (nonatomic, assign, readwrite) AWSAccount* account;
 @property (nonatomic, assign, readwrite) NSDictionary* instanceData;
 @property (nonatomic, assign, readwrite) RootViewController* rootViewController;
 @property (nonatomic, assign, readwrite) InstanceDataState instDataState;
 @property (nonatomic, assign, readwrite) NSArray* availabilityZones;
 @property (nonatomic, assign, readwrite) NSArray* keyNames;
+@property (nonatomic, assign, readwrite) NSArray* instanceTypes;
+@property (nonatomic, assign, readwrite) NSArray* securityGroups;
+@property (nonatomic, assign, readwrite) BOOL errorDisplayed;
+@property (nonatomic, assign, readwrite) NSArray* orderedGroups;
 
 - (void)terminateInstances:(NSArray*)instances;
 - (void)terminateInstanceGroup:(NSString*)grp;
@@ -50,13 +59,11 @@ typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED
 - (void)refreshAvailabilityZones;
 - (NSArray*)getKeyNames;
 - (void)refreshKeyNames;
+- (void)refreshSecurityGroups;
 
 @end
 
 @interface NSData (OpenSSLWrapper)
-//- (NSData *)md5Digest;
-- (NSData *)sha1Digest;
 - (NSData *)sha1HMacWithKey:(NSString*)key;
 - (NSString *)encodeBase64;
-- (NSString *)encodeBase64WithNewlines: (BOOL)encodeWithNewlines;
 @end

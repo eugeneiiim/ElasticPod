@@ -10,7 +10,7 @@
 
 @implementation AWSAccount
 
-@synthesize name, access_key, secret_key;
+@synthesize name, access_key, secret_key, defaultImageId, defaultRamdiskId, defaultKernelId;
 
 + (id)accountWithName:(NSString*)name_ accessKey:(NSString*)ak secretKey:(NSString*)sk {
 	return [[[AWSAccount alloc] initWithName:[name_ copy] accessKey:[ak copy] secretKey:[sk copy]] autorelease];
@@ -20,6 +20,9 @@
 	self.name = name_;
 	self.access_key = ak;
 	self.secret_key = sk;
+	self.defaultImageId = nil;
+	self.defaultRamdiskId = nil;
+	self.defaultKernelId = nil;
 	return self;
 }
 

@@ -14,36 +14,34 @@
 
 @implementation InstanceGroupSetViewController
 
-@synthesize ec2Controller, account;
+@synthesize ec2Controller, account, accountsController;
 
-- (InstanceGroupSetViewController*)initWithStyle:(UITableViewStyle)style account:(AWSAccount*)acct ec2Controller:(EC2DataController*)ec2Ctrl {
-	self.account = acct;
-	self.ec2Controller = ec2Ctrl;
-	return [super initWithStyle:style];
+- (InstanceGroupSetViewController*)initWithStyle:(UITableViewStyle)style account:(AWSAccount*)acct ec2Controller:(EC2DataController*)ec2Ctrl accountsController:(AccountsController*)accts_ctrl {
+	if (self = [super initWithStyle:style]) {
+		self.account = acct;
+		self.ec2Controller = ec2Ctrl;
+		self.accountsController = accts_ctrl;
+	}
+	return self;
 }
 
 - (void)viewDidLoad {
 	self.navigationItem.rightBarButtonItem = self.editButtonItem;
 	self.title = [account name];
 
-	//[ec2Controller refreshInstanceData:nil/*@selector(ec2RefreshCallback:)*/ target:self];
-	//[self refresh];
-
 	[super viewDidLoad];
 }
 
 - (void)refresh {
-	printf("instance group set view controller REFRESH\n");
 	[ec2Controller refreshInstanceData];
 }
 
-- (void)refreshEC2Callback {
-	printf("EC2 REFRESH CALLBACK\n");
+- (void)refreshEC2Callback:(RequestType)rt {
 	[self.tableView reloadData];
 }
 
 - (void)add {
-	AddInstancesViewController* aivc = [[AddInstancesViewController alloc] initWithStyle:UITableViewStyleGrouped ec2Controller:ec2Controller];
+	AddInstancesViewController* aivc = [[AddInstancesViewController alloc] initWithStyle:UITableViewStyleGrouped ec2Controller:ec2Controller accountsController:self.accountsController];
 	[self.navigationController pushViewController:aivc animated:YES];
 }
 
@@ -64,7 +62,8 @@
 	}
     
 	// Get the object to display and set the value in the cell
-	cell.text = [[ec2Controller getInstanceGroups] objectAtIndex:indexPath.row];
+	NSString* grp = [[ec2Controller getInstanceGroups] objectAtIndex:indexPath.row];
+	cell.text = [NSString stringWithFormat:@"%@ (%d)", grp, [[self.ec2Controller getInstancesForGroup:grp] count]];
 
 	return cell;
 }
@@ -73,11 +72,12 @@
 	NSString* grp = [ec2Controller getInstanceGroupAtIndex:indexPath.row];
 	if (grp != nil) {
 		InstanceGroupViewController* igvc = [[InstanceGroupViewController alloc] initWithStyle:UITableViewStylePlain
-													instanceGroup:grp ec2Controller:ec2Controller];
+																				 instanceGroup:grp ec2Controller:ec2Controller
+																			accountsController:accountsController];
 		[[self navigationController] pushViewController:igvc animated:YES];
 		[igvc release];
 	} else {
-		NSLog(@"group is nil!");
+		//NSLog(@"group is nil!");
 	}
 }
 
@@ -86,7 +86,16 @@
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-	return TRUE;
+	switch (interfaceOrientation) {
+		case UIInterfaceOrientationPortrait:
+			return YES;
+		case UIInterfaceOrientationLandscapeLeft:
+			return YES;
+		case UIInterfaceOrientationLandscapeRight:
+			return YES;
+		default:
+			return NO;
+	}
 }
 
 - (IBAction)addInstanceGroup:(id)sender {
@@ -114,6 +123,36 @@
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
 	[ec2Controller.rootViewController updateViewForCurrentOrientation];
+	[self resizeTable];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+	self.ec2Controller.rootViewController.toolbar.hidden = FALSE;
+	[self.tableView reloadData];
+	[super viewWillAppear:animated];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+	[self resizeTable];
+	[super viewDidAppear:animated];
+}
+
+- (void)resizeTable {
+	CGFloat newheight;
+	
+	switch ([[UIDevice currentDevice] orientation]) {
+		case UIDeviceOrientationLandscapeLeft:
+		case UIDeviceOrientationLandscapeRight:
+			newheight = LANDSCAPE_TABLE_HEIGHT - self.ec2Controller.rootViewController.toolbar.frame.size.height;
+			break;
+		default:
+			newheight = PORTRAIT_TABLE_HEIGHT - self.ec2Controller.rootViewController.toolbar.frame.size.height;
+			break;
+	}
+	
+	CGRect newframe = CGRectMake(self.tableView.frame.origin.x, self.tableView.frame.origin.y, 
+								 self.tableView.frame.size.width, newheight);
+	[self.tableView setFrame:newframe];
 }
 
 @end

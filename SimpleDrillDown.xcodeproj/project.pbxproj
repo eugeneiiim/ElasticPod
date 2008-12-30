@@ -17,8 +17,15 @@
 		28554E2C0DAC293600168C19 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 28554E2B0DAC293600168C19 /* Icon.png */; };
 		28A0A2200DCBAA090060EDFB /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 28A0A21F0DCBAA090060EDFB /* Default.png */; };
 		53A3862B0E6DD89B002F7F09 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53A386290E6DD89B002F7F09 /* MainWindow.xib */; };
-		CE00336E0F02D828005C7943 /* libcrypto.0.9.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = CE00336D0F02D828005C7943 /* libcrypto.0.9.8.dylib */; };
 		CE77F4BE0F08896A00F7B285 /* EC2RequestDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CE77F4BD0F08896A00F7B285 /* EC2RequestDelegate.m */; };
+		CE859DC20F0A150400D10082 /* sha1.c in Sources */ = {isa = PBXBuildFile; fileRef = CE859DC00F0A150400D10082 /* sha1.c */; };
+		CE859DC40F0A157C00D10082 /* hmac-sha1.c in Sources */ = {isa = PBXBuildFile; fileRef = CE859DC30F0A157C00D10082 /* hmac-sha1.c */; };
+		CE859F080F0A23E700D10082 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = CE859F060F0A23E700D10082 /* base64.c */; };
+		CE859FE10F0AD33600D10082 /* LabelCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CE859FE00F0AD33600D10082 /* LabelCell.m */; };
+		CE85A3720F0BEEEA00D10082 /* TableSelectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE85A3710F0BEEEA00D10082 /* TableSelectionViewController.m */; };
+		CE85A3930F0BF39000D10082 /* CheckCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CE85A3920F0BF39000D10082 /* CheckCell.m */; };
+		CE85A8400F0DBC2600D10082 /* TableTextFieldViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE85A83F0F0DBC2600D10082 /* TableTextFieldViewController.m */; };
+		CE85AAE20F0DE8A400D10082 /* TableMultiSelectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE85AAE10F0DE8A400D10082 /* TableMultiSelectionViewController.m */; };
 		CED12B560EFEF5600083619D /* AddInstancesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12B550EFEF5600083619D /* AddInstancesViewController.m */; };
 		CED12BE50EFF05190083619D /* EC2DataController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12BE40EFF05190083619D /* EC2DataController.m */; };
 		CED12FD00F00381D0083619D /* DetailCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12FCF0F00381D0083619D /* DetailCell.m */; };
@@ -40,7 +47,7 @@
 		1D3623240D0F684500981E51 /* SimpleDrillDownAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleDrillDownAppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* SimpleDrillDownAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimpleDrillDownAppDelegate.m; sourceTree = "<group>"; };
 		1D3623EB0D0F72F000981E51 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		1D6058910D05DD3D006BFB54 /* SimpleDrillDown.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleDrillDown.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* ec2Phone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ec2Phone.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		282DE8790D999CA700F5050D /* RootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootViewController.m; sourceTree = "<group>"; };
 		282DE87A0D999CA700F5050D /* RootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
@@ -51,9 +58,24 @@
 		32CA4F630368D1EE00C91783 /* SimpleDrillDown_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleDrillDown_Prefix.pch; sourceTree = "<group>"; };
 		53A3862A0E6DD89B002F7F09 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainWindow.xib; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CE00336D0F02D828005C7943 /* libcrypto.0.9.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.0.9.8.dylib; path = /opt/local/lib/libcrypto.0.9.8.dylib; sourceTree = "<absolute>"; };
 		CE77F4BC0F08896A00F7B285 /* EC2RequestDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EC2RequestDelegate.h; sourceTree = "<group>"; };
 		CE77F4BD0F08896A00F7B285 /* EC2RequestDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EC2RequestDelegate.m; sourceTree = "<group>"; };
+		CE859DBF0F0A150400D10082 /* hmac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hmac.h; sourceTree = "<group>"; };
+		CE859DC00F0A150400D10082 /* sha1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sha1.c; sourceTree = "<group>"; };
+		CE859DC10F0A150400D10082 /* sha1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sha1.h; sourceTree = "<group>"; };
+		CE859DC30F0A157C00D10082 /* hmac-sha1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "hmac-sha1.c"; sourceTree = "<group>"; };
+		CE859F060F0A23E700D10082 /* base64.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = base64.c; sourceTree = "<group>"; };
+		CE859F070F0A23E700D10082 /* base64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base64.h; sourceTree = "<group>"; };
+		CE859FDF0F0AD33600D10082 /* LabelCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelCell.h; sourceTree = "<group>"; };
+		CE859FE00F0AD33600D10082 /* LabelCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelCell.m; sourceTree = "<group>"; };
+		CE85A3700F0BEEEA00D10082 /* TableSelectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableSelectionViewController.h; sourceTree = "<group>"; };
+		CE85A3710F0BEEEA00D10082 /* TableSelectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableSelectionViewController.m; sourceTree = "<group>"; };
+		CE85A3910F0BF39000D10082 /* CheckCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CheckCell.h; sourceTree = "<group>"; };
+		CE85A3920F0BF39000D10082 /* CheckCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CheckCell.m; sourceTree = "<group>"; };
+		CE85A83E0F0DBC2600D10082 /* TableTextFieldViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableTextFieldViewController.h; sourceTree = "<group>"; };
+		CE85A83F0F0DBC2600D10082 /* TableTextFieldViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableTextFieldViewController.m; sourceTree = "<group>"; };
+		CE85AAE00F0DE8A400D10082 /* TableMultiSelectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableMultiSelectionViewController.h; sourceTree = "<group>"; };
+		CE85AAE10F0DE8A400D10082 /* TableMultiSelectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableMultiSelectionViewController.m; sourceTree = "<group>"; };
 		CED12B540EFEF5600083619D /* AddInstancesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddInstancesViewController.h; sourceTree = "<group>"; };
 		CED12B550EFEF5600083619D /* AddInstancesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddInstancesViewController.m; sourceTree = "<group>"; };
 		CED12BE30EFF05190083619D /* EC2DataController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EC2DataController.h; sourceTree = "<group>"; };
@@ -89,7 +111,6 @@
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,
 				1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */,
 				1D3623EC0D0F72F000981E51 /* CoreGraphics.framework in Frameworks */,
-				CE00336E0F02D828005C7943 /* libcrypto.0.9.8.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,6 +120,7 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				CE859F3E0F0AC17500D10082 /* Encryption */,
 				CE77F4BC0F08896A00F7B285 /* EC2RequestDelegate.h */,
 				CE77F4BD0F08896A00F7B285 /* EC2RequestDelegate.m */,
 				CE77F17A0F0762F100F7B285 /* Views */,
@@ -114,7 +136,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D6058910D05DD3D006BFB54 /* SimpleDrillDown.app */,
+				1D6058910D05DD3D006BFB54 /* ec2Phone.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -158,7 +180,6 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				CE00336D0F02D828005C7943 /* libcrypto.0.9.8.dylib */,
 				1D3623EB0D0F72F000981E51 /* CoreGraphics.framework */,
 				1DF5F4DF0D08C38300B7A737 /* UIKit.framework */,
 				1D30AB110D05D00D00671497 /* Foundation.framework */,
@@ -171,8 +192,25 @@
 			children = (
 				CED12FCE0F00381D0083619D /* DetailCell.h */,
 				CED12FCF0F00381D0083619D /* DetailCell.m */,
+				CE859FDF0F0AD33600D10082 /* LabelCell.h */,
+				CE859FE00F0AD33600D10082 /* LabelCell.m */,
+				CE85A3910F0BF39000D10082 /* CheckCell.h */,
+				CE85A3920F0BF39000D10082 /* CheckCell.m */,
 			);
 			name = Views;
+			sourceTree = "<group>";
+		};
+		CE859F3E0F0AC17500D10082 /* Encryption */ = {
+			isa = PBXGroup;
+			children = (
+				CE859F060F0A23E700D10082 /* base64.c */,
+				CE859F070F0A23E700D10082 /* base64.h */,
+				CE859DC30F0A157C00D10082 /* hmac-sha1.c */,
+				CE859DBF0F0A150400D10082 /* hmac.h */,
+				CE859DC00F0A150400D10082 /* sha1.c */,
+				CE859DC10F0A150400D10082 /* sha1.h */,
+			);
+			name = Encryption;
 			sourceTree = "<group>";
 		};
 		CED12B5B0EFEF6DE0083619D /* EC2 */ = {
@@ -195,14 +233,20 @@
 				282DE8790D999CA700F5050D /* RootViewController.m */,
 				CED4A1340EFCA9B0000D0551 /* AddAccountViewController.h */,
 				CED4A1350EFCA9B0000D0551 /* AddAccountViewController.m */,
-				CED498BA0EFB566E000D0551 /* InstanceGroupSetViewController.h */,
 				CED498BB0EFB566E000D0551 /* InstanceGroupSetViewController.m */,
+				CED498BA0EFB566E000D0551 /* InstanceGroupSetViewController.h */,
 				CED12B540EFEF5600083619D /* AddInstancesViewController.h */,
 				CED12B550EFEF5600083619D /* AddInstancesViewController.m */,
 				CED49BD90EFB84D9000D0551 /* InstanceGroupViewController.h */,
 				CED49BDA0EFB84D9000D0551 /* InstanceGroupViewController.m */,
 				CED49D2D0EFB936A000D0551 /* InstanceViewController.h */,
 				CED49D2E0EFB936A000D0551 /* InstanceViewController.m */,
+				CE85A3700F0BEEEA00D10082 /* TableSelectionViewController.h */,
+				CE85A3710F0BEEEA00D10082 /* TableSelectionViewController.m */,
+				CE85A83E0F0DBC2600D10082 /* TableTextFieldViewController.h */,
+				CE85A83F0F0DBC2600D10082 /* TableTextFieldViewController.m */,
+				CE85AAE00F0DE8A400D10082 /* TableMultiSelectionViewController.h */,
+				CE85AAE10F0DE8A400D10082 /* TableMultiSelectionViewController.m */,
 			);
 			name = ViewControllers;
 			sourceTree = "<group>";
@@ -235,7 +279,7 @@
 			);
 			name = ec2Phone;
 			productName = SimpleDrillDown;
-			productReference = 1D6058910D05DD3D006BFB54 /* SimpleDrillDown.app */;
+			productReference = 1D6058910D05DD3D006BFB54 /* ec2Phone.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -243,6 +287,9 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "SimpleDrillDown" */;
 			compatibilityVersion = "Xcode 3.1";
 			hasScannedForEncodings = 1;
@@ -299,6 +346,14 @@
 				CED12BE50EFF05190083619D /* EC2DataController.m in Sources */,
 				CED12FD00F00381D0083619D /* DetailCell.m in Sources */,
 				CE77F4BE0F08896A00F7B285 /* EC2RequestDelegate.m in Sources */,
+				CE859DC20F0A150400D10082 /* sha1.c in Sources */,
+				CE859DC40F0A157C00D10082 /* hmac-sha1.c in Sources */,
+				CE859F080F0A23E700D10082 /* base64.c in Sources */,
+				CE859FE10F0AD33600D10082 /* LabelCell.m in Sources */,
+				CE85A3720F0BEEEA00D10082 /* TableSelectionViewController.m in Sources */,
+				CE85A3930F0BF39000D10082 /* CheckCell.m in Sources */,
+				CE85A8400F0DBC2600D10082 /* TableTextFieldViewController.m in Sources */,
+				CE85AAE20F0DE8A400D10082 /* TableMultiSelectionViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,6 +393,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/opt/local/lib,
+					"\"$(SRCROOT)\"",
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = SimpleDrillDown;
@@ -357,9 +413,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/opt/local/lib,
+					"\"$(SRCROOT)\"",
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = SimpleDrillDown;
+				PRODUCT_NAME = ec2Phone;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
@@ -376,7 +433,8 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = iphoneos2.0;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = DefaultProfileUuid;
+				SDKROOT = iphoneos2.1;
 				USER_HEADER_SEARCH_PATHS = /opt/local/include;
 			};
 			name = Debug;
@@ -386,15 +444,57 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Eugene Marinelli";
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_VERSION = 4.0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				SDKROOT = iphoneos2.0;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9CABA39A-B487-48E2-AF70-63FC92316514";
+				SDKROOT = iphoneos2.1;
 				USER_HEADER_SEARCH_PATHS = /opt/local/include;
 			};
 			name = Release;
+		};
+		CE77F7A10F0973BF00F7B285 /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Eugene Marinelli";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Eugene Marinelli";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_VERSION = 4.0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				PROVISIONING_PROFILE = "9CABA39A-B487-48E2-AF70-63FC92316514";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "FA7C6423-CBD8-4A4E-A9C5-503D2152942F";
+				SDKROOT = iphoneos2.1;
+				USER_HEADER_SEARCH_PATHS = /opt/local/include;
+			};
+			name = Distribution;
+		};
+		CE77F7A20F0973BF00F7B285 /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = SimpleDrillDown_Prefix.pch;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = /Applications;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/lib,
+					"\"$(SRCROOT)\"",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = ec2Phone;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Distribution;
 		};
 /* End XCBuildConfiguration section */
 
@@ -404,6 +504,7 @@
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
 				1D6058950D05DD3E006BFB54 /* Release */,
+				CE77F7A20F0973BF00F7B285 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -413,6 +514,7 @@
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,
 				C01FCF5008A954540054247B /* Release */,
+				CE77F7A10F0973BF00F7B285 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

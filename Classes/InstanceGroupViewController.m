@@ -14,12 +14,15 @@
 
 @implementation InstanceGroupViewController
 
-@synthesize ec2Controller, instanceGroup;
+@synthesize ec2Controller, instanceGroup, accountsController;
 
-- (InstanceGroupViewController*)initWithStyle:(UITableViewStyle)style instanceGroup:(NSString*)grp ec2Controller:(EC2DataController*)ec2Ctrl {
-	self.instanceGroup = grp;
-	self.ec2Controller = ec2Ctrl;
-	return [super initWithStyle:style];
+- (InstanceGroupViewController*)initWithStyle:(UITableViewStyle)style instanceGroup:(NSString*)grp ec2Controller:(EC2DataController*)ec2Ctrl accountsController:(AccountsController*)accts_ctrl {
+	if (self = [super initWithStyle:style]) {
+		self.instanceGroup = grp;
+		self.ec2Controller = ec2Ctrl;
+		self.accountsController = accts_ctrl;
+	}
+	return self;
 }
 
 // Implement viewDidLoad to do additional setup after loading the view.
@@ -51,14 +54,16 @@
 		NSLog(@"ERROR instance is nil!");
 	} else {
 		cell.text = [inst getProperty:@"instanceId"];
-		
+
 		NSString* state = [inst getProperty:@"name"];
 		if ([state compare:@"terminated"] == NSOrderedSame) {
-			cell.contentView.backgroundColor = [UIColor redColor];
+			cell.textColor = [UIColor colorWithRed:0.8 green:0.0 blue:0.0 alpha:1.0];
 		} else if ([state compare:@"running"] == NSOrderedSame) {
-			cell.contentView.backgroundColor = [UIColor greenColor];
-		} else if ([state compare:@"booting"] == NSOrderedSame) {
-			cell.contentView.backgroundColor = [UIColor yellowColor];
+			cell.textColor = [UIColor colorWithRed:0.2 green:0.5 blue:0.0 alpha:1.0];
+		} else if ([state compare:@"pending"] == NSOrderedSame) {
+			cell.textColor = [UIColor colorWithRed:0.8 green:0.6 blue:0.2 alpha:1.0];
+		} else if ([state compare:@"shutting-down"] == NSOrderedSame) {
+			cell.textColor = [UIColor colorWithRed:0.8 green:0.0 blue:0.0 alpha:1.0];
 		}
 	}
 
@@ -66,7 +71,7 @@
 }
 
 - (void)add {
-	AddInstancesViewController* aivc = [[AddInstancesViewController alloc] initWithStyle:UITableViewStyleGrouped ec2Controller:ec2Controller];
+	AddInstancesViewController* aivc = [[AddInstancesViewController alloc] initWithStyle:UITableViewStyleGrouped ec2Controller:self.ec2Controller accountsController:self.accountsController];
 	[self.navigationController pushViewController:aivc animated:YES];
 }
 
@@ -74,7 +79,8 @@
 	InstanceViewController* ivc = [[InstanceViewController alloc] initWithStyle:UITableViewStyleGrouped
 																	   instance:[[ec2Controller getInstancesForGroup:instanceGroup] objectAtIndex:indexPath.row]
 																  ec2Controller:self.ec2Controller
-																		  group:self.instanceGroup];
+																		  group:self.instanceGroup
+															 accountsController:self.accountsController];
 	[[self navigationController] pushViewController:ivc animated:YES];
 	[ivc release];
 }
@@ -83,25 +89,25 @@
 	[ec2Controller refreshInstanceData];
 }
 
-- (void)refreshEC2Callback {
+- (void)refreshEC2Callback:(RequestType)rt {
 	[self.tableView reloadData];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    return TRUE;
+	switch (interfaceOrientation) {
+		case UIInterfaceOrientationPortrait:
+			return YES;
+		case UIInterfaceOrientationLandscapeLeft:
+			return YES;
+		case UIInterfaceOrientationLandscapeRight:
+			return YES;
+		default:
+			return NO;
+	}
 }
 
 - (void)dealloc {
     [super dealloc];
-}
-
-- (IBAction)addInstances:(id)sender {
-	EC2Instance* model_instance;
-	NSInteger num_instances;
-	
-	
-	
-	//[ec2Controller runInstances:model_instance n:num_instances];
 }
 
 - (UITableViewCellEditingStyle)tableView: (UITableView *)tableView editingStyleForRowAtIndexPath: (NSIndexPath *)indexPath { 
@@ -111,7 +117,7 @@
 - (void)tableView:(UITableView *)aTableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
 	EC2Instance* inst = [[ec2Controller getInstancesForGroup:instanceGroup] objectAtIndex:indexPath.row];
 	if (inst == nil) {
-		NSLog(@"ERROR commitedit -- instance is nil!");
+		//NSLog(@"ERROR commitedit -- instance is nil!");
 	} else {
 		[ec2Controller terminateInstances:[NSArray arrayWithObject:inst]];
 	}
@@ -121,6 +127,36 @@
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
 	[ec2Controller.rootViewController updateViewForCurrentOrientation];
+	[self resizeTable];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+	self.ec2Controller.rootViewController.toolbar.hidden = FALSE;
+	[self.tableView reloadData];
+	[super viewWillAppear:animated];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+	[self resizeTable];
+	[super viewDidAppear:animated];
+}
+
+- (void)resizeTable {
+	CGFloat newheight;
+	
+	switch ([[UIDevice currentDevice] orientation]) {
+		case UIDeviceOrientationLandscapeLeft:
+		case UIDeviceOrientationLandscapeRight:
+			newheight = LANDSCAPE_TABLE_HEIGHT - self.ec2Controller.rootViewController.toolbar.frame.size.height;
+			break;
+		default:
+			newheight = PORTRAIT_TABLE_HEIGHT - self.ec2Controller.rootViewController.toolbar.frame.size.height;
+			break;
+	}
+	
+	CGRect newframe = CGRectMake(self.tableView.frame.origin.x, self.tableView.frame.origin.y, 
+								 self.tableView.frame.size.width, newheight);
+	[self.tableView setFrame:newframe];
 }
 
 @end

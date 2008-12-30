@@ -55,7 +55,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 @synthesize accountsController, toolbar, activityIndicator, loadingOverlay, loadingCount, loadingCountLock;
 
 - (id)init {
-	if ([super init]) {
+	if (self = [super init]) {
 		self.loadingCount = 0;
 		self.loadingCountLock = [[NSLock alloc] init];
 	}
@@ -66,7 +66,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 - (void)viewDidLoad {
 	self.title = @"AWS Accounts";
 	self.navigationItem.rightBarButtonItem = self.editButtonItem;
-
+	
 	toolbar = [[UIToolbar alloc] init];
 	toolbar.barStyle = UIBarStyleDefault;
 	[toolbar sizeToFit];
@@ -92,35 +92,22 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
 	
 	[self.navigationController.view addSubview:activityIndicator];
-	
 	[self updateViewForCurrentOrientation];
-	
 	self.tableView.allowsSelectionDuringEditing = TRUE;
+
 	[super viewDidLoad];
 }
 
-- (void)updateViewForCurrentOrientation {
-	//CGFloat toolbarHeight = toolbar.frame.size.height;
-
-	CGFloat toolbarHeight = self.navigationController.navigationBar.frame.size.height;
-
-	CGRect rootViewBounds = self.parentViewController.view.bounds;
-	CGFloat rootViewHeight = CGRectGetHeight(rootViewBounds);
-	CGFloat rootViewWidth = CGRectGetWidth(rootViewBounds);
-
-	[toolbar setFrame:CGRectMake(0, rootViewHeight - toolbarHeight, rootViewWidth, toolbarHeight)];
-
-	[loadingOverlay setFrame:CGRectMake(0, 0, rootViewWidth, rootViewHeight)];
-	
-	CGFloat spinnerWidth = CGRectGetWidth(activityIndicator.bounds);
-	[activityIndicator setFrame:CGRectMake(rootViewWidth/2 - spinnerWidth/2, rootViewHeight/2 - spinnerWidth/2, spinnerWidth, spinnerWidth)];
-}
+//- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+//}
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
 	[self updateViewForCurrentOrientation];
+	[self resizeTable];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
+	self.toolbar.hidden = FALSE;
     [self.tableView reloadData];
     [super viewWillAppear:animated];
 }
@@ -137,7 +124,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	[[self.navigationController topViewController] refresh];
 }
 
-- (void)refreshEC2Callback {
+- (void)refreshEC2Callback:(RequestType)rt {
 }
 
 - (void)refresh {
@@ -146,8 +133,8 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 }
 
 - (void)addAccount {
-	AddAccountViewController* c = [[AddAccountViewController alloc] initWithStyle:UITableViewStyleGrouped];
-	c.accountsController = accountsController;
+	AddAccountViewController* c = [[AddAccountViewController alloc] initWithStyle:UITableViewStyleGrouped rootViewController:self];
+	c.accountsController = self.accountsController;
 	[[self navigationController] pushViewController:c animated:YES];
 	[c release];
 }
@@ -160,8 +147,34 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
     return [accountsController countOfList];
 }
 
+- (void)updateViewForCurrentOrientation {
+	CGFloat toolbarHeight = self.navigationController.navigationBar.frame.size.height;
+	CGRect rootViewBounds = self.parentViewController.view.bounds;
+	CGFloat rootViewHeight = CGRectGetHeight(rootViewBounds);
+	CGFloat rootViewWidth = CGRectGetWidth(rootViewBounds);
+	[toolbar setFrame:CGRectMake(0, rootViewHeight - toolbarHeight, rootViewWidth, toolbarHeight)];
+	// self.toolbar.hidden = NO;
+	
+	[loadingOverlay setFrame:CGRectMake(0, 0, rootViewWidth, rootViewHeight)];
+	
+	CGFloat spinnerWidth = CGRectGetWidth(activityIndicator.bounds);
+	[activityIndicator setFrame:CGRectMake(rootViewWidth/2 - spinnerWidth/2, rootViewHeight/2 - spinnerWidth/2, spinnerWidth, spinnerWidth)];
+}
+
+/*
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+	//self.toolbar.hidden = YES;
+}*/
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    return TRUE;
+	switch (interfaceOrientation) {
+		case UIInterfaceOrientationPortrait:
+		case UIInterfaceOrientationLandscapeLeft:
+		case UIInterfaceOrientationLandscapeRight:
+			return YES;
+		default:
+			return NO;
+	}
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -180,7 +193,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	if (self.editing) {
-		AddAccountViewController* c = [[AddAccountViewController alloc] initWithStyle:UITableViewStyleGrouped];
+		AddAccountViewController* c = [[AddAccountViewController alloc] initWithStyle:UITableViewStyleGrouped rootViewController:self];
 		c.accountsController = accountsController;
 		c.account = [accountsController objectInListAtIndex:indexPath.row];
 		[[self navigationController] pushViewController:c animated:YES];
@@ -197,10 +210,11 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 			NSLog(@"INSTANCE DATA IS NOT READY FOR THIS ACCOUNT.");
 		} else {*/
 			InstanceGroupSetViewController* igsvc = [[InstanceGroupSetViewController alloc]
-													 initWithStyle:UITableViewStylePlain
-													 account:acct
-													 ec2Controller:ec2Ctrl];
-			
+														initWithStyle:UITableViewStylePlain
+														account:acct
+														ec2Controller:ec2Ctrl
+														accountsController:self.accountsController];
+
 			[[self navigationController] pushViewController:igsvc animated:YES];
 			[igsvc release];
 		/*}*/
@@ -246,6 +260,29 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		self.loadingOverlay.alpha = 0.0;
 	}
 	[loadingCountLock unlock];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+	[self resizeTable];
+	[super viewDidAppear:animated];
+}
+
+- (void)resizeTable {
+	CGFloat newheight;
+
+	switch ([[UIDevice currentDevice] orientation]) {
+		case UIDeviceOrientationLandscapeLeft:
+		case UIDeviceOrientationLandscapeRight:
+			newheight = LANDSCAPE_TABLE_HEIGHT - self.toolbar.frame.size.height;
+			break;
+		default:
+			newheight = PORTRAIT_TABLE_HEIGHT - self.toolbar.frame.size.height;
+			break;
+	}
+
+	CGRect newframe = CGRectMake(self.tableView.frame.origin.x, self.tableView.frame.origin.y, 
+								 self.tableView.frame.size.width, newheight);
+	[self.tableView setFrame:newframe];
 }
 
 @end

@@ -8,14 +8,22 @@
 
 #import "AddInstancesViewController.h"
 #import "DetailCell.h"
+#import "LabelCell.h"
+#import "TableSelectionViewController.h"
+#import "TableTextFieldViewController.h"
+#import "TableMultiSelectionViewController.h"
 
 @implementation AddInstancesViewController
 
 @synthesize ec2Controller, numinstances_cell, availabilityzone_cell, imageid_cell, keyname_cell, instancetype_cell,
-	keyname_picker, availabilityzone_picker, imageid_picker, instancetype_picker, input_selection;
+	input_selection, initialrefresh_avail, initialrefresh_key, model_inst, accountsController,
+	ramdiskid_cell, kernelid_cell, securitygroups_cell, initialrefresh_securitygroups,
+	numinstances_text, imageid_text, keyname_text, availabilityzone_text, instancetype_text,
+	kernelid_text, ramdiskid_text, security_groups;
 
-- (AddInstancesViewController*)initWithStyle:(UITableViewStyle)style ec2Controller:(EC2DataController*)ec2Ctrl {
-	if ([super initWithStyle:style]) {
+- (AddInstancesViewController*)initWithStyle:(UITableViewStyle)style ec2Controller:(EC2DataController*)ec2Ctrl
+						  accountsController:(AccountsController*)accts_ctrl {
+	if (self = [super initWithStyle:style]) {
 		self.title = @"Run Instances";
 		self.ec2Controller = ec2Ctrl;
 		UIBarButtonItem* launch_button = [[UIBarButtonItem alloc] initWithTitle:@"Launch" style:UIBarButtonItemStyleBordered
@@ -23,74 +31,31 @@
 		self.navigationItem.rightBarButtonItem = launch_button;
 
 		self.input_selection = NO_SELECTION;
-
-
-
-/*
-		CGRect screenRect = [[UIScreen mainScreen] applicationFrame];
-		CGSize pickerSize = [keyname_picker sizeThatFits:CGSizeZero];
-		CGRect pickerRect = CGRectMake(0.0, screenRect.size.height - pickerSize.height, pickerSize.width, pickerSize.height);*/
+		self.initialrefresh_key = FALSE;
+		self.initialrefresh_avail = FALSE;
+		self.accountsController = accts_ctrl;
 		
-		keyname_picker = [[UIPickerView alloc] initWithFrame:CGRectZero];
-		keyname_picker.delegate = self;
-		keyname_picker.showsSelectionIndicator = YES;	// note this is default to NO
-		keyname_picker.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-
+		self.numinstances_text = [[NSMutableString alloc] init];
+		self.imageid_text = [[NSMutableString alloc] init];
+		self.keyname_text = [[NSMutableString alloc] init];
+		self.availabilityzone_text = [[NSMutableString alloc] init];
+		self.instancetype_text = [[NSMutableString alloc] initWithString:[self.ec2Controller.instanceTypes objectAtIndex:0]];
+		self.kernelid_text = [[NSMutableString alloc] init];
+		self.ramdiskid_text = [[NSMutableString alloc] init];
 		
-		availabilityzone_picker = [[UIPickerView alloc] initWithFrame:CGRectZero];
-		availabilityzone_picker.delegate = self;
-		availabilityzone_picker.showsSelectionIndicator = YES;	// note this is default to NO
-		availabilityzone_picker.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-		
-		/*
-		[self.navigationController.view addSubview:keyname_picker];
-		[self.navigationController.view bringSubviewToFront:keyname_picker];*/
-
-/*
-		CGRect screenRect = [[UIScreen mainScreen] applicationFrame];
-		CGSize pickerSize = [keyname_picker sizeThatFits:CGSizeZero];
-		CGRect pickerRect = CGRectMake(	0.0, screenRect.size.height - pickerSize.height, pickerSize.width, pickerSize.height);
-		
-		keyname_picker = [[UIPickerView alloc] initWithFrame:CGRectZero];
-		keyname_picker.frame = pickerRect;
-		keyname_picker.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-		keyname_picker.delegate = self;
-		keyname_picker.showsSelectionIndicator = YES;	// note this is default to NO
-		keyname_picker.hidden = NO;
-		[self.navigationController.view addSubview:keyname_picker];
-		[self.navigationController.view bringSubviewToFront:keyname_picker];
-*/
- 
-/*
-		availabilityzone_picker = [[UIPickerView alloc] initWithFrame:CGRectZero];
-		availabilityzone_picker.frame = pickerRect;
-		availabilityzone_picker.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-		availabilityzone_picker.delegate = self;
-		availabilityzone_picker.showsSelectionIndicator = YES;	// note this is default to NO
-		availabilityzone_picker.hidden = NO;
-		[self.navigationController.view addSubview:availabilityzone_picker];
-		[self.navigationController.view bringSubviewToFront:availabilityzone_picker];
-*/
-		
-		
-		
-		/*
-		imageid_picker;
-		instancetype_picker;  */
-
+		self.security_groups = [[NSMutableArray alloc] init];
 	}
 	return self;
 }
 
 - (void)viewDidLoad {
-	[ec2Controller refreshAvailabilityZones];
-	[ec2Controller refreshKeyNames];
+	[self.ec2Controller refreshAvailabilityZones];
+	[self.ec2Controller refreshKeyNames];
+	[self.ec2Controller refreshSecurityGroups];
 }
 
 - (IBAction)runInstances:(id)sender {
-	if (self.numinstances_cell.name.text == nil || [self.numinstances_cell.name.text length] == 0) {
-		// TODO check that it is a number.
-		
+	if (self.numinstances_text == nil || [self.numinstances_text length] == 0) {
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Missing number of instances." delegate:nil
 											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];
@@ -98,43 +63,63 @@
 		return;
 	}
 
-	NSInteger num_insts = [self.numinstances_cell.name.text intValue];
+	NSInteger num_insts = [self.numinstances_text intValue];
 	if (num_insts <= 0) {
-		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Number of instances must be a positive integer." delegate:nil
-											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
+		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Number of instances must be a positive integer."
+													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
-	} else if (self.imageid_cell.name.text == nil || [self.imageid_cell.name.text length] == 0) {
+	} else if (self.imageid_text == nil || [self.imageid_text length] == 0) {
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Missing image ID." delegate:nil
 											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
-	} else if (self.keyname_cell.name.text == nil || [self.keyname_cell.name.text length] == 0) {
+	} else if (self.keyname_text == nil || [self.keyname_text length] == 0) {
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Missing key name." delegate:nil
 											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
-	} else if (self.availabilityzone_cell.name.text == nil || [self.availabilityzone_cell.name.text length] == 0) {
+	} else if (self.availabilityzone_text == nil || [self.availabilityzone_text length] == 0) {
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Missing availability zone." delegate:nil
 											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
-	} else if (self.instancetype_cell.name.text == nil || [self.instancetype_cell.name.text length] == 0) {
+	} else if (self.instancetype_text == nil || [self.instancetype_text length] == 0) {
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Missing instance type." delegate:nil
 											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
 	} else {
-		EC2Instance* model_inst = [[EC2Instance alloc] init];
-		[model_inst addProperty:@"imageId" value:@"IMAGEID"];
-		[model_inst addProperty:@"keyName" value:@"KEYNAME"];
-		[model_inst addProperty:@"availabilityZone" value:@"AVAILABILITYZONE"];
-		[model_inst addProperty:@"instanceType" value:@"INSTANCETYPE"];
+		self.model_inst = [[EC2Instance alloc] init];
+		[self.model_inst addProperty:@"imageId" value:self.imageid_cell.name.text];
+		if ([self.keyname_text compare:@"No selection"] != NSOrderedSame) {
+			[self.model_inst addProperty:@"keyName" value:self.keyname_text];
+		}
+		if ([self.availabilityzone_text compare:@"No selection"] != NSOrderedSame) {
+			[self.model_inst addProperty:@"availabilityZone" value:self.availabilityzone_text];
+		}
+		[self.model_inst addProperty:@"instanceType" value:self.instancetype_text];
 
-		//  result = ec2.run_instances(:image_id => image_id, :min_count => n, :max_count => n, :key_name => ASDF_KEY_ID,
-		//							  :availability_zone => ASDF_AVAILABILITY_ZONE, :instance_type => instance_type)
+		if ([self.kernelid_text length] > 0) {
+			[self.model_inst addProperty:@"kernelId" value:self.kernelid_text];
+		}
+		if ([self.ramdiskid_text length] > 0) {
+			[self.model_inst addProperty:@"ramdiskId" value:self.ramdiskid_text];
+		}
 
-		NSString* msg = [NSString stringWithFormat:@"Launch %d instances of type %@?", num_insts, [model_inst getProperty:@"instanceType"]];
+		/*
+		if ([self.securitygroups_text compare:@"No Selection"] != NSOrderedSame) {
+			self.model_inst.securityGroups = [NSArray arrayWithObject:self.securitygroups_text];
+		}*/
+		
+		self.model_inst.securityGroups = self.security_groups;
+		NSString* plurality = @"";
+		if (num_insts > 1) {
+			plurality = @"s";
+		}
+		
+		NSString* msg = [NSString stringWithFormat:@"Launch %d instance%@ of type %@?", num_insts, plurality,
+						 [self.model_inst getProperty:@"instanceType"]];
 		UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Confirm Launch" message:msg delegate:self
 											  cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert addButtonWithTitle:@"Cancel"];
@@ -146,12 +131,17 @@
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
 	switch (buttonIndex) {
 		case 0:
-			NSLog(@"LAUNCH INSTANCES");
-			//[ec2Controller runInstances:model_inst n:];
-			[self.navigationController popViewControllerAnimated:YES];
+			// Now actually launch the instances.
+			[self.accountsController setDefaultImageIdForAccount:self.ec2Controller.account.name
+				imageId:self.imageid_text];
+			[self.accountsController setDefaultKernelIdForAccount:self.ec2Controller.account.name
+				kernelId:self.kernelid_text];
+			[self.accountsController setDefaultRamdiskIdForAccount:self.ec2Controller.account.name
+				 ramdiskId:self.ramdiskid_text];
+			[self.ec2Controller runInstances:self.model_inst n:[self.numinstances_text intValue]];
 			break;
 		case 1:
-			NSLog(@"Launch cancelled.");
+			//NSLog(@"Launch cancelled.");
 			break;
 	}
 }
@@ -163,52 +153,160 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 	switch (section) {
 		case 0:
-			return 5;
-        default:
+			return 8;
+		default:
 			return 0;
 	}
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	DetailCell *cell = (DetailCell*)[tableView dequeueReusableCellWithIdentifier:@"DetailCell"];
-	if (cell == nil) {
-		cell = [[[DetailCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell"] autorelease];
+	LabelCell* cell;
+	//DetailCell *cell = (DetailCell*)[tableView dequeueReusableCellWithIdentifier:@"DetailCell"];
+	//if (cell == nil) {
 		//cell.selectionStyle = UITableViewCellSelectionStyleNone;
-	}
-	cell.selectionStyle = UITableViewCellSelectionStyleNone;
+	//}
 
     // Set the text in the cell for the section/row
 	switch (indexPath.row) {
 		case 0:
-			cell.prompt.text = @"# instances";
-			self.numinstances_cell = cell;
-			self.numinstances_cell.name.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
-			break;
+			if (self.numinstances_cell == nil) {
+				cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:145] autorelease];
+				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+
+				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				cell.prompt.text = @"Number of instances";
+				self.numinstances_cell = cell;
+				cell.name.text = self.numinstances_text;
+			}
+			return self.numinstances_cell;
+			
 		case 1:
-			cell.prompt.text = @"Image ID";
-			self.imageid_cell = cell;
-			break;
+			if (self.imageid_cell == nil) {
+				cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:55] autorelease];
+				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+
+				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				cell.prompt.text = @"AMI ID";
+				
+				NSString* deef = [self.accountsController getDefaultImageIdForAccount:self.ec2Controller.account.name];
+				if (deef) {
+					[self.imageid_text setString:[self.accountsController getDefaultImageIdForAccount:self.ec2Controller.account.name]];
+				} else {
+					[self.imageid_text setString:@""];
+				}
+
+				self.imageid_cell = cell;
+				cell.name.text = self.imageid_text;
+			}
+			return self.imageid_cell;
+
 		case 2:
-			cell.prompt.text = @"Key name";
-			self.keyname_cell = cell;
-			break;
+			if (self.keyname_cell == nil) {
+				cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:77] autorelease];
+				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+
+				cell.prompt.text = @"Key name";
+				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				self.keyname_cell = cell;
+				cell.name.text = self.keyname_text;
+			}
+			return self.keyname_cell;
+				
 		case 3:
-			cell.prompt.text = @"Availability Zone";
-			self.availabilityzone_cell = cell;
-			break;
+			if (self.availabilityzone_cell == nil) {
+				cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:120] autorelease];
+				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+
+				cell.prompt.text = @"Availability Zone";
+				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				self.availabilityzone_cell = cell;
+				cell.name.text = self.availabilityzone_text;
+			}
+			return self.availabilityzone_cell;
+
 		case 4:
-			cell.prompt.text = @"Instance Type";
-			self.instancetype_cell = cell;
-			break;
+			if (self.instancetype_cell == nil) {
+				cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:103] autorelease];
+				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+
+				cell.prompt.text = @"Instance Type";
+				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+
+				self.instancetype_cell = cell;
+				self.instancetype_cell.name.text = self.instancetype_text;
+				cell.name.text = self.instancetype_text;
+			}
+			return self.instancetype_cell;
+
+		case 5:
+			if (self.securitygroups_cell == nil) {
+				cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:118] autorelease];
+				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+			
+				cell.prompt.text = @"Security Groups";
+				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				self.securitygroups_cell = cell;
+				//cell.name.text = self.securitygroups_text;
+			}
+			return self.securitygroups_cell;
+
+		case 6:
+			if (self.kernelid_cell == nil) {
+				cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:70] autorelease];
+				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+			
+				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				cell.prompt.text = @"Kernel ID";
+				
+				NSString* deef = [self.accountsController getDefaultKernelIdForAccount:self.ec2Controller.account.name];
+				if (deef) {
+					[self.kernelid_text setString:[self.accountsController getDefaultKernelIdForAccount:self.ec2Controller.account.name]];
+				} else {
+					[self.kernelid_text setString:@""];
+				}
+				
+				self.kernelid_cell = cell;
+				cell.name.text = self.kernelid_text;
+			}
+			return self.kernelid_cell;
+
+		case 7:
+			if (self.ramdiskid_cell == nil) {
+				cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:85] autorelease];
+				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+
+				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				cell.prompt.text = @"Ramdisk ID";
+
+				NSString* deef = [self.accountsController getDefaultRamdiskIdForAccount:self.ec2Controller.account.name];
+				if (deef) {
+					[self.ramdiskid_text setString:[self.accountsController getDefaultRamdiskIdForAccount:self.ec2Controller.account.name]];
+				} else {
+					[self.ramdiskid_text setString:@""];
+				}
+				self.ramdiskid_cell = cell;
+				cell.name.text = self.ramdiskid_text;
+			}
+			return self.ramdiskid_cell;
+
 		default:
-			break;
+			return nil;
     }
-	
-    return cell;
+}
+
+- (BOOL)textFieldShouldEndEditing:(UITextField*)textField {
+	return YES;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    return YES;
+	switch (interfaceOrientation) {
+		case UIInterfaceOrientationPortrait:
+		case UIInterfaceOrientationLandscapeLeft:
+		case UIInterfaceOrientationLandscapeRight:
+			return YES;
+		default:
+			return NO;
+	}
 }
 
 - (void)didReceiveMemoryWarning {
@@ -224,12 +322,48 @@
 	[ec2Controller.rootViewController updateViewForCurrentOrientation];
 }
 
-- (void)refreshEC2Callback {
-	//NSArray* availzones = ec2Controller.availabilityZones;
+- (void)refreshEC2Callback:(RequestType)type {
+	switch (type) {
+		case DESCRIBE_KEY_PAIRS:
+			if (!self.initialrefresh_key) {
+				if ([self.ec2Controller.keyNames count] > 0) {
+					[self.keyname_text setString:[self.ec2Controller.keyNames objectAtIndex:0]];
+				} else {
+					[self.keyname_text setString:@"No selection"];
+				}
+				self.keyname_cell.name.text = self.keyname_text;
+				self.initialrefresh_key = TRUE;
+			}
+			break;
+		case DESCRIBE_AVAILABILITY_ZONES:
+			if (!self.initialrefresh_avail) {
+				if ([self.ec2Controller.availabilityZones count] > 0) {
+					[self.availabilityzone_text setString:[self.ec2Controller.availabilityZones objectAtIndex:0]];
+				} else {
+					[self.availabilityzone_text setString:@"No selection"];
+				}
+				self.availabilityzone_cell.name.text = self.availabilityzone_text;
+				self.initialrefresh_avail = TRUE;
+			}
+			break;
+		case DESCRIBE_SECURITY_GROUPS:
+			if (!self.initialrefresh_securitygroups) {
+				[self.security_groups removeAllObjects];
+				NSString* txt = @"";
+				if ([self.ec2Controller.securityGroups count] > 0) {
+					[self.security_groups addObject:[self.ec2Controller.securityGroups objectAtIndex:0]];
+					txt = [self.ec2Controller.securityGroups objectAtIndex:0];
+				}
 
-	NSLog(@"listing key names");
-	for (NSString* s in ec2Controller.keyNames) {
-		NSLog(s);
+				self.securitygroups_cell.name.text = txt;
+				self.initialrefresh_securitygroups = TRUE;
+			}
+			break;
+		case RUN_INSTANCES:
+			[self.navigationController popViewControllerAnimated:YES];
+			break;
+		default:
+			break;
 	}
 }
 
@@ -237,76 +371,111 @@
 	[ec2Controller refreshInstanceData];
 	[ec2Controller refreshAvailabilityZones];
 	[ec2Controller refreshKeyNames];
+	[ec2Controller refreshSecurityGroups];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	CGRect screenRect = [[UIScreen mainScreen] applicationFrame];
-	CGSize pickerSize = [keyname_picker sizeThatFits:CGSizeZero];
-	CGRect pickerRect = CGRectMake(0.0, screenRect.size.height - pickerSize.height, pickerSize.width, pickerSize.height);
-	
+	if (indexPath.row != 0) {
+		[self.numinstances_cell.name resignFirstResponder];
+	}
+	if (indexPath.row != 1) {
+		[self.imageid_cell.name resignFirstResponder];
+	}
+
+	TableSelectionViewController* tsvc;
+	TableTextFieldViewController* ttfvc;
+	TableMultiSelectionViewController* tmsvc;
+	NSMutableArray* options;
 	switch (indexPath.row) {
 		case 0:
+			ttfvc = [[TableTextFieldViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:self.numinstances_cell.name
+																  title:@"Number of Instances" defaultText:self.numinstances_cell.name.text
+														   keyboardType:UIKeyboardTypeNumberPad
+															stringToSet:self.numinstances_text];
+			[self.navigationController pushViewController:ttfvc animated:YES];
+			[ttfvc release];
 			break;
 		case 1:
-			imageid_picker.hidden = FALSE;
+			ttfvc = [[TableTextFieldViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:self.imageid_cell.name
+																  title:@"AMI ID" defaultText:self.imageid_cell.name.text
+														   keyboardType:UIKeyboardTypeASCIICapable
+															stringToSet:self.imageid_text];
+			[self.navigationController pushViewController:ttfvc animated:YES];
+			[ttfvc release];
 			break;
 		case 2:
-
+			/*
 			self.input_selection = KEYNAME_SELECTION;
+			 */
+			options = [[NSMutableArray alloc] initWithArray:self.ec2Controller.keyNames];
+			[options addObject:@"No selection"];
 			
-			keyname_picker.frame = pickerRect;
-			keyname_picker.hidden = NO;
-			
-			[self.navigationController.view addSubview:keyname_picker];
-			[self.navigationController.view bringSubviewToFront:keyname_picker];
+			tsvc = [[TableSelectionViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:self.keyname_cell.name
+															   options:options title:@"Key" stringToSet:self.keyname_text];
+
+			[self.navigationController pushViewController:tsvc animated:YES];
+			[tsvc release];
 			break;
 		case 3:
-	//		availabilityzone_picker.hidden = FALSE;
-
+/*
 			self.input_selection = AVAILABILITYZONE_SELECTION;
-
-			availabilityzone_picker.frame = pickerRect;
-			availabilityzone_picker.hidden = NO;
-
-			[self.navigationController.view addSubview:availabilityzone_picker];
-			[self.navigationController.view bringSubviewToFront:availabilityzone_picker];
+*/
+			options = [[NSMutableArray alloc] initWithArray:self.ec2Controller.availabilityZones];
+			[options addObject:@"No selection"];
+			
+			tsvc = [[TableSelectionViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:availabilityzone_cell.name
+															   options:options title:@"Availability Zone"
+														   stringToSet:self.availabilityzone_text];
+			
+			[self.navigationController pushViewController:tsvc animated:YES];
+			[tsvc release];
 			break;
 		case 4:
-			instancetype_picker.hidden = FALSE;
+			/*
+			self.input_selection = INSTANCETYPE_SELECTION;
+			 */
+			
+			tsvc = [[TableSelectionViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:instancetype_cell.name
+															   options:self.ec2Controller.instanceTypes title:@"Instance Type"
+														   stringToSet:self.instancetype_text];
+			
+			[self.navigationController pushViewController:tsvc animated:YES];
+			[tsvc release];
+			break;
+		case 5:
+			options = [[NSMutableArray alloc] initWithArray:self.ec2Controller.securityGroups];
+
+			tmsvc = [[TableMultiSelectionViewController alloc] initWithStyle:UITableViewStyleGrouped
+															  textThingToSet:securitygroups_cell.name
+																	 options:options title:@"Security Groups"
+																  arrayToSet:self.security_groups];
+			[self.navigationController pushViewController:tmsvc animated:YES];
+			[tmsvc release];
+			break;
+
+		case 6:
+			ttfvc = [[TableTextFieldViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:self.kernelid_cell.name
+																  title:@"Kernel ID" defaultText:self.kernelid_cell.name.text
+														   keyboardType:UIKeyboardTypeASCIICapable
+															stringToSet:self.kernelid_text];
+			[self.navigationController pushViewController:ttfvc animated:YES];
+			[ttfvc release];
+			break;
+
+		case 7:
+			ttfvc = [[TableTextFieldViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:self.ramdiskid_cell.name
+																  title:@"Ramdisk ID" defaultText:self.ramdiskid_cell.name.text
+														   keyboardType:UIKeyboardTypeASCIICapable
+															stringToSet:self.ramdiskid_text];
+			[self.navigationController pushViewController:ttfvc animated:YES];
+			[ttfvc release];
 			break;
 	}
 }
 
-- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
-	switch (self.input_selection) {
-		case KEYNAME_SELECTION:
-			return [ec2Controller.keyNames objectAtIndex:row];
-		case AVAILABILITYZONE_SELECTION:
-			return [ec2Controller.availabilityZones objectAtIndex:row];
-	}
-	return @"BLAH";
-}
-
-- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
-	switch (self.input_selection) {
-		case KEYNAME_SELECTION:
-			keyname_picker.hidden = YES;
-			break;
-		case AVAILABILITYZONE_SELECTION:
-			availabilityzone_picker.hidden = YES;
-			break;
-	}
-}
-
-- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
-	switch (self.input_selection) {
-		case KEYNAME_SELECTION:
-			return [ec2Controller.keyNames count];
-		case AVAILABILITYZONE_SELECTION:
-			return [ec2Controller.availabilityZones count];
-	}
-
-	return 0;
+- (void)viewWillAppear:(BOOL)animated {
+	self.ec2Controller.rootViewController.toolbar.hidden = TRUE;
+	[super viewWillAppear:animated];
 }
 
 @end

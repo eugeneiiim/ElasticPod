@@ -8,74 +8,56 @@
 
 #import "EC2DataController.h"
 #import "EC2InstanceGroup.h"
-#import <openssl/ssl.h>
-#import <openssl/hmac.h>
 #import "EC2RequestDelegate.h"
+
+#import "hmac.h"
+#import "base64.h"
 
 @implementation NSData (OpenSSLWrapper)
 
-- (NSData *)sha1Digest {
-	EVP_MD_CTX mdctx;
-	unsigned char md_value[EVP_MAX_MD_SIZE];
-	unsigned int md_len;
-	EVP_DigestInit(&mdctx, EVP_sha1());
-	EVP_DigestUpdate(&mdctx, [self bytes], [self length]);
-	EVP_DigestFinal(&mdctx, md_value, &md_len);
-	return [NSData dataWithBytes:md_value length:md_len];
-}
-
 - (NSData *)sha1HMacWithKey:(NSString *)key {
-	HMAC_CTX mdctx;
-	unsigned char md_value[EVP_MAX_MD_SIZE];
-	unsigned int md_len;
+	char md_value[64];
 	const char* k = [key cStringUsingEncoding:NSUTF8StringEncoding];
-	const unsigned char *data = [self bytes];
+	const char *data = [self bytes];
 	int len = [self length];
-	
-	HMAC_CTX_init(&mdctx);
-	HMAC_Init(&mdctx,k,strlen(k),EVP_sha1());
-	HMAC_Update(&mdctx,data, len);
-	HMAC_Final(&mdctx, md_value, &md_len);
-	HMAC_CTX_cleanup(&mdctx);
-	return [NSData dataWithBytes:md_value length:md_len];
+
+	hmac_sha1(k, strlen(k), data, len, md_value);
+
+	/*
+	for (int i = 0; i < 20; i++) {
+		printf ("%02x ", md_value[i] & 0xFF);
+	}*/
+	//printf("\n");
+
+	return [NSData dataWithBytes:md_value length:20];
 }
 
-- (NSString *) encodeBase64WithNewlines:(BOOL) encodeWithNewlines {
-    BIO *mem = BIO_new(BIO_s_mem());
-	BIO *b64 = BIO_new(BIO_f_base64());
-    if (!encodeWithNewlines)
-        BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
-    mem = BIO_push(b64, mem);
-	
-	BIO_write(mem, [self bytes], [self length]);
-    BIO_flush(mem);
-	
-	char *base64Pointer;
-    long base64Length = BIO_get_mem_data(mem, &base64Pointer);
-	
-	NSString *base64String = [NSString stringWithCString:base64Pointer
-												  length:base64Length];
-	
-	BIO_free_all(mem);
-    return base64String;
+- (NSString*) encodeBase64 {
+	char* result;
+	int len = base64_encode_alloc ([self bytes], [self length], &result);
+	return [NSString stringWithCString:result length:len];
 }
 
-- (NSString *)encodeBase64 {
-    return [self encodeBase64WithNewlines:NO];
-}
 @end
 
 @implementation EC2DataController
 
-@synthesize account, instanceData, rootViewController, instDataState, availabilityZones, keyNames;
+@synthesize account, instanceData, rootViewController, instDataState, availabilityZones, keyNames,
+	instanceTypes, errorDisplayed, securityGroups, orderedGroups;
 
 - (id)initWithAccount:(AWSAccount*)acct rootViewController:(RootViewController*)rvc {
-	self.instanceData = nil; //[[NSDictionary alloc] init];
-	self.availabilityZones = nil;
-	self.keyNames = nil;
-	self.account = acct;
-	self.rootViewController = rvc;
-	self.instDataState = INSTANCE_DATA_NOT_READY;
+	if ([super init]) {
+		self.instanceData = nil; //[[NSDictionary alloc] init];
+		self.availabilityZones = nil;
+		self.keyNames = nil;
+		self.account = acct;
+		self.rootViewController = rvc;
+		self.instDataState = INSTANCE_DATA_NOT_READY;
+		self.instanceTypes = [[NSArray alloc] initWithObjects:@"m1.small",@"m1.large",@"m1.xlarge",@"c1.medium",@"c1.xlarge",nil];
+		self.errorDisplayed = FALSE;
+		self.securityGroups = nil;
+		self.orderedGroups = nil;
+	}
 	return self;
 }
 
@@ -113,21 +95,41 @@
 	NSMutableDictionary* args = [[NSMutableDictionary alloc] init];
 	[args setValue:[modelInstance getProperty:@"imageId"] forKey:@"ImageId"];
 	[args setValue:[modelInstance getProperty:@"instanceType"] forKey:@"InstanceType"];
-	[args setValue:[modelInstance getProperty:@"keyName"] forKey:@"KeyName"];
+
+	if ([modelInstance getProperty:@"keyName"]) {
+		[args setValue:[modelInstance getProperty:@"keyName"] forKey:@"KeyName"];
+	}
+	
 	[args setValue:numinsts_str forKey:@"MaxCount"];
 	[args setValue:numinsts_str forKey:@"MinCount"];
-	[args setValue:[modelInstance getProperty:@"availabilityZone"] forKey:@"Placement.AvailabilityZone"];
+	
+	if ([modelInstance getProperty:@"availabilityZone"]) {
+		[args setValue:[modelInstance getProperty:@"availabilityZone"] forKey:@"Placement.AvailabilityZone"];
+	}
 
-	//[self executeRequest:@"RunInstances" args:args];
+	if ([modelInstance getProperty:@"kernelId"]) {
+		[args setValue:[modelInstance getProperty:@"kernelId"] forKey:@"KernelId"];
+	}
+	if ([modelInstance getProperty:@"ramdiskId"]) {
+		[args setValue:[modelInstance getProperty:@"ramdiskId"] forKey:@"RamdiskId"];
+	}
+
+	NSInteger count = 1;
+	for (NSString* secgroup in modelInstance.securityGroups) {
+		[args setValue:secgroup forKey:[NSString stringWithFormat:@"SecurityGroup.%d",count]];
+		count++;
+	}
+
+	[self executeRequest:@"RunInstances" args:args];
 }
 
 - (NSArray*)getInstanceGroups {
 	if (instanceData == nil) {
-		NSLog(@"instance data is nil!");
+		//NSLog(@"instance data is nil!");
 		return [[[NSArray alloc] init] autorelease];
 	}
 
-	return [instanceData allKeys];
+	return self.orderedGroups;
 }
 
 - (NSArray*)getInstancesForGroup:(NSString*)grp {
@@ -137,14 +139,16 @@
 - (NSString*)generateSignature:(NSString*)req secret:(NSString*)secret {
 	NSString* canonical = [req stringByReplacingOccurrencesOfString:@"&" withString:@""];
 	NSString* stringToSign = [canonical stringByReplacingOccurrencesOfString:@"=" withString:@""];
-	
-	NSLog(stringToSign);
+	//NSLog(stringToSign);
 	
 	NSString* sig = [[[stringToSign dataUsingEncoding:NSUTF8StringEncoding] sha1HMacWithKey:secret] encodeBase64];
 	sig = [sig stringByReplacingOccurrencesOfString:@"+" withString:@"%2B"];
-	NSLog(sig);
-	
+
 	return sig;
+}
+
+NSInteger strSort(id s1, id s2, void *context) {
+	return [s1 compare:s2];
 }
 
 - (void)executeRequest:(NSString*)action args:(NSDictionary*)args {
@@ -161,6 +165,10 @@
 		req_type = DESCRIBE_AVAILABILITY_ZONES;
 	} else if ([action compare:@"DescribeKeyPairs"] == NSOrderedSame) {
 		req_type = DESCRIBE_KEY_PAIRS;
+	} else if ([action compare:@"RunInstances"] == NSOrderedSame) {
+		req_type = RUN_INSTANCES;
+	} else if ([action compare:@"DescribeSecurityGroups"] == NSOrderedSame) {
+		req_type = DESCRIBE_SECURITY_GROUPS;
 	} else {
 		NSLog(@"ERROR invalid request type!!! %@", action);
 		[rootViewController hideLoadingScreen];
@@ -177,7 +185,8 @@
 	NSString* timestamp = [NSString stringWithFormat:@"%@T%@Z", timestamp_date, timestamp_time];
 
 	NSMutableString* argsStr = [[NSMutableString alloc] initWithString:@""];
-	for (NSString* k in [args allKeys]) {
+	NSArray* sorted_keys = [[args allKeys] sortedArrayUsingFunction:strSort context:nil];
+	for (NSString* k in sorted_keys) {
 		[argsStr appendFormat:@"&%@=%@", k, [args valueForKey:k]];
 	}
 
@@ -187,7 +196,8 @@
 
 	NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
 									 timeoutInterval:20.0];
-	EC2RequestDelegate* req_delegate = [[[EC2RequestDelegate alloc] init:self requestType:req_type] autorelease];
+	EC2RequestDelegate* req_delegate = /*[*/[[EC2RequestDelegate alloc] init:self requestType:req_type] /*autorelease]*/;
+	
 	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:req delegate:req_delegate];
 	if (!theConnection) {
 		self.instDataState = INSTANCE_DATA_NOT_READY;
@@ -235,6 +245,13 @@
 	}
 }
 
+- (void)setOrderedGroups:(NSArray*)newarr {
+	if (orderedGroups != newarr) {
+		[orderedGroups release];
+		orderedGroups = [newarr mutableCopy];
+	}
+}
+
 - (void)setAvailabilityZones:(NSArray*)newarr {
 	if (availabilityZones != newarr) {
 		[availabilityZones release];
@@ -262,7 +279,7 @@
 	}
 }
 
-- (void)refreshKeyNames { 
+- (void)refreshKeyNames {
 	[self executeRequest:@"DescribeKeyPairs" args:[[[NSDictionary alloc] init] autorelease]];
 }
 
@@ -270,6 +287,25 @@
 	if (keyNames != newarr) {
 		[keyNames release];
 		keyNames = [newarr mutableCopy];
+	}
+}
+
+- (NSArray*)getSecurityGroups {
+	if (self.securityGroups == nil) {
+		return [[[NSArray alloc] init] autorelease];
+	} else {
+		return self.securityGroups;
+	}
+}
+
+- (void)refreshSecurityGroups {
+	[self executeRequest:@"DescribeSecurityGroups" args:[[[NSDictionary alloc] init] autorelease]];
+}
+
+- (void)setSecurityGroups:(NSArray*)newarr {
+	if (securityGroups != newarr) {
+		[securityGroups release];
+		securityGroups = [newarr mutableCopy];
 	}
 }
 

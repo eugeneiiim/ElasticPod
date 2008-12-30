@@ -47,6 +47,10 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 #import <UIKit/UIKit.h>
 #import "AccountsController.h"
+#import "EC2DataController.h"
+
+#define LANDSCAPE_TABLE_HEIGHT 268
+#define PORTRAIT_TABLE_HEIGHT 416
 
 @class AccountsController;
 
@@ -69,9 +73,10 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 - (void)refresh;
 - (void)addAccount;
 - (IBAction)refreshButtonHandler:(id)sender;
-- (void)refreshEC2Callback;
+///- (void)refreshEC2Callback:(RequestType)rt;
 - (void)showLoadingScreen;
 - (void)hideLoadingScreen;
 - (void)updateViewForCurrentOrientation;
+- (void)resizeTable;
 
 @end

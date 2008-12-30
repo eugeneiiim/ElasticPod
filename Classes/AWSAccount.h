@@ -12,11 +12,17 @@
 	NSString* name;
 	NSString* access_key;
 	NSString* secret_key;
+	NSString* defaultImageId;
+	NSString* defaultKernelId;
+	NSString* defaultRamdiskId;
 }
 
 @property (nonatomic, assign, readwrite) NSString *name;
 @property (nonatomic, assign, readwrite) NSString *access_key;
 @property (nonatomic, assign, readwrite) NSString *secret_key;
+@property (nonatomic, assign, readwrite) NSString* defaultImageId;
+@property (nonatomic, assign, readwrite) NSString* defaultKernelId;
+@property (nonatomic, assign, readwrite) NSString* defaultRamdiskId;
 
 - (id)initWithName:(NSString*)name accessKey:(NSString*)ak secretKey:(NSString*)sk;
 + (id)accountWithName:(NSString*)name_ accessKey:(NSString*)ak secretKey:(NSString*)sk;

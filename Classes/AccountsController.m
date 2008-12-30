@@ -89,9 +89,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	} else {
 		AWSAccount* existing = [self.nameToAccount objectForKey:[acct name]];
 		if (existing) {
-			printf("ERROR name conflict!\n");
-		
-			// TODO pop up warning message -- overwrite existing?
 			NSString* msg = [NSString stringWithFormat:@"Account \"%@\" already exists.", [acct name]];
 			UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Account exists" message:msg
 													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
@@ -102,9 +99,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 			EC2DataController* c = [[EC2DataController alloc] initWithAccount:acct rootViewController:rootViewController];
 			[c refreshInstanceData];
 			[self.accountEc2Controllers setValue:c forKey:acct.name];
-			
-			[c refreshInstanceData];
-
 			[self saveAccounts];
 		}
 	}
@@ -113,14 +107,13 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 - (void)updateAccount:(NSString*)prev_name newAccount:(AWSAccount*)new {
 	[self.nameToAccount removeObjectForKey:prev_name];
 	[self.nameToAccount setValue:new forKey:new.name];
-	
+
 	EC2DataController* c = [self.accountEc2Controllers valueForKey:prev_name];
 	c.account = new;
 	[self.accountEc2Controllers removeObjectForKey:prev_name];
 	[self.accountEc2Controllers setValue:c forKey:new.name];
 
 	[c refreshInstanceData];
-
 	[self saveAccounts];
 }
 
@@ -146,7 +139,12 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
 	for (NSString* name in [nameToAccount allKeys]) {
 		AWSAccount* acct = [nameToAccount objectForKey:name];
-		NSDictionary* d = [NSDictionary dictionaryWithObjectsAndKeys:[acct secret_key],@"secret",[acct access_key],@"access",nil];
+		NSDictionary* d = [NSDictionary dictionaryWithObjectsAndKeys:[acct secret_key],@"secret",
+						   [acct access_key],@"access",
+						   acct.defaultImageId,@"defaultImageId",
+						   acct.defaultKernelId,@"defaultKernelId",
+						   acct.defaultRamdiskId,@"defaultRamdiskId",
+						   nil];
 		[dict setValue:d forKey:[acct name]];
 	}
 
@@ -158,7 +156,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 - (void)loadAccounts {
 	NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
 	NSDictionary* accounts = [userDefaults dictionaryForKey:EC2PHONE_ACCOUNTS];
-	
+
 	/*
 	if (accounts == nil) {
 		accounts = [NSDictionary dictionaryWithObjectsAndKeys:[NSDictionary dictionaryWithObjectsAndKeys:@"ACCESSKEY",@"access",@"SECRETKEY",@"secret",nil],@"Eugene",nil];
@@ -173,6 +171,7 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 		for (NSString* a in [accounts allKeys]) {
 			NSDictionary* dict = [accounts valueForKey:a];
 			AWSAccount* acct = [AWSAccount accountWithName:a accessKey:[dict valueForKey:@"access"] secretKey:[dict valueForKey:@"secret"]];
+			acct.defaultImageId = [dict valueForKey:@"defaultImageId"];
 			[self.nameToAccount setValue:acct forKey:a];
 
 			EC2DataController* c = [[EC2DataController alloc] initWithAccount:acct rootViewController:rootViewController];
@@ -184,8 +183,8 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 
 - (void)removeAccountAtIndex:(NSInteger)index {
 	AWSAccount* acct = [[self.nameToAccount allValues] objectAtIndex:index];
-	[self.nameToAccount removeObjectForKey:[acct name]];
-	[self.accountEc2Controllers removeObjectForKey:[acct name]];
+	[self.nameToAccount removeObjectForKey:acct.name];
+	[self.accountEc2Controllers removeObjectForKey:acct.name];
 	[self saveAccounts];
 }
 
@@ -193,6 +192,39 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	for (EC2DataController* e in [accountEc2Controllers allValues]) {
 		[e refreshInstanceData];
 	}
+}
+
+- (void)setDefaultImageIdForAccount:(NSString*)acct imageId:(NSString*)imageid {
+	AWSAccount* a = [self.nameToAccount valueForKey:acct];
+	a.defaultImageId = imageid;
+	[self.nameToAccount setValue:a forKey:acct];
+	[self saveAccounts];
+}
+
+- (NSString*)getDefaultImageIdForAccount:(NSString*)acct {
+	return [[self.nameToAccount valueForKey:acct] defaultImageId];
+}
+
+- (void)setDefaultRamdiskIdForAccount:(NSString*)acct ramdiskId:(NSString*)ramdiskid {
+	AWSAccount* a = [self.nameToAccount valueForKey:acct];
+	a.defaultRamdiskId = ramdiskid;
+	[self.nameToAccount setValue:a forKey:acct];
+	[self saveAccounts];
+}
+
+- (NSString*)getDefaultRamdiskIdForAccount:(NSString*)acct {
+	return [[self.nameToAccount valueForKey:acct] defaultRamdiskId];
+}
+
+- (void)setDefaultKernelIdForAccount:(NSString*)acct kernelId:(NSString*)kernelid {
+	AWSAccount* a = [self.nameToAccount valueForKey:acct];
+	a.defaultKernelId = kernelid;
+	[self.nameToAccount setValue:a forKey:acct];
+	[self saveAccounts];
+}
+
+- (NSString*)getDefaultKernelIdForAccount:(NSString*)acct {
+	return [[self.nameToAccount valueForKey:acct] defaultKernelId];
 }
 
 @end

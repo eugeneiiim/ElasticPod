@@ -80,4 +80,11 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 - (id)init:(RootViewController*)rvc;
 - (void)refreshEC2Controllers;
 
+- (void)setDefaultImageIdForAccount:(NSString*)acct imageId:(NSString*)imageid;
+- (NSString*)getDefaultImageIdForAccount:(NSString*)acct;
+- (void)setDefaultKernelIdForAccount:(NSString*)acct kernelId:(NSString*)kernelid;
+- (NSString*)getDefaultKernelIdForAccount:(NSString*)acct;
+- (void)setDefaultRamdiskIdForAccount:(NSString*)acct ramdiskId:(NSString*)ramdiskid;
+- (NSString*)getDefaultRamdiskIdForAccount:(NSString*)acct;
+
 @end

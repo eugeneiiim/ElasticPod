@@ -12,13 +12,16 @@
 @implementation EC2RequestDelegate
 
 @synthesize ec2Controller, urlreq_data, reqType, curGroupDict, curInst, tempInstanceData, tempAvailabilityZones,
-	tempKeyNames, curAvailZone, lastElementName, curSecurityGroups;
+	tempKeyNames, curAvailZone, lastElementName, curSecurityGroups, tempSecurityGroups, lastLastElementName,
+	tempOrderedGroups;
 
 - (EC2RequestDelegate*)init:(EC2DataController*)ec2ctrl requestType:(RequestType)type {
 	if ([self init]) {
 		self.ec2Controller = ec2ctrl;
 		self.reqType = type;
 		self.urlreq_data = [[NSMutableData alloc] init];
+		self.lastElementName = @"";
+		self.lastLastElementName = @"";
 	}
 	return self;
 }
@@ -65,13 +68,16 @@
 
 	if (self.reqType == DESCRIBE_INSTANCES) {
 		self.tempInstanceData = [[NSMutableDictionary alloc] init];
+		self.tempOrderedGroups = [[NSMutableArray alloc] init];
 	} else if (self.reqType == DESCRIBE_AVAILABILITY_ZONES) {
 		self.tempAvailabilityZones = [[NSMutableArray alloc] init];
 	} else if (self.reqType == DESCRIBE_KEY_PAIRS) {
 		self.tempKeyNames = [[NSMutableArray alloc] init];
+	} else if (self.reqType == DESCRIBE_SECURITY_GROUPS) {
+		self.tempSecurityGroups = [[NSMutableArray alloc] init];
 	}
 
-	NSLog([[NSString alloc] initWithData:self.urlreq_data encoding:NSASCIIStringEncoding]);
+	//NSLog([[NSString alloc] initWithData:self.urlreq_data encoding:NSASCIIStringEncoding]);
 
 	NSXMLParser* x = [[NSXMLParser alloc] initWithData:self.urlreq_data];
 	[x setDelegate:self];
@@ -87,6 +93,7 @@
 		self.ec2Controller.instDataState = INSTANCE_DATA_READY;
 	}
 
+	self.lastLastElementName = self.lastElementName;
 	self.lastElementName = elementName;
 }
 
@@ -103,16 +110,22 @@
 	}
 }
 
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+	self.ec2Controller.errorDisplayed = FALSE;
+}
+
 - (void)parser:(NSXMLParser*)parser foundCharacters:(NSString*)string {
 	string = [string stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@" \n"]];
 	if (string == nil || [string length] == 0) {
 		return;
 	}
 
-	if ([lastElementName compare:@"Code"] == NSOrderedSame) {
+	if ([lastElementName compare:@"Code"] == NSOrderedSame && [lastLastElementName compare:@"Error"] == NSOrderedSame) {
 		// This is an error -- todo make sure Code isn't used for other stuff.
 
 		if (self.reqType == DESCRIBE_INSTANCES) {
+			[self.tempOrderedGroups release];
+			self.tempOrderedGroups = nil;
 			[self.tempInstanceData release];
 			self.tempInstanceData = nil; // indicate that this new data should not be used.
 		} else if (self.reqType == DESCRIBE_AVAILABILITY_ZONES) {
@@ -121,34 +134,76 @@
 		} else if (self.reqType == DESCRIBE_KEY_PAIRS) {
 			[self.tempKeyNames release];
 			self.tempKeyNames = nil;
+		} else if (self.reqType == DESCRIBE_SECURITY_GROUPS) {
+			[self.tempSecurityGroups release];
+			self.tempSecurityGroups = nil;
 		}
 
+		NSString* msg = nil;
+		NSString* title = nil;
+		
 		if ([string compare:@"SignatureDoesNotMatch"] == NSOrderedSame) {
-			NSString* msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your secret key.", self.ec2Controller.account.name];
-			UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Invalid Request Signature" message:msg
-														   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-			[alert show];
-			[alert release];
-
+			msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your secret key.", self.ec2Controller.account.name];
+			title = @"Invalid Request Signature";
 			self.ec2Controller.instDataState = INSTANCE_DATA_FAILED;
-			return;
 		} else if ([string compare:@"InvalidClientTokenId"] == NSOrderedSame) {
-			NSString* msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your access key.", self.ec2Controller.account.name];
-			UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"Invalid Access Key" message:msg
-														   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-			[alert show];
-			[alert release];
-			
+			msg = [NSString stringWithFormat:@"Request failed for account \"%@\".  Check your access key.", self.ec2Controller.account.name];
+			title = @"Invalid Access Key";
 			self.ec2Controller.instDataState = INSTANCE_DATA_FAILED;
-			return;
+		} else if ([string compare:@"AuthFailure"] == NSOrderedSame) {
+			msg = [NSString stringWithFormat:@"User not authorized for account \"%@\".", self.ec2Controller.account.name];
+			title = @"Authorization Failure";
+		} else if ([string compare:@"InstanceLimitExceeded"] == NSOrderedSame) {
+			msg = [NSString stringWithFormat:@"Instance limit exceeded for account \"%@\".", self.ec2Controller.account.name];
+			title = @"Instance Limit Exceeded";
+		} else if ([string compare:@"InvalidAMIID.Malformed"] == NSOrderedSame) {
+			msg = @"Malformed image ID.";
+			title = @"Error";
+		} else if ([string compare:@"InvalidAMIID.NotFound"] == NSOrderedSame) {
+			msg = @"AMI ID not found.";
+			title = @"Error";
+		} else if ([string compare:@"InvalidAMIID.Unavailable"] == NSOrderedSame) {
+			msg = @"Specified AMI is not available.";
+			title = @"Error";
+		} else if ([string compare:@"InternalError"] == NSOrderedSame) {
+			msg = @"There was an internal error in Amazon EC2.";
+			title = @"Internal Error";
+		} else if ([string compare:@"InsufficientAddressCapacity"] == NSOrderedSame) {
+			msg = @"Insufficient address capacity.";
+			title = @"Error";
+		} else if ([string compare:@"InsufficientInstanceCapacity"] == NSOrderedSame) {
+			msg = @"Insufficient instance capacity.";
+			title = @"Error";
+		} else if ([string compare:@"Unavailable"] == NSOrderedSame) {
+			msg = @"Amazon EC2 is currently unavailable.";
+			title = @"Internal Error";
+		} else if ([string compare:@"InvalidParameterValue" == NSOrderedSame]) {
+			msg = @"The requested instance type's architecture is not compatible with the specified image.";
+			title = @"Architecture mismatch";
+		} else {
+			msg = @"An unknown error occurred";
+			title = @"Error";
 		}
-		// TODO check for other errors
+		
+		if (msg != nil && title != nil) {
+			if (!self.ec2Controller.errorDisplayed) {
+				self.ec2Controller.errorDisplayed = TRUE;
+				UIAlertView* alert = [[UIAlertView alloc] initWithTitle:title message:msg
+															   delegate:self cancelButtonTitle:@"OK"
+													  otherButtonTitles:nil];
+				[alert show];
+				[alert release];
+			}
+		}
+		
+		return;
 	}
 
 	if (self.reqType == DESCRIBE_INSTANCES) {
 		if ([self.lastElementName compare:@"reservationId"] == NSOrderedSame) {
 			self.curGroupDict = [[NSMutableDictionary alloc] init];
 			[self.tempInstanceData setValue:self.curGroupDict forKey:[string copy]];
+			[self.tempOrderedGroups addObject:[string copy]];
 			self.curSecurityGroups = [[NSMutableArray alloc] init];
 		} else if ([self.lastElementName compare:@"instanceId"] == NSOrderedSame) {
 			self.curInst = [[EC2Instance alloc] init];
@@ -173,14 +228,22 @@
 		if ([self.lastElementName compare:@"keyName"] == NSOrderedSame) {
 			[self.tempKeyNames addObject:[string copy]];
 		}
+	} else if (self.reqType == DESCRIBE_SECURITY_GROUPS) {
+		if ([self.lastElementName compare:@"groupName"] == NSOrderedSame
+			&& [self.lastLastElementName compare:@"ownerId"] == NSOrderedSame) {
+			[self.tempSecurityGroups addObject:[string copy]];
+		}
 	}
 }
 
 - (void)parserDidEndDocument:(NSXMLParser *)parser {
 	if (self.reqType == DESCRIBE_INSTANCES && self.tempInstanceData != nil) {
+		self.ec2Controller.orderedGroups = [NSArray arrayWithArray:self.tempOrderedGroups];
 		self.ec2Controller.instanceData = [NSDictionary dictionaryWithDictionary:self.tempInstanceData];
 		[self.tempInstanceData release];
 		self.tempInstanceData = nil;
+		[self.tempOrderedGroups release];
+		self.tempOrderedGroups = nil;
 	} else if (self.reqType == DESCRIBE_AVAILABILITY_ZONES && self.tempAvailabilityZones != nil) {
 		self.ec2Controller.availabilityZones = [NSArray arrayWithArray:self.tempAvailabilityZones];
 		[self.tempAvailabilityZones release];
@@ -189,10 +252,18 @@
 		self.ec2Controller.keyNames = [NSArray arrayWithArray:self.tempKeyNames];
 		[self.tempKeyNames release];
 		self.tempKeyNames = nil;
+	} else if (self.reqType == DESCRIBE_SECURITY_GROUPS && self.tempSecurityGroups != nil) {
+		self.ec2Controller.securityGroups = [NSArray arrayWithArray:self.tempSecurityGroups];
+		[self.tempSecurityGroups release];
+		self.tempSecurityGroups = nil;
+	} else if (self.reqType == RUN_INSTANCES) {
+		[self.ec2Controller refreshInstanceData];
+	} else if (self.reqType == TERMINATE_INSTANCES) {
+		[self.ec2Controller refreshInstanceData];
 	}
-	
+
 	// Refresh the view.
-	[self.ec2Controller.rootViewController.navigationController.topViewController refreshEC2Callback];
+	[self.ec2Controller.rootViewController.navigationController.topViewController refreshEC2Callback:self.reqType];
 	
 	[self.ec2Controller.rootViewController hideLoadingScreen];
 	self.reqType = NO_REQUEST;

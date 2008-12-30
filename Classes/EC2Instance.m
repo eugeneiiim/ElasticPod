@@ -32,4 +32,11 @@
 	[super dealloc];
 }
 
+- (void)setSecurityGroups:(NSArray*)newarr {
+	if (securityGroups != newarr) {
+		[securityGroups release];
+		securityGroups = [newarr mutableCopy];
+	}
+}
+
 @end

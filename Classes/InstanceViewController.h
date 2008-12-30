@@ -22,6 +22,7 @@ typedef enum {REBOOT, TERMINATE, NO_ACTION} InstanceAction;
 	UITableViewCell* reboot_cell;
 	UITableViewCell* terminate_cell;
 	InstanceAction lastAction;
+	AccountsController* accountsController;
 }
 
 @property (nonatomic, readwrite, assign) EC2Instance* instance;
@@ -31,8 +32,14 @@ typedef enum {REBOOT, TERMINATE, NO_ACTION} InstanceAction;
 @property (nonatomic, readwrite, assign) UITableViewCell* reboot_cell;
 @property (nonatomic, readwrite, assign) UITableViewCell* terminate_cell;
 @property (nonatomic, readwrite, assign) InstanceAction lastAction;
+@property (nonatomic, readwrite, assign) AccountsController* accountsController;
 
-- (InstanceViewController*)initWithStyle:(UITableViewStyle)style instance:(EC2Instance*)inst ec2Controller:(EC2DataController*)ec2Ctrl group:(NSString*)group;
-- (void)refreshEC2Callback;
+- (InstanceViewController*)initWithStyle:(UITableViewStyle)style instance:(EC2Instance*)inst ec2Controller:(EC2DataController*)ec2Ctrl group:(NSString*)group accountsController:(AccountsController*)accts_ctrl;
+- (void)refreshEC2Callback:(RequestType)rt;
+- (void)resizeTable;
+- (BOOL)showRebootButton;
+- (BOOL)showTerminateButton;
+- (void)rebootConfirmation;
+- (void)terminateConfirmation;
 
 @end

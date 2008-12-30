@@ -50,14 +50,18 @@
 
 #import <UIKit/UIKit.h>
 
-@interface DetailCell : UITableViewCell {
+@interface DetailCell : UITableViewCell <UITextFieldDelegate> {
     UITextField *name;
-    UITextField *prompt;
+    UILabel *prompt;
     BOOL promptMode;
+	NSInteger input_offset;
 }
 
 @property (readonly, retain) UITextField *name;
-@property (readonly, retain) UITextField *prompt;
+@property (readonly, retain) UILabel *prompt;
 @property BOOL promptMode;
+@property NSInteger input_offset;
+
+- (id)initWithFrame:(CGRect)frame reuseIdentifier:(NSString *)reuseIdentifier inputOffset:(NSInteger)offset;
 
 @end

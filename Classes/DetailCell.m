@@ -52,27 +52,25 @@
 
 @implementation DetailCell
 
-@synthesize name, prompt, promptMode;
+@synthesize name, prompt, promptMode, input_offset;
 
-- (id)initWithFrame:(CGRect)frame reuseIdentifier:(NSString *)reuseIdentifier {
-    if (self = [super initWithFrame:frame reuseIdentifier:reuseIdentifier]) {
-        // Initialize the labels, their fonts, colors, alignment, and background color.
-        prompt = [[UILabel alloc] initWithFrame:CGRectZero];
+- (id)initWithFrame:(CGRect)frame reuseIdentifier:(NSString *)reuseIdentifier inputOffset:(NSInteger)offset {
+	if (self = [super initWithFrame:frame reuseIdentifier:reuseIdentifier]) {
+		self.input_offset = offset;
+
+		// Initialize the labels, their fonts, colors, alignment, and background color.
+		prompt = [[UILabel alloc] initWithFrame:CGRectZero];
         prompt.font = [UIFont boldSystemFontOfSize:12];
         prompt.textColor = [UIColor darkGrayColor];
         prompt.backgroundColor = [UIColor clearColor];
 
 		name = [[UITextField alloc] initWithFrame:CGRectZero];
-		name.font = [UIFont boldSystemFontOfSize:14];
-		name.backgroundColor = [UIColor clearColor];
-		name.autocorrectionType = UITextAutocorrectionTypeNo;
-		
-        // Add the labels to the content view of the cell.
-        
-        // Important: although UITableViewCell inherits from UIView, you should add subviews to its content view
-        // rather than directly to the cell so that they will be positioned appropriately as the cell transitions 
-        // into and out of editing mode.
-        
+		self.name.font = [UIFont systemFontOfSize:14];
+		self.name.backgroundColor = [UIColor clearColor];
+		self.name.autocorrectionType =  UITextAutocorrectionTypeNo;
+		self.name.delegate = self;
+		self.name.returnKeyType = UIReturnKeyDone;
+
         [self.contentView addSubview:name];
         [self.contentView addSubview:prompt];
 		//self.autoresizesSubviews = YES;
@@ -80,10 +78,15 @@
     return self;
 }
 
+- (BOOL)textFieldShouldReturn:(UITextField *)field{
+	[field resignFirstResponder];
+	return YES;
+}
+
 - (void)dealloc {
-    [name release];
-    [prompt release];
-    [super dealloc];
+	[name release];
+	[prompt release];
+	[super dealloc];
 }
 
 // Setting the prompt mode to YES hides the type/name labels and shows the prompt label.
@@ -102,11 +105,12 @@
     // Start with a rect that is inset from the content view by 10 pixels on all sides.
     CGRect baseRect = CGRectInset(self.contentView.bounds, 10, 10);
     CGRect rect = baseRect;
-    rect.origin.x += 15;
+    rect.origin.x += 10;
     // Position each label with a modified version of the base rect.
     prompt.frame = rect;
-    rect.origin.x += 90;
-    rect.size.width = baseRect.size.width - 110;
+    rect.origin.x += self.input_offset;
+	rect.origin.y += 2;
+    rect.size.width = baseRect.size.width - 90;
     name.frame = rect;
 }
 

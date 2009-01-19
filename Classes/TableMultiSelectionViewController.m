@@ -11,10 +11,10 @@
 
 @implementation TableMultiSelectionViewController
 
-@synthesize options, arrayToSet, textThingToSet, selected_options;
+@synthesize options, arrayToSet, textThingToSet, selected_options, rootViewController;
 
 - (id)initWithStyle:(UITableViewStyle)style textThingToSet:(UILabel*)thing options:(NSArray*)opts
-			title:(NSString*)title arrayToSet:(NSMutableArray*)ats {
+			  title:(NSString*)title arrayToSet:(NSMutableArray*)ats rootViewController:(RootViewController*)rvc {
     // Override initWithStyle: if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
 	if (self = [super initWithStyle:style]) {
 		self.textThingToSet = thing;
@@ -22,6 +22,7 @@
 		self.title = title;
 		self.arrayToSet = ats;
 		self.selected_options = [[NSMutableDictionary alloc] init];
+		self.rootViewController = rvc;
 		
 		UIBarButtonItem* save_button = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleBordered
 																	   target:self action:@selector(done:)];
@@ -193,6 +194,10 @@
 
 - (void)dealloc {
     [super dealloc];
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+	[self.rootViewController updateViewForCurrentOrientation];
 }
 
 @end

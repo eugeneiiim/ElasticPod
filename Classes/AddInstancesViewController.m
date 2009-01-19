@@ -391,7 +391,8 @@
 			ttfvc = [[TableTextFieldViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:self.numinstances_cell.name
 																  title:@"Number of Instances" defaultText:self.numinstances_cell.name.text
 														   keyboardType:UIKeyboardTypeNumberPad
-															stringToSet:self.numinstances_text];
+															stringToSet:self.numinstances_text
+													 rootViewController:self.accountsController.rootViewController];
 			[self.navigationController pushViewController:ttfvc animated:YES];
 			[ttfvc release];
 			break;
@@ -399,7 +400,8 @@
 			ttfvc = [[TableTextFieldViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:self.imageid_cell.name
 																  title:@"AMI ID" defaultText:self.imageid_cell.name.text
 														   keyboardType:UIKeyboardTypeASCIICapable
-															stringToSet:self.imageid_text];
+															stringToSet:self.imageid_text
+													 rootViewController:self.accountsController.rootViewController];
 			[self.navigationController pushViewController:ttfvc animated:YES];
 			[ttfvc release];
 			break;
@@ -411,7 +413,8 @@
 			[options addObject:@"No selection"];
 			
 			tsvc = [[TableSelectionViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:self.keyname_cell.name
-															   options:options title:@"Key" stringToSet:self.keyname_text];
+															   options:options title:@"Key" stringToSet:self.keyname_text
+													rootViewController:self.accountsController.rootViewController];
 
 			[self.navigationController pushViewController:tsvc animated:YES];
 			[tsvc release];
@@ -425,7 +428,8 @@
 			
 			tsvc = [[TableSelectionViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:availabilityzone_cell.name
 															   options:options title:@"Availability Zone"
-														   stringToSet:self.availabilityzone_text];
+														   stringToSet:self.availabilityzone_text
+													rootViewController:self.accountsController.rootViewController];
 			
 			[self.navigationController pushViewController:tsvc animated:YES];
 			[tsvc release];
@@ -437,7 +441,8 @@
 			
 			tsvc = [[TableSelectionViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:instancetype_cell.name
 															   options:self.ec2Controller.instanceTypes title:@"Instance Type"
-														   stringToSet:self.instancetype_text];
+														   stringToSet:self.instancetype_text
+													rootViewController:self.accountsController.rootViewController];
 			
 			[self.navigationController pushViewController:tsvc animated:YES];
 			[tsvc release];
@@ -448,7 +453,8 @@
 			tmsvc = [[TableMultiSelectionViewController alloc] initWithStyle:UITableViewStyleGrouped
 															  textThingToSet:securitygroups_cell.name
 																	 options:options title:@"Security Groups"
-																  arrayToSet:self.security_groups];
+																  arrayToSet:self.security_groups
+														  rootViewController:self.accountsController.rootViewController];
 			[self.navigationController pushViewController:tmsvc animated:YES];
 			[tmsvc release];
 			break;
@@ -457,7 +463,8 @@
 			ttfvc = [[TableTextFieldViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:self.kernelid_cell.name
 																  title:@"Kernel ID" defaultText:self.kernelid_cell.name.text
 														   keyboardType:UIKeyboardTypeASCIICapable
-															stringToSet:self.kernelid_text];
+															stringToSet:self.kernelid_text
+													 rootViewController:self.accountsController.rootViewController];
 			[self.navigationController pushViewController:ttfvc animated:YES];
 			[ttfvc release];
 			break;
@@ -466,7 +473,7 @@
 			ttfvc = [[TableTextFieldViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:self.ramdiskid_cell.name
 																  title:@"Ramdisk ID" defaultText:self.ramdiskid_cell.name.text
 														   keyboardType:UIKeyboardTypeASCIICapable
-															stringToSet:self.ramdiskid_text];
+															stringToSet:self.ramdiskid_text rootViewController:self.accountsController.rootViewController];
 			[self.navigationController pushViewController:ttfvc animated:YES];
 			[ttfvc release];
 			break;

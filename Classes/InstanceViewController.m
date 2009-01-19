@@ -163,23 +163,25 @@
 		case 1:
 			switch (indexPath.row) {
 				case 2:
-					vc = [[UIViewController alloc] init];
-					webview = [[UIWebView alloc] init];
-					vc.title = [self.instance getProperty:@"dnsName"];
-					vc.view = webview;
-					//[vc loadView];
+					if ([[self.instance getProperty:@"dnsName"] length] != 0) {
+						vc = [[UIViewController alloc] init];
+						webview = [[UIWebView alloc] init];
+						vc.title = [self.instance getProperty:@"dnsName"];
+						vc.view = webview;
+						//[vc loadView];
 
-					//NSLog([self.instance getProperty:@"dnsName"]);
+						//NSLog([self.instance getProperty:@"dnsName"]);
 					
-					NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@",[self.instance getProperty:@"dnsName"]]];
-					//NSURL* url = [NSURL URLWithString:@"http://www.google.com"];
+						NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@",[self.instance getProperty:@"dnsName"]]];
+						//NSURL* url = [NSURL URLWithString:@"http://www.google.com"];
 					
-					NSURLRequest* req = [NSURLRequest requestWithURL:url];
-					[webview loadRequest:req];
+						NSURLRequest* req = [NSURLRequest requestWithURL:url];
+						[webview loadRequest:req];
 					
-					self.ec2Controller.rootViewController.toolbar.hidden = TRUE;
-					[self.navigationController pushViewController:vc animated:YES];
-					[webview release];
+						self.ec2Controller.rootViewController.toolbar.hidden = TRUE;
+						[self.navigationController pushViewController:vc animated:YES];
+						[webview release];
+					}
 					break;
 				default:
 					break;
@@ -352,7 +354,9 @@
 					
 					cell.prompt.text = @"DNS";
 					cell.name.text = [self.instance getProperty:@"dnsName"];
-					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+					if ([[self.instance getProperty:@"dnsName"] length] != 0) {
+						cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+					}
 					break;
 				case 3:
 					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:90] autorelease];

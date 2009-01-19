@@ -14,13 +14,15 @@
 	UILabel* textThingToSet;
 	NSArray* options;
 	NSMutableString* stringToSet;
+	RootViewController* rootViewController;
 }
 
 @property (nonatomic, readwrite, assign) UILabel* textThingToSet;
 @property (nonatomic, readwrite, assign) NSArray* options;
 @property (nonatomic, readwrite, assign) NSMutableString* stringToSet;
+@property (nonatomic, readwrite, assign) RootViewController* rootViewController;
 
 - (id)initWithStyle:(UITableViewStyle)style textThingToSet:(UILabel*)thing options:(NSArray*)opts title:(NSString*)title
-		stringToSet:(NSMutableString*)stringToSet;
+		stringToSet:(NSMutableString*)stringToSet rootViewController:(RootViewController*)rvc;
 
 @end

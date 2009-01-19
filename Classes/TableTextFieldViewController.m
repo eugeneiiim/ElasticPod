@@ -11,15 +11,16 @@
 
 @implementation TableTextFieldViewController
 
-@synthesize textThingToSet, field, cell, stringToSet;
+@synthesize textThingToSet, field, cell, stringToSet, rootViewController;
 
 - (id)initWithStyle:(UITableViewStyle)style textThingToSet:(UILabel*)txt title:(NSString*)tit defaultText:(NSString*)deftext
-	   keyboardType:(UIKeyboardType)kbtype stringToSet:(NSMutableString*)sts {
+	   keyboardType:(UIKeyboardType)kbtype stringToSet:(NSMutableString*)sts rootViewController:(RootViewController*)rvc {
     if (self = [super initWithStyle:style]) {
 		self.textThingToSet = txt;
 		self.title = tit;
 		self.stringToSet = sts;
-		
+		self.rootViewController = rvc;
+
 		UIBarButtonItem* save_button = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleBordered
 																	   target:self action:@selector(done:)];
 		self.navigationItem.rightBarButtonItem = save_button;
@@ -84,6 +85,7 @@
 }
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+	[self.rootViewController updateViewForCurrentOrientation];
 	[self resizeFieldForOrientation];
 }
 

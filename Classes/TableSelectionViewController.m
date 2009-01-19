@@ -11,16 +11,17 @@
 
 @implementation TableSelectionViewController
 
-@synthesize textThingToSet, options, stringToSet;
+@synthesize textThingToSet, options, stringToSet, rootViewController;
 
 - (id)initWithStyle:(UITableViewStyle)style textThingToSet:(UILabel*)thing options:(NSArray*)opts title:(NSString*)title
-		stringToSet:(NSMutableString*)sts {
+		stringToSet:(NSMutableString*)sts rootViewController:(RootViewController*)rvc {
     // Override initWithStyle: if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
 	if (self = [super initWithStyle:style]) {
 		self.textThingToSet = thing;
 		self.options = opts;
 		self.title = title;
 		self.stringToSet = sts;
+		self.rootViewController = rvc;
 	}
 	return self;
 }
@@ -153,6 +154,10 @@
 
 - (void)dealloc {
     [super dealloc];
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+	[self.rootViewController updateViewForCurrentOrientation];
 }
 
 @end

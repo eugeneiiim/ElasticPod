@@ -392,7 +392,8 @@
 																  title:@"Number of Instances" defaultText:self.numinstances_cell.name.text
 														   keyboardType:UIKeyboardTypeNumberPad
 															stringToSet:self.numinstances_text
-													 rootViewController:self.accountsController.rootViewController];
+													 rootViewController:self.accountsController.rootViewController
+																keyFont:FALSE];
 			[self.navigationController pushViewController:ttfvc animated:YES];
 			[ttfvc release];
 			break;
@@ -401,7 +402,8 @@
 																  title:@"AMI ID" defaultText:self.imageid_cell.name.text
 														   keyboardType:UIKeyboardTypeASCIICapable
 															stringToSet:self.imageid_text
-													 rootViewController:self.accountsController.rootViewController];
+													 rootViewController:self.accountsController.rootViewController
+																keyFont:FALSE];
 			[self.navigationController pushViewController:ttfvc animated:YES];
 			[ttfvc release];
 			break;
@@ -464,7 +466,8 @@
 																  title:@"Kernel ID" defaultText:self.kernelid_cell.name.text
 														   keyboardType:UIKeyboardTypeASCIICapable
 															stringToSet:self.kernelid_text
-													 rootViewController:self.accountsController.rootViewController];
+													 rootViewController:self.accountsController.rootViewController
+																keyFont:FALSE];
 			[self.navigationController pushViewController:ttfvc animated:YES];
 			[ttfvc release];
 			break;
@@ -473,7 +476,8 @@
 			ttfvc = [[TableTextFieldViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:self.ramdiskid_cell.name
 																  title:@"Ramdisk ID" defaultText:self.ramdiskid_cell.name.text
 														   keyboardType:UIKeyboardTypeASCIICapable
-															stringToSet:self.ramdiskid_text rootViewController:self.accountsController.rootViewController];
+															stringToSet:self.ramdiskid_text rootViewController:self.accountsController.rootViewController
+																keyFont:FALSE];
 			[self.navigationController pushViewController:ttfvc animated:YES];
 			[ttfvc release];
 			break;

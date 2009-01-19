@@ -14,12 +14,13 @@
 @synthesize textThingToSet, field, cell, stringToSet, rootViewController;
 
 - (id)initWithStyle:(UITableViewStyle)style textThingToSet:(UILabel*)txt title:(NSString*)tit defaultText:(NSString*)deftext
-	   keyboardType:(UIKeyboardType)kbtype stringToSet:(NSMutableString*)sts rootViewController:(RootViewController*)rvc {
+	   keyboardType:(UIKeyboardType)kbtype stringToSet:(NSMutableString*)sts rootViewController:(RootViewController*)rvc
+		keyFont:(BOOL)usekeyfont {
     if (self = [super initWithStyle:style]) {
+		self.rootViewController = rvc;
 		self.textThingToSet = txt;
 		self.title = tit;
 		self.stringToSet = sts;
-		self.rootViewController = rvc;
 
 		UIBarButtonItem* save_button = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleBordered
 																	   target:self action:@selector(done:)];
@@ -27,6 +28,9 @@
 		
 		self.field = [[UITextField alloc] init];
 		self.field.text = deftext;
+		if (usekeyfont) {
+			self.field.font = [UIFont fontWithName:@"Courier" size:16];
+		}
 		self.field.clearButtonMode = UITextFieldViewModeNever;
 		self.field.adjustsFontSizeToFitWidth = YES;
 		self.field.autocapitalizationType = UITextAutocapitalizationTypeNone;

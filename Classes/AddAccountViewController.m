@@ -164,7 +164,8 @@
 															defaultText:self.name_cell.name.text
 														   keyboardType:UIKeyboardTypeASCIICapable
 															stringToSet:self.name_text
-													 rootViewController:self.accountsController.rootViewController];
+													 rootViewController:self.accountsController.rootViewController
+																keyFont:NO];
 
 			[self.navigationController pushViewController:ttfvc animated:YES];
 			[ttfvc release];
@@ -173,7 +174,8 @@
 			ttfvc = [[TableTextFieldViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:self.access_cell.name
 																  title:@"Access Key" defaultText:self.access_cell.name.text
 														   keyboardType:UIKeyboardTypeASCIICapable stringToSet:self.access_text
-													 rootViewController:self.accountsController.rootViewController];
+													 rootViewController:self.accountsController.rootViewController
+																keyFont:YES];
 			ttfvc.field.autocapitalizationType = UITextAutocapitalizationTypeAllCharacters;
 			[self.navigationController pushViewController:ttfvc animated:YES];
 			[ttfvc release];
@@ -182,7 +184,8 @@
 			ttfvc = [[TableTextFieldViewController alloc] initWithStyle:UITableViewStyleGrouped textThingToSet:self.secret_cell.name
 																  title:@"Secret Key" defaultText:self.secret_cell.name.text
 														   keyboardType:UIKeyboardTypeASCIICapable stringToSet:self.secret_text
-													 rootViewController:self.accountsController.rootViewController];
+													 rootViewController:self.accountsController.rootViewController
+																keyFont:YES];
 			[self.navigationController pushViewController:ttfvc animated:YES];
 			[ttfvc release];
 			break;

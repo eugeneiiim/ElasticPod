@@ -27,7 +27,7 @@
 
 - (id)initWithStyle:(UITableViewStyle)style textThingToSet:(UILabel*)txt title:(NSString*)tit
 		defaultText:(NSString*)deftext keyboardType:(UIKeyboardType)kbtype stringToSet:(NSMutableString*)stringToSet
-		rootViewController:(RootViewController*)rvc;
+		rootViewController:(RootViewController*)rvc keyFont:(BOOL)usekeyfont;
 - (void)resizeFieldForOrientation;
 
 @end

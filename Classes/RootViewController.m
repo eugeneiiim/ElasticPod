@@ -63,6 +63,15 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	return self;
 }
 
+- (void)dealloc {
+	[loadingOverlay release];
+	[loadingCountLock release];
+    [accountsController release];
+	[activityIndicator release];
+	[toolbar release];
+    [super dealloc];
+}
+
 - (void)viewDidLoad {
 	self.title = @"AWS Accounts";
 	self.navigationItem.rightBarButtonItem = self.editButtonItem;
@@ -84,9 +93,9 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 	[add_account_button release];
 	[self.navigationController.view addSubview:toolbar];
 
-	loadingOverlay = [[UIView alloc] init];
-	loadingOverlay.backgroundColor = [UIColor blackColor];
-	loadingOverlay.alpha = 0.0;
+	self.loadingOverlay = [[UIView alloc] init];
+	self.loadingOverlay.backgroundColor = [UIColor blackColor];
+	self.loadingOverlay.alpha = 0.0;
 	[self.navigationController.view addSubview:loadingOverlay];
 	
 	activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
@@ -219,15 +228,6 @@ Copyright (C) 2008 Apple Inc. All Rights Reserved.
 			[igsvc release];
 		/*}*/
 	}
-}
-
-- (void)dealloc {
-	[loadingOverlay release];
-	[loadingCountLock release];
-    [accountsController release];
-	[activityIndicator release];
-	[toolbar release];
-    [super dealloc];
 }
 
 - (UITableViewCellEditingStyle)tableView: (UITableView *)tableView editingStyleForRowAtIndexPath: (NSIndexPath *)indexPath { 

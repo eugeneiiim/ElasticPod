@@ -29,6 +29,7 @@
 		UIBarButtonItem* launch_button = [[UIBarButtonItem alloc] initWithTitle:@"Launch" style:UIBarButtonItemStyleBordered
 																		 target:self action:@selector(runInstances:)];
 		self.navigationItem.rightBarButtonItem = launch_button;
+		[launch_button release];
 
 		self.input_selection = NO_SELECTION;
 		self.initialrefresh_key = FALSE;
@@ -46,6 +47,18 @@
 		self.security_groups = [[NSMutableArray alloc] init];
 	}
 	return self;
+}
+
+- (void)dealloc {
+	[self.numinstances_text release];
+	[self.imageid_text release];
+	[self.keyname_text release];
+	[self.availabilityzone_text release];
+	[self.instancetype_text release];
+	[self.kernelid_text release];
+	[self.ramdiskid_text release];
+	[self.security_groups release];
+	[super dealloc];
 }
 
 - (void)viewDidLoad {
@@ -312,10 +325,6 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning]; // Releases the view if it doesn't have a superview
     // Release anything that's not essential, such as cached data
-}
-
-- (void)dealloc {
-    [super dealloc];
 }
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {

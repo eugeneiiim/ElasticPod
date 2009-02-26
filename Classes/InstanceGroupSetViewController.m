@@ -43,6 +43,7 @@
 - (void)add {
 	AddInstancesViewController* aivc = [[AddInstancesViewController alloc] initWithStyle:UITableViewStyleGrouped ec2Controller:ec2Controller accountsController:self.accountsController];
 	[self.navigationController pushViewController:aivc animated:YES];
+	[aivc release];
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {

@@ -48,7 +48,7 @@
 		1D3623240D0F684500981E51 /* SimpleDrillDownAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleDrillDownAppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* SimpleDrillDownAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimpleDrillDownAppDelegate.m; sourceTree = "<group>"; };
 		1D3623EB0D0F72F000981E51 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		1D6058910D05DD3D006BFB54 /* ec2Phone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ec2Phone.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* SimpleDrillDown.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleDrillDown.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		282DE8790D999CA700F5050D /* RootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootViewController.m; sourceTree = "<group>"; };
 		282DE87A0D999CA700F5050D /* RootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
@@ -123,8 +123,6 @@
 			isa = PBXGroup;
 			children = (
 				CE859F3E0F0AC17500D10082 /* Encryption */,
-				CE77F4BC0F08896A00F7B285 /* EC2RequestDelegate.h */,
-				CE77F4BD0F08896A00F7B285 /* EC2RequestDelegate.m */,
 				CE77F17A0F0762F100F7B285 /* Views */,
 				CED49F860EFC9697000D0551 /* ViewControllers */,
 				CED49F910EFC96C2000D0551 /* DataControllers */,
@@ -138,7 +136,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D6058910D05DD3D006BFB54 /* ec2Phone.app */,
+				1D6058910D05DD3D006BFB54 /* SimpleDrillDown.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -219,6 +217,8 @@
 		CED12B5B0EFEF6DE0083619D /* EC2 */ = {
 			isa = PBXGroup;
 			children = (
+				CE77F4BC0F08896A00F7B285 /* EC2RequestDelegate.h */,
+				CE77F4BD0F08896A00F7B285 /* EC2RequestDelegate.m */,
 				CED4992A0EFB5B01000D0551 /* AWSAccount.h */,
 				CED4992B0EFB5B01000D0551 /* AWSAccount.m */,
 				CED499300EFB5C2A000D0551 /* EC2InstanceGroup.h */,
@@ -236,8 +236,8 @@
 				282DE8790D999CA700F5050D /* RootViewController.m */,
 				CED4A1340EFCA9B0000D0551 /* AddAccountViewController.h */,
 				CED4A1350EFCA9B0000D0551 /* AddAccountViewController.m */,
-				CED498BB0EFB566E000D0551 /* InstanceGroupSetViewController.m */,
 				CED498BA0EFB566E000D0551 /* InstanceGroupSetViewController.h */,
+				CED498BB0EFB566E000D0551 /* InstanceGroupSetViewController.m */,
 				CED12B540EFEF5600083619D /* AddInstancesViewController.h */,
 				CED12B550EFEF5600083619D /* AddInstancesViewController.m */,
 				CED49BD90EFB84D9000D0551 /* InstanceGroupViewController.h */,
@@ -282,7 +282,7 @@
 			);
 			name = ec2Phone;
 			productName = SimpleDrillDown;
-			productReference = 1D6058910D05DD3D006BFB54 /* ec2Phone.app */;
+			productReference = 1D6058910D05DD3D006BFB54 /* SimpleDrillDown.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */

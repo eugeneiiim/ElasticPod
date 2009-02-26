@@ -30,6 +30,13 @@
 	return self;
 }
 
+- (void)dealloc {
+	[self.name_text release];
+	[self.access_text release];
+	[self.secret_text release];
+    [super dealloc];
+}
+
 - (id)initWithStyle:(UITableViewStyle)style rootViewController:(RootViewController*)rvc {
 	if (self = [super initWithStyle:style]) {
 		UIBarButtonItem* save_button = [[UIBarButtonItem alloc] initWithTitle:@"Save" style:UIBarButtonItemStyleBordered
@@ -211,13 +218,6 @@
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning]; // Releases the view if it doesn't have a superview
-}
-
-- (void)dealloc {
-	[self.name_text release];
-	[self.access_text release];
-	[self.secret_text release];
-    [super dealloc];
 }
 
 - (void)refreshEC2Callback:(RequestType)rt {

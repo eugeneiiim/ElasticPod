@@ -26,6 +26,10 @@
 	return self;
 }
 
+- (void)dealloc {
+	[super dealloc];
+}
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
 	switch (interfaceOrientation) {
 		case UIInterfaceOrientationPortrait:
@@ -168,19 +172,15 @@
 						webview = [[UIWebView alloc] init];
 						vc.title = [self.instance getProperty:@"dnsName"];
 						vc.view = webview;
-						//[vc loadView];
 
-						//NSLog([self.instance getProperty:@"dnsName"]);
-					
 						NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@",[self.instance getProperty:@"dnsName"]]];
-						//NSURL* url = [NSURL URLWithString:@"http://www.google.com"];
-					
 						NSURLRequest* req = [NSURLRequest requestWithURL:url];
 						[webview loadRequest:req];
 					
 						self.ec2Controller.rootViewController.toolbar.hidden = TRUE;
 						[self.navigationController pushViewController:vc animated:YES];
 						[webview release];
+						[vc release];
 					}
 					break;
 				default:
@@ -282,6 +282,7 @@
 		text.frame = rect;
 		
 		[self.reboot_cell.contentView addSubview:text];
+		[text release];
 		self.reboot_cell.contentView.autoresizesSubviews = TRUE;
 		
 		self.reboot_cell.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -290,9 +291,6 @@
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-	//UITableViewCell* cell;// = [tableView dequeueReusableCellWithIdentifier:@"tvc"];
-	//UITableViewCell* cell;
-
 	NSInteger section = indexPath.section;
 	
 	if (section == 0 && !([self showRebootButton] || [self showTerminateButton])) {
@@ -468,10 +466,6 @@
 		default:
 			return nil;
 	}
-}
-
-- (void)dealloc {
-	[super dealloc];
 }
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {

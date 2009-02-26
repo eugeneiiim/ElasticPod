@@ -73,6 +73,7 @@
 - (void)add {
 	AddInstancesViewController* aivc = [[AddInstancesViewController alloc] initWithStyle:UITableViewStyleGrouped ec2Controller:self.ec2Controller accountsController:self.accountsController];
 	[self.navigationController pushViewController:aivc animated:YES];
+	[aivc release];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

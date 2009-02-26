@@ -26,6 +26,10 @@
 	return self;
 }
 
+- (void)dealloc {
+    [super dealloc];
+}
+
 /*
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -151,10 +155,6 @@
     return YES;
 }
 */
-
-- (void)dealloc {
-    [super dealloc];
-}
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
 	[self.rootViewController updateViewForCurrentOrientation];

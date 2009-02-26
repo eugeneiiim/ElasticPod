@@ -26,6 +26,11 @@
 	return self;
 }
 
+- (void)dealloc {
+	[self.urlreq_data release];
+	[super dealloc];
+}
+
 // Connection event handlers.
 /*
  - (void)connection:(NSURLConnection*)conn didReceiveResponse:(NSURLResponse*)response {

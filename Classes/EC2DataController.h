@@ -38,7 +38,7 @@ typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQU
 @property (nonatomic, assign, readwrite) InstanceDataState instDataState;
 @property (nonatomic, assign, readwrite) NSArray* availabilityZones;
 @property (nonatomic, assign, readwrite) NSArray* keyNames;
-@property (nonatomic, assign, readwrite) NSArray* instanceTypes;
+@property (nonatomic, retain, readwrite) NSArray* instanceTypes;
 @property (nonatomic, assign, readwrite) NSArray* securityGroups;
 @property (nonatomic, assign, readwrite) BOOL errorDisplayed;
 @property (nonatomic, assign, readwrite) NSArray* orderedGroups;

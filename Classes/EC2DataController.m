@@ -28,7 +28,7 @@
 
 - (NSString*) encodeBase64 {
 	char* result;
-	int len = base64_encode_alloc ([self bytes], [self length], &result);
+	int len = base64_encode_alloc([self bytes], [self length], &result);
 	return [NSString stringWithCString:result length:len];
 }
 
@@ -47,12 +47,17 @@
 		self.account = acct;
 		self.rootViewController = rvc;
 		self.instDataState = INSTANCE_DATA_NOT_READY;
-		self.instanceTypes = [[NSArray alloc] initWithObjects:@"m1.small",@"m1.large",@"m1.xlarge",@"c1.medium",@"c1.xlarge",nil];
+		self.instanceTypes = [NSArray arrayWithObjects:@"m1.small",@"m1.large",@"m1.xlarge",@"c1.medium",@"c1.xlarge",nil];
 		self.errorDisplayed = FALSE;
 		self.securityGroups = nil;
 		self.orderedGroups = nil;
 	}
 	return self;
+}
+
+- (void)dealloc {
+	[self.instanceTypes release];
+    [super dealloc];
 }
 
 - (void)terminateInstances:(NSArray*)instances {
@@ -177,8 +182,9 @@ NSInteger strSort(id s1, id s2, void *context) {
 	[formatter setDateFormat:@"HH:mm:ss"];
 	NSString* timestamp_time = [formatter stringFromDate:now];
 	NSString* timestamp = [NSString stringWithFormat:@"%@T%@Z", timestamp_date, timestamp_time];
+	[formatter release];
 
-	NSMutableString* argsStr = [[NSMutableString alloc] initWithString:@""];
+	NSMutableString* argsStr = [NSMutableString stringWithString:@""];
 	NSArray* sorted_keys = [[args allKeys] sortedArrayUsingFunction:strSort context:nil];
 	for (NSString* k in sorted_keys) {
 		[argsStr appendFormat:@"&%@=%@", k, [args valueForKey:k]];
@@ -186,11 +192,11 @@ NSInteger strSort(id s1, id s2, void *context) {
 
 	NSString* req1 = [NSString stringWithFormat:@"Action=%@&AWSAccessKeyId=%@%@&SignatureVersion=1&Timestamp=%@&Version=2008-05-05", action, account.access_key, argsStr, timestamp];
 	NSString* sig = [self generateSignature:req1 secret:account.secret_key];
-	NSString* url = [[NSString alloc] initWithFormat:@"https://ec2.amazonaws.com/?%@&Signature=%@", req1, sig];
+	NSString* url = [NSString stringWithFormat:@"https://ec2.amazonaws.com/?%@&Signature=%@", req1, sig];
 
 	NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
 									 timeoutInterval:20.0];
-	EC2RequestDelegate* req_delegate = /*[*/[[EC2RequestDelegate alloc] init:self requestType:req_type] /*autorelease]*/;
+	EC2RequestDelegate* req_delegate = [[EC2RequestDelegate alloc] init:self requestType:req_type];
 	
 	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:req delegate:req_delegate];
 	if (!theConnection) {
@@ -200,6 +206,8 @@ NSInteger strSort(id s1, id s2, void *context) {
 													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
+	} else {
+		[req_delegate release];
 	}
 }
 

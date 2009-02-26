@@ -10,11 +10,9 @@
 
 @interface EC2InstanceGroup : NSObject {
 	NSString* instanceGroupId;
-	//NSMutableArray* securityGroups;
 }
 
 @property (nonatomic, copy, readwrite) NSString* instanceGroupId;
-//@property (nonatomic, readwrite, assign) NSMutableArray* securityGroups;
 
 - (id)initWithInstanceGroupId:(NSString*)group_id;
 

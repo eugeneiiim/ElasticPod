@@ -27,6 +27,7 @@
 		UIBarButtonItem* save_button = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleBordered
 																	   target:self action:@selector(done:)];
 		self.navigationItem.rightBarButtonItem = save_button;
+		[save_button release];
 		
 		for (NSString* e in ats) {
 			NSInteger count = 0;
@@ -39,6 +40,11 @@
 		}
 	}
 	return self;
+}
+
+- (void)dealloc {
+	[self.selected_options release];
+    [super dealloc];
 }
 
 - (IBAction)done:(id)sender {
@@ -190,11 +196,6 @@
     return YES;
 }
 */
-
-
-- (void)dealloc {
-    [super dealloc];
-}
 
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
 	[self.rootViewController updateViewForCurrentOrientation];

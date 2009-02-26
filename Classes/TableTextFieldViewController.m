@@ -25,6 +25,7 @@
 		UIBarButtonItem* save_button = [[UIBarButtonItem alloc] initWithTitle:@"Done" style:UIBarButtonItemStyleBordered
 																	   target:self action:@selector(done:)];
 		self.navigationItem.rightBarButtonItem = save_button;
+		[save_button release];
 		
 		self.field = [[UITextField alloc] init];
 		self.field.text = deftext;
@@ -40,6 +41,11 @@
 		self.field.delegate = self;
     }
     return self;
+}
+
+- (void)dealloc {
+	[self.field release];
+    [super dealloc];
 }
 
 - (IBAction)done:(id)sender {
@@ -184,11 +190,6 @@
     return YES;
 }
 */
-
-
-- (void)dealloc {
-    [super dealloc];
-}
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
 	[self done:nil];

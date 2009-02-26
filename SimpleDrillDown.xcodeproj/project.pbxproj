@@ -17,6 +17,7 @@
 		28554E2C0DAC293600168C19 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 28554E2B0DAC293600168C19 /* Icon.png */; };
 		28A0A2200DCBAA090060EDFB /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 28A0A21F0DCBAA090060EDFB /* Default.png */; };
 		53A3862B0E6DD89B002F7F09 /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53A386290E6DD89B002F7F09 /* MainWindow.xib */; };
+		CE37503A0F5349F00019F48E /* Entitlements.plist in Resources */ = {isa = PBXBuildFile; fileRef = CE3750390F5349F00019F48E /* Entitlements.plist */; };
 		CE77F4BE0F08896A00F7B285 /* EC2RequestDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CE77F4BD0F08896A00F7B285 /* EC2RequestDelegate.m */; };
 		CE859DC20F0A150400D10082 /* sha1.c in Sources */ = {isa = PBXBuildFile; fileRef = CE859DC00F0A150400D10082 /* sha1.c */; };
 		CE859DC40F0A157C00D10082 /* hmac-sha1.c in Sources */ = {isa = PBXBuildFile; fileRef = CE859DC30F0A157C00D10082 /* hmac-sha1.c */; };
@@ -58,6 +59,7 @@
 		32CA4F630368D1EE00C91783 /* SimpleDrillDown_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleDrillDown_Prefix.pch; sourceTree = "<group>"; };
 		53A3862A0E6DD89B002F7F09 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainWindow.xib; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CE3750390F5349F00019F48E /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
 		CE77F4BC0F08896A00F7B285 /* EC2RequestDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EC2RequestDelegate.h; sourceTree = "<group>"; };
 		CE77F4BD0F08896A00F7B285 /* EC2RequestDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EC2RequestDelegate.m; sourceTree = "<group>"; };
 		CE859DBF0F0A150400D10082 /* hmac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hmac.h; sourceTree = "<group>"; };
@@ -144,6 +146,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				CE3750390F5349F00019F48E /* Entitlements.plist */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -321,6 +324,7 @@
 				CED49F5C0EFC9398000D0551 /* up.png in Resources */,
 				CED49F5D0EFC9398000D0551 /* down.png in Resources */,
 				CED4A11B0EFCA782000D0551 /* AddAccountView.xib in Resources */,
+				CE37503A0F5349F00019F48E /* Entitlements.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -444,13 +448,13 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Eugene Marinelli";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Eugene Marinelli";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_VERSION = 4.0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				PREBINDING = NO;
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9CABA39A-B487-48E2-AF70-63FC92316514";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "FA7C6423-CBD8-4A4E-A9C5-503D2152942F";
 				SDKROOT = iphoneos2.1;
 				USER_HEADER_SEARCH_PATHS = /opt/local/include;
 			};
@@ -478,6 +482,9 @@
 		CE77F7A20F0973BF00F7B285 /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Entitlements.plist;
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Eugene Marinelli";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Eugene Marinelli";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
@@ -492,6 +499,8 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = ec2Phone;
+				PROVISIONING_PROFILE = "FA7C6423-CBD8-4A4E-A9C5-503D2152942F";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "FA7C6423-CBD8-4A4E-A9C5-503D2152942F";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Distribution;

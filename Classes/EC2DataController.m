@@ -23,12 +23,6 @@
 
 	hmac_sha1(k, strlen(k), data, len, md_value);
 
-	/*
-	for (int i = 0; i < 20; i++) {
-		printf ("%02x ", md_value[i] & 0xFF);
-	}*/
-	//printf("\n");
-
 	return [NSData dataWithBytes:md_value length:20];
 }
 

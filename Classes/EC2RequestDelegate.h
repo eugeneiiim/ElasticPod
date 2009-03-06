@@ -26,8 +26,11 @@
 	NSString* lastLastElementName;
 	NSString* lastElementName;
 	NSString* curAvailZone;
-	
+
 	NSMutableArray* tempOrderedGroups;
+	
+	NSString* targetInst;
+	NSString* targetInstGroup;
 }
 
 @property (nonatomic, readwrite, assign) EC2DataController* ec2Controller;
@@ -44,8 +47,12 @@
 @property (nonatomic, assign, readwrite) NSString* curAvailZone;
 @property (nonatomic, assign, readwrite) NSMutableArray* curSecurityGroups;
 @property (nonatomic, assign, readwrite) NSMutableArray* tempOrderedGroups;
+@property (nonatomic, assign, readwrite) NSString* targetInst;
+@property (nonatomic, assign, readwrite) NSString* targetInstGroup;
 
 - (EC2RequestDelegate*)init:(EC2DataController*)ec2ctrl requestType:(RequestType)type;
+- (EC2RequestDelegate*)init2:(EC2DataController*)ec2ctrl requestType:(RequestType)type
+				  instanceId:(NSString*)instId groupId:(NSString*)groupId;
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
 
 @end

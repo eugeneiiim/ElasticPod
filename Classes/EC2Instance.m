@@ -10,12 +10,19 @@
 
 @implementation EC2Instance
 
-@synthesize instanceProperties, securityGroups;
+@synthesize instanceProperties, securityGroups, consoleOutput;
 
 - (id)init {
 	self.instanceProperties = [[NSMutableDictionary alloc] init];
 	self.securityGroups = [[NSArray alloc] init];
+	self.consoleOutput = @"";
 	return self;
+}
+
+- (void)dealloc {
+	[self.instanceProperties release];
+	[self.securityGroups release];
+	[super dealloc];
 }
 
 - (void)addProperty:(NSString*)key value:(NSString*)value {
@@ -24,12 +31,6 @@
 
 - (NSString*)getProperty:(NSString*)key {
 	return [instanceProperties valueForKey:key];
-}
-
-- (void)dealloc {
-	[self.instanceProperties release];
-	[self.securityGroups release];
-	[super dealloc];
 }
 
 - (void)setSecurityGroups:(NSArray*)newarr {

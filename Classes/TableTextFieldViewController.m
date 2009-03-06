@@ -26,8 +26,8 @@
 																	   target:self action:@selector(done:)];
 		self.navigationItem.rightBarButtonItem = save_button;
 		[save_button release];
-		
-		self.field = [[UITextField alloc] init];
+
+		self.field = [[UITextField alloc] initWithFrame:CGRectZero];
 		self.field.text = deftext;
 		if (usekeyfont) {
 			self.field.font = [UIFont fontWithName:@"Courier" size:16];

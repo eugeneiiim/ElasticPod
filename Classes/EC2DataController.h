@@ -17,7 +17,8 @@
 typedef enum {INSTANCE_DATA_READY, INSTANCE_DATA_NOT_READY, INSTANCE_DATA_FAILED} InstanceDataState;
 
 typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQUEST,
-	DESCRIBE_AVAILABILITY_ZONES, DESCRIBE_KEY_PAIRS, RUN_INSTANCES, DESCRIBE_SECURITY_GROUPS} RequestType;
+	DESCRIBE_AVAILABILITY_ZONES, DESCRIBE_KEY_PAIRS, RUN_INSTANCES, DESCRIBE_SECURITY_GROUPS,
+	GET_CONSOLE_OUTPUT} RequestType;
 
 @interface EC2DataController : NSObject {
 	AWSAccount* account;
@@ -51,7 +52,11 @@ typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQU
 - (NSArray*)getInstanceGroups;
 - (NSArray*)getInstancesForGroup:(NSString*)grp;
 - (void)refreshInstanceData;
-- (void)executeRequest:(NSString*)action args:(NSDictionary*)args;
+
+- (void)executeRequest:(RequestType)req_type args:(NSDictionary*)args;
+- (void)executeRequest:(RequestType)req_type args:(NSDictionary*)args curInstanceId:(NSString*)curinst
+	curInstGroup:(NSString*)curinstgroup;
+
 - (EC2Instance*)getInstance:(NSString*)group instanceId:(NSString*)inst_id;
 - (NSString*)getInstanceGroupAtIndex:(NSInteger)index;
 - (EC2Instance*)getInstanceAtIndex:(NSInteger)index group:(NSString*)grp;
@@ -60,6 +65,11 @@ typedef enum {DESCRIBE_INSTANCES, REBOOT_INSTANCES, TERMINATE_INSTANCES, NO_REQU
 - (NSArray*)getKeyNames;
 - (void)refreshKeyNames;
 - (void)refreshSecurityGroups;
+
+- (void)refreshConsoleOutput:(NSString*)instanceId group:(NSString*)groupId;
+
+- (void)setConsoleOutput:(NSString*)text instanceId:(NSString*)instid groupId:(NSString*)group;
+
 
 @end
 

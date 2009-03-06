@@ -27,6 +27,7 @@
 		CE85A3930F0BF39000D10082 /* CheckCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CE85A3920F0BF39000D10082 /* CheckCell.m */; };
 		CE85A8400F0DBC2600D10082 /* TableTextFieldViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE85A83F0F0DBC2600D10082 /* TableTextFieldViewController.m */; };
 		CE85AAE20F0DE8A400D10082 /* TableMultiSelectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE85AAE10F0DE8A400D10082 /* TableMultiSelectionViewController.m */; };
+		CEB424260F573C8000919F1D /* ConsoleOutputViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CEB424250F573C8000919F1D /* ConsoleOutputViewController.m */; };
 		CED12B560EFEF5600083619D /* AddInstancesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12B550EFEF5600083619D /* AddInstancesViewController.m */; };
 		CED12BE50EFF05190083619D /* EC2DataController.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12BE40EFF05190083619D /* EC2DataController.m */; };
 		CED12FD00F00381D0083619D /* DetailCell.m in Sources */ = {isa = PBXBuildFile; fileRef = CED12FCF0F00381D0083619D /* DetailCell.m */; };
@@ -48,7 +49,7 @@
 		1D3623240D0F684500981E51 /* SimpleDrillDownAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleDrillDownAppDelegate.h; sourceTree = "<group>"; };
 		1D3623250D0F684500981E51 /* SimpleDrillDownAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimpleDrillDownAppDelegate.m; sourceTree = "<group>"; };
 		1D3623EB0D0F72F000981E51 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		1D6058910D05DD3D006BFB54 /* SimpleDrillDown.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleDrillDown.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6058910D05DD3D006BFB54 /* ec2Phone.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ec2Phone.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		282DE8790D999CA700F5050D /* RootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootViewController.m; sourceTree = "<group>"; };
 		282DE87A0D999CA700F5050D /* RootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
@@ -78,6 +79,8 @@
 		CE85A83F0F0DBC2600D10082 /* TableTextFieldViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableTextFieldViewController.m; sourceTree = "<group>"; };
 		CE85AAE00F0DE8A400D10082 /* TableMultiSelectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableMultiSelectionViewController.h; sourceTree = "<group>"; };
 		CE85AAE10F0DE8A400D10082 /* TableMultiSelectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TableMultiSelectionViewController.m; sourceTree = "<group>"; };
+		CEB424240F573C8000919F1D /* ConsoleOutputViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConsoleOutputViewController.h; sourceTree = "<group>"; };
+		CEB424250F573C8000919F1D /* ConsoleOutputViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConsoleOutputViewController.m; sourceTree = "<group>"; };
 		CED12B540EFEF5600083619D /* AddInstancesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddInstancesViewController.h; sourceTree = "<group>"; };
 		CED12B550EFEF5600083619D /* AddInstancesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddInstancesViewController.m; sourceTree = "<group>"; };
 		CED12BE30EFF05190083619D /* EC2DataController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EC2DataController.h; sourceTree = "<group>"; };
@@ -125,7 +128,6 @@
 				CE859F3E0F0AC17500D10082 /* Encryption */,
 				CE77F17A0F0762F100F7B285 /* Views */,
 				CED49F860EFC9697000D0551 /* ViewControllers */,
-				CED49F910EFC96C2000D0551 /* DataControllers */,
 				CED12B5B0EFEF6DE0083619D /* EC2 */,
 				1D3623240D0F684500981E51 /* SimpleDrillDownAppDelegate.h */,
 				1D3623250D0F684500981E51 /* SimpleDrillDownAppDelegate.m */,
@@ -136,7 +138,7 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1D6058910D05DD3D006BFB54 /* SimpleDrillDown.app */,
+				1D6058910D05DD3D006BFB54 /* ec2Phone.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -250,6 +252,9 @@
 				CE85A83F0F0DBC2600D10082 /* TableTextFieldViewController.m */,
 				CE85AAE00F0DE8A400D10082 /* TableMultiSelectionViewController.h */,
 				CE85AAE10F0DE8A400D10082 /* TableMultiSelectionViewController.m */,
+				CEB424240F573C8000919F1D /* ConsoleOutputViewController.h */,
+				CED49F910EFC96C2000D0551 /* DataControllers */,
+				CEB424250F573C8000919F1D /* ConsoleOutputViewController.m */,
 			);
 			name = ViewControllers;
 			sourceTree = "<group>";
@@ -282,7 +287,7 @@
 			);
 			name = ec2Phone;
 			productName = SimpleDrillDown;
-			productReference = 1D6058910D05DD3D006BFB54 /* SimpleDrillDown.app */;
+			productReference = 1D6058910D05DD3D006BFB54 /* ec2Phone.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -358,6 +363,7 @@
 				CE85A3930F0BF39000D10082 /* CheckCell.m in Sources */,
 				CE85A8400F0DBC2600D10082 /* TableTextFieldViewController.m in Sources */,
 				CE85AAE20F0DE8A400D10082 /* TableMultiSelectionViewController.m in Sources */,
+				CEB424260F573C8000919F1D /* ConsoleOutputViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,6 +9,7 @@
 #import "InstanceViewController.h"
 #import "EC2Instance.h"
 #import "AddInstancesViewController.h"
+#import "ConsoleOutputViewController.h"
 
 @implementation InstanceViewController
 
@@ -169,20 +170,39 @@
 				case 2:
 					if ([[self.instance getProperty:@"dnsName"] length] != 0) {
 						vc = [[UIViewController alloc] init];
-						webview = [[UIWebView alloc] init];
 						vc.title = [self.instance getProperty:@"dnsName"];
+						UIWebView* webview = [[UIWebView alloc] init];
 						vc.view = webview;
 
 						NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@",[self.instance getProperty:@"dnsName"]]];
 						NSURLRequest* req = [NSURLRequest requestWithURL:url];
 						[webview loadRequest:req];
-					
+
 						self.ec2Controller.rootViewController.toolbar.hidden = TRUE;
 						[self.navigationController pushViewController:vc animated:YES];
 						[webview release];
 						[vc release];
 					}
 					break;
+
+				case 3: // SSH
+					0;
+					NSURL* url = [NSURL URLWithString:[NSString stringWithFormat:@"ssh://%@",[self.instance getProperty:@"dnsName"]]];
+					NSURLConnection* conn = [NSURLConnection connectionWithRequest:[NSURLRequest requestWithURL:url] delegate:self];
+					if (!conn) {
+							//TODO handle error
+					}
+					break;
+				
+				case 4: // Console output
+					
+					0;
+					ConsoleOutputViewController* cov = [[ConsoleOutputViewController alloc]
+														initWithController:self.ec2Controller
+														instanceId:[self.instance getProperty:@"instanceId"]
+														instanceGroup:self.group];
+					[self.navigationController pushViewController:cov animated:YES];
+					[cov release];
 				default:
 					break;
 			}
@@ -216,10 +236,10 @@
 			if (rows > 0) {
 				return rows;
 			} else {
-				return 14;
+				return 15;
 			}
         case 1:
-			return 14;
+			return 15;
         default:
 			return 0;
 	}
@@ -356,21 +376,40 @@
 						cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 					}
 					break;
-				case 3:
+
+				case 3: 
+					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"SSHCell" inputOffset:42] autorelease];
+					[cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+					
+					cell.prompt.text = @"SSH";
+					cell.name.text = @"(Requires TouchTerm)";
+					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+					break;
+
+				case 4:
+					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:110] autorelease];
+					[cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+					
+					cell.prompt.text = @"Console Output";
+					cell.name.text = @"";
+					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+					break;
+				
+				case 5:
 					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:90] autorelease];
 					[cell setSelectionStyle:UITableViewCellSelectionStyleNone];
 										
 					cell.prompt.text = @"Private DNS";
 					cell.name.text = [instance getProperty:@"privateDnsName"];
 					break;
-				case 4:
+				case 6:
 					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:68] autorelease];
 					[cell setSelectionStyle:UITableViewCellSelectionStyleNone];
 					
 					cell.prompt.text = @"Image ID";
 					cell.name.text = [instance getProperty:@"imageId"];
 					break;
-				case 5:
+				case 7:
 					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:119] autorelease];
 					[cell setSelectionStyle:UITableViewCellSelectionStyleNone];
 					
@@ -382,56 +421,56 @@
 					
 					cell.name.text = str;
 					break;
-				case 6:
+				case 8:
 					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:63] autorelease];
 					[cell setSelectionStyle:UITableViewCellSelectionStyleNone];
 					
 					cell.prompt.text = @"Reason";
 					cell.name.text = [instance getProperty:@"reason"];
 					break;
-				case 7:
+				case 9:
 					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:38] autorelease];
 					[cell setSelectionStyle:UITableViewCellSelectionStyleNone];					
 					
 					cell.prompt.text = @"Key";
 					cell.name.text = [instance getProperty:@"keyName"];
 					break;
-				case 8:
+				case 10:
 					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:48] autorelease];
 					[cell setSelectionStyle:UITableViewCellSelectionStyleNone];					
 					
 					cell.prompt.text = @"Index";
 					cell.name.text = [instance getProperty:@"amiLaunchIndex"];
 					break;
-				case 9:
+				case 11:
 					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:48] autorelease];
 					[cell setSelectionStyle:UITableViewCellSelectionStyleNone];					
 					
 					cell.prompt.text = @"Type";
 					cell.name.text = [instance getProperty:@"instanceType"];
 					break;
-				case 10:
+				case 12:
 					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:95] autorelease];
 					[cell setSelectionStyle:UITableViewCellSelectionStyleNone];					
 					
 					cell.prompt.text = @"Launch Time";
 					cell.name.text = [instance getProperty:@"launchTime"];
 					break;
-				case 11:
+				case 13:
 					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:48] autorelease];
 					[cell setSelectionStyle:UITableViewCellSelectionStyleNone];					
 					
 					cell.prompt.text = @"Zone";
 					cell.name.text = [instance getProperty:@"availabilityZone"];
 					break;
-				case 12:
+				case 14:
 					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:77] autorelease];
 					[cell setSelectionStyle:UITableViewCellSelectionStyleNone];					
 					
 					cell.prompt.text = @"Kernel ID";
 					cell.name.text = [instance getProperty:@"kernelId"];
 					break;
-				case 13:
+				case 15:
 					cell = [[[LabelCell alloc] initWithFrame:CGRectZero reuseIdentifier:@"DetailCell" inputOffset:85] autorelease];
 					[cell setSelectionStyle:UITableViewCellSelectionStyleNone];					
 					

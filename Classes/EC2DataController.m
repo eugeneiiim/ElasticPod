@@ -26,7 +26,7 @@
 	return [NSData dataWithBytes:md_value length:20];
 }
 
-- (NSString*) encodeBase64 {
+- (NSString*)encodeBase64 {
 	char* result;
 	int len = base64_encode_alloc([self bytes], [self length], &result);
 	return [NSString stringWithCString:result length:len];
@@ -69,7 +69,7 @@
 		count++;
 	}
 
-	[self executeRequest:@"TerminateInstances" args:args];
+	[self executeRequest:TERMINATE_INSTANCES args:args];
 }
 
 - (void)terminateInstanceGroup:(NSString*)grp {
@@ -85,7 +85,7 @@
 		count++;
 	}
 
-	[self executeRequest:@"RebootInstances" args:args];
+	[self executeRequest:REBOOT_INSTANCES args:args];
 }
 
 - (void)runInstances:(EC2Instance*)modelInstance n:(NSInteger)numInstances {
@@ -119,7 +119,7 @@
 		count++;
 	}
 
-	[self executeRequest:@"RunInstances" args:args];
+	[self executeRequest:RUN_INSTANCES args:args];
 }
 
 - (NSArray*)getInstanceGroups {
@@ -150,28 +150,44 @@ NSInteger strSort(id s1, id s2, void *context) {
 	return [s1 compare:s2];
 }
 
-- (void)executeRequest:(NSString*)action args:(NSDictionary*)args {
+- (void)executeRequest:(RequestType)req_type args:(NSDictionary*)args {
+	[self executeRequest:req_type args:args curInstanceId:nil curInstGroup:nil];
+}
+
+- (void)executeRequest:(RequestType)req_type args:(NSDictionary*)args curInstanceId:(NSString*)curinst
+		  curInstGroup:(NSString*)curinstgroup {
 	[rootViewController showLoadingScreen];
 
-	RequestType req_type;
-	if ([action compare:@"DescribeInstances"] == NSOrderedSame) {
-		req_type = DESCRIBE_INSTANCES;
-	} else if ([action compare:@"RebootInstances"] == NSOrderedSame) {
-		req_type = REBOOT_INSTANCES;
-	} else if ([action compare:@"TerminateInstances"] == NSOrderedSame) {
-		req_type = TERMINATE_INSTANCES;
-	} else if ([action compare:@"DescribeAvailabilityZones"] == NSOrderedSame) {		
-		req_type = DESCRIBE_AVAILABILITY_ZONES;
-	} else if ([action compare:@"DescribeKeyPairs"] == NSOrderedSame) {
-		req_type = DESCRIBE_KEY_PAIRS;
-	} else if ([action compare:@"RunInstances"] == NSOrderedSame) {
-		req_type = RUN_INSTANCES;
-	} else if ([action compare:@"DescribeSecurityGroups"] == NSOrderedSame) {
-		req_type = DESCRIBE_SECURITY_GROUPS;
-	} else {
-		NSLog(@"ERROR invalid request type!!! %@", action);
-		[rootViewController hideLoadingScreen];
-		return;
+	NSString* action;
+	switch (req_type) {
+		case DESCRIBE_INSTANCES:
+			action = @"DescribeInstances";
+			break;
+		case REBOOT_INSTANCES:
+			action = @"RebootInstances";
+			break;
+		case TERMINATE_INSTANCES:
+			action = @"TerminateInstances";
+			break;
+		case DESCRIBE_AVAILABILITY_ZONES:
+			action = @"DescribeAvailabilityZones";
+			break;
+		case DESCRIBE_KEY_PAIRS:
+			action = @"DescribeKeyPairs";
+			break;
+		case RUN_INSTANCES:
+			action = @"RunInstances";
+			break;
+		case DESCRIBE_SECURITY_GROUPS:
+			action = @"DescribeSecurityGroups";
+			break;
+		case GET_CONSOLE_OUTPUT:
+			action = @"GetConsoleOutput";
+			break;
+		default:
+			NSLog(@"ERROR invalid request type!!! %@", action);
+			[rootViewController hideLoadingScreen];
+			return;
 	}
 
 	NSDateFormatter* formatter = [[NSDateFormatter alloc] init];
@@ -194,11 +210,24 @@ NSInteger strSort(id s1, id s2, void *context) {
 	NSString* sig = [self generateSignature:req1 secret:account.secret_key];
 	NSString* url = [NSString stringWithFormat:@"https://ec2.amazonaws.com/?%@&Signature=%@", req1, sig];
 
+	
+	// take this out
+	if (req_type == DESCRIBE_INSTANCES)
+		url = @"http://localhost/~emarinel/x.xml";
+	
+	
 	NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
 									 timeoutInterval:20.0];
-	EC2RequestDelegate* req_delegate = [[EC2RequestDelegate alloc] init:self requestType:req_type];
 	
-	NSURLConnection *theConnection = [[NSURLConnection alloc] initWithRequest:req delegate:req_delegate];
+	EC2RequestDelegate* req_delegate;
+	if (req_type == GET_CONSOLE_OUTPUT) {
+		req_delegate = [[EC2RequestDelegate alloc] init2:self requestType:req_type instanceId:curinst groupId:curinstgroup];
+	} else {
+		req_delegate = [[EC2RequestDelegate alloc] init:self requestType:req_type];
+	}
+	
+	NSURLConnection *theConnection = [NSURLConnection connectionWithRequest:req delegate:req_delegate];
+	[req_delegate release];
 	if (!theConnection) {
 		self.instDataState = INSTANCE_DATA_NOT_READY;
 		[self.rootViewController hideLoadingScreen];
@@ -206,13 +235,11 @@ NSInteger strSort(id s1, id s2, void *context) {
 													   delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
 		[alert show];
 		[alert release];
-	} else {
-		[req_delegate release];
 	}
 }
 
 - (void)refreshInstanceData {
-	[self executeRequest:@"DescribeInstances" args:[[[NSDictionary alloc] init] autorelease]];
+	[self executeRequest:DESCRIBE_INSTANCES args:[[[NSDictionary alloc] init] autorelease]];
 }
 
 - (EC2Instance*)getInstance:(NSString*)group instanceId:(NSString*)inst_id {
@@ -262,7 +289,7 @@ NSInteger strSort(id s1, id s2, void *context) {
 }
 
 - (void)refreshAvailabilityZones {
-	[self executeRequest:@"DescribeAvailabilityZones" args:[[[NSDictionary alloc] init] autorelease]];
+	[self executeRequest:DESCRIBE_AVAILABILITY_ZONES args:[[[NSDictionary alloc] init] autorelease]];
 }
 
 - (NSArray*)getAvailabilityZones {
@@ -282,7 +309,7 @@ NSInteger strSort(id s1, id s2, void *context) {
 }
 
 - (void)refreshKeyNames {
-	[self executeRequest:@"DescribeKeyPairs" args:[[[NSDictionary alloc] init] autorelease]];
+	[self executeRequest:DESCRIBE_KEY_PAIRS args:[[[NSDictionary alloc] init] autorelease]];
 }
 
 - (void)setKeyNames:(NSArray*)newarr {
@@ -301,7 +328,7 @@ NSInteger strSort(id s1, id s2, void *context) {
 }
 
 - (void)refreshSecurityGroups {
-	[self executeRequest:@"DescribeSecurityGroups" args:[[[NSDictionary alloc] init] autorelease]];
+	[self executeRequest:DESCRIBE_SECURITY_GROUPS args:[[[NSDictionary alloc] init] autorelease]];
 }
 
 - (void)setSecurityGroups:(NSArray*)newarr {
@@ -309,6 +336,16 @@ NSInteger strSort(id s1, id s2, void *context) {
 		[securityGroups release];
 		securityGroups = [newarr mutableCopy];
 	}
+}
+
+- (void)refreshConsoleOutput:(NSString*)instanceId group:(NSString*)groupId {
+	[self executeRequest:GET_CONSOLE_OUTPUT args:[NSDictionary dictionaryWithObject:instanceId forKey:@"InstanceId"]
+				 curInstanceId:instanceId curInstGroup:groupId];
+}
+
+- (void)setConsoleOutput:(NSString*)text instanceId:(NSString*)instid groupId:(NSString*)group {
+	EC2Instance* inst = [self getInstance:group instanceId:instid];
+	inst.consoleOutput = text;
 }
 
 @end

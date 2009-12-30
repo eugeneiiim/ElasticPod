@@ -1,0 +1,43 @@
+
+/*-------------------------------------------------
+BODY
+-------------------------------------------------*/
+
+#content  {
+
+}
+
+#content .profile {
+	margin-bottom: 30px;
+	margin-left: 10px;
+}
+
+#content .profile .image {
+	border: 4px #ccc solid;
+	padding: 10px;
+}
+
+#content .profile .information {
+	vertical-align: top;
+	padding-left: 40px;
+}
+
+#content .profile .information h2 {
+	margin: 0;
+	padding: 0;
+	font-size: 2.2em;
+}
+
+#content .profile .information p {
+	margin-bottom: 5px;
+	font-size: 1.5em;
+}
+
+#content .profile .information ul {
+	list-style: none;
+}
+
+#content .profile .information li {
+	margin-bottom: 5px;
+	font-size: 1.1em;
+}

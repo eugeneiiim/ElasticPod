@@ -1,0 +1,124 @@
+/*-------------------------------------------------
+PAGE BODY
+-------------------------------------------------*/
+
+* {
+   padding:0;
+   margin:0;
+}
+
+h1, h2, h3, h4, h5, h6, p, blockquote,
+ form, label, ul, ol, dl, fieldset, address {
+    margin-bottom: 1em;
+}
+
+body {
+	margin: 0 auto;
+	padding: 0;
+	font-family: "Lucida Grande", verdana, arial, helvetica, sans-serif;
+	font-size: 76%;/* font sizing in ems, baby. if you want to change anything, just change this.*/
+	color: #333;
+	background: #fff;
+	width: 700px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* Make sure the table cells show the right font */
+td { font-family: "Lucida Grande", verdana, arial, helvetica, sans-serif; }
+
+
+/*-------------------------------------------------
+GLOBALS & GENERAL CASES
+-------------------------------------------------*/
+
+a {text-decoration: none; padding: 1px; }
+a:link { color: #003399; }
+a:visited { color: #9999cc; }
+a:hover { color: #bbb; text-decoration: none; }
+a img { border: 0; }
+
+ins {
+	background-color: #cfc;
+	text-decoration: none;
+}
+
+del {
+	color: #999;
+}
+
+code, pre	{
+	font-family: "Bitstream Vera Sans Mono", monaco, "Courier New", courier, monospace;
+	background: inherit;
+	font-size: 80%
+}
+
+	/*  Work around IE/Win code size bug - courtesy Jesper, waffle.wootest.net  */
+
+* html code	{
+	font-size : 105%; 
+}
+
+h1 {
+	font-size: 2.0em;
+	font-weight: normal;
+	margin-top: 0em;
+	margin-bottom: 0em;/*both set to zero and padding in header div is used intead to deal with compound ie pc problems that are beyound summary in a simple comment.*/
+	}
+h2 {
+	font-size: 1.7em;
+	margin: 1.2em 0em 1.2em 0em;
+	font-weight: normal;
+	}
+h3 {
+	font-size: 1.4em;
+	margin: 1.2em 0em 1.2em 0em;
+	font-weight: normal;
+	}
+h4 {
+	font-size: 1.2em;
+	margin: 1.2em 0em 1.2em 0em;
+	font-weight: bold;
+	}
+h5 {
+	font-size: 1.0em;
+	margin: 1.2em 0em 1.2em 0em;
+	font-weight: bold;
+	}
+h6 {
+	font-size: 0.8em;
+	margin: 1.2em 0em 1.2em 0em;
+	font-weight: bold;
+	}
+
+
+.smaller {
+	font-size: smaller;	width: 200px;
+}
+
+.pagenote {
+	color: #666;
+}
+
+.center {
+	text-align: center;
+}
+
+.highlight {
+	background-color: #ffc;
+}
+
+
+/*-------------------------------------------------
+STRUCTURE
+-------------------------------------------------*/
+
+.ClearAll {
+	padding: 0px;
+	clear: both;
+	font-size: 0px;
+}
+
+#wrap {
+	margin-top: 10px;
+}

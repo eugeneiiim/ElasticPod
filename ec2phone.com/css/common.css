@@ -1,0 +1,73 @@
+/*-------------------------------------------------
+STRUCTURE
+-------------------------------------------------*/
+
+
+
+/*-------------------------------------------------
+HEADER
+-------------------------------------------------*/
+
+#header {
+	padding-top: 50px;
+}
+
+#header h1 {	
+	padding-left: 20px;
+}
+
+#header h1 a {
+	display: block;
+	background: url('../images/sl_logo_w263.gif') no-repeat left;
+	width: 100%;
+	height: 80px;
+	text-indent: -3000px;
+}
+
+.navigation {
+	margin-top: 20px;
+	margin-bottom: 10px;
+	font-size: 1.2em;
+	border-top: 1px #ccc solid;
+	border-bottom: 1px #ccc solid;
+}
+
+.navigation li {
+	display: inline;
+	line-height: 200%;
+	list-style: none;
+	text-align: center;
+	white-space: nowrap;
+	margin-left: 15px;
+}
+
+/*-------------------------------------------------
+BODY
+-------------------------------------------------*/
+
+#content {
+
+}
+
+#content p {
+	font-size: 1.2em;
+	line-height: 1.6em;
+	text-align: justify;	
+}
+
+
+/*-------------------------------------------------
+FOOTER
+-------------------------------------------------*/
+
+#footer {
+	font-size: .9em;
+	text-align: right;
+	/*background-color: #EEEEEE;*/
+	padding-top: 5px;
+	padding-bottom: 5px;
+	margin-top: 30px;
+	margin-bottom: 2px;
+	padding-bottom: 0px;
+	border-top: 1px #eee solid;
+}
